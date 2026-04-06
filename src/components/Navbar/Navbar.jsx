@@ -7,7 +7,7 @@ import './Navbar.css';
  * Premium Navbar for STEMwise.
  * Responsive header with desktop links and mobile hamburger menu.
  */
-const Navbar = ({ isAuthenticated = false, user }) => {
+const Navbar = ({ isAuthenticated = false, user, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -31,17 +31,23 @@ const Navbar = ({ isAuthenticated = false, user }) => {
         <div className="sw-navbar-actions">
           {!isAuthenticated ? (
             <>
-              <Button variant="ghost" size="sm">Sign In</Button>
-              <Button variant="primary" size="sm">Start Free</Button>
+              <Button variant="ghost" size="sm" onClick={() => window.location.href = '/login'}>Sign In</Button>
+              <Button variant="primary" size="sm" onClick={() => window.location.href = '/signup'}>Start Free</Button>
             </>
           ) : (
             <div className="sw-user-profile">
               <span className="sw-user-name">{user?.name || 'User'}</span>
-              <div className="sw-user-avatar">
+              <div 
+                className="sw-user-avatar" 
+                title="Log Out" 
+                onClick={onLogout} 
+                style={{ cursor: 'pointer' }}
+              >
                 {user?.name?.charAt(0) || 'U'}
               </div>
             </div>
           )}
+
           
           <button 
             className="sw-mobile-toggle" 

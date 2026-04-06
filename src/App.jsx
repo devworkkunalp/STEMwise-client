@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
-import { Download, Plus, Info, Globe, Shield } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Download, Plus, Globe, Shield, LogIn } from 'lucide-react';
 
+// Auth & Services
+import { useAuth } from './context/AuthContext';
+import authService from './services/authService';
+import calculationService from './services/calculationService';
 
 // Atomic Components
 import Button from './components/Button/Button';
@@ -28,12 +32,14 @@ import TimelineStep from './components/TimelineStep/TimelineStep';
 import './index.css';
 
 function App() {
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loanValue, setLoanValue] = useState(45000);
   const [isLoading, setIsLoading] = useState(false);
+  const [roiResult, setRoiResult] = useState(null);
 
-  // Sample Data
+  // Sample Data (to be replaced by API calls in next phases)
   const comparisonData = [
     { name: 'USA', flag: '🇺🇸', roi: 124, cost: 85000, payback: 3.5, h1bChance: 28, isBest: 'roi' },
     { name: 'Germany', flag: '🇩🇪', roi: 98, cost: 12000, payback: 2.1, h1bChance: 85, isBest: 'payback' },
@@ -47,163 +53,147 @@ function App() {
     { id: 4, title: 'I-140 Greencard', status: 'Pending', duration: '5-10 Years', description: 'Permanent residency application.' },
   ];
 
-  const handleAsyncAction = () => {
+  const handleCalculateROI = async () => {
+    if (!isAuthenticated) {
+      alert("Please sign in to run calculations.");
+      return;
+    }
+    
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 2000);
+    try {
+      // Real API Call to .NET Backend
+      const result = await calculationService.calculateROI({
+        loanAmount: loanValue,
+        degreeType: 'MS CS',
+        country: 'USA'
+      });
+      setRoiResult(result);
+    } catch (error) {
+      console.error("Calculation failed", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const handleLogout = async () => {
+    await authService.signOut();
+  };
+
+  if (authLoading) return <LoadingSpinner fullPage message="Authenticating..." />;
 
   return (
     <div className="sw-app-root">
-      <Navbar isAuthenticated={true} user={{ name: 'Arjun Patil' }} />
+      <Navbar 
+        isAuthenticated={isAuthenticated} 
+        user={{ name: user?.email?.split('@')[0] || 'User' }} 
+        onLogout={handleLogout}
+      />
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       
       <main className="sw-main-content">
         <div className="container-premium animate-fade-in" style={{ paddingTop: '100px', paddingBottom: '100px' }}>
           
-          <header style={{ marginBottom: 'var(--space-12)' }}>
-            <Badge variant="excellent" style={{ marginBottom: 'var(--space-4)' }}>STEMwise UI-Kit v1.0</Badge>
-            <h1 className="text-gradient" style={{ fontSize: 'var(--fs-5xl)' }}>Component Gallery</h1>
-            <p className="text-secondary" style={{ maxWidth: '600px', marginTop: 'var(--space-2)' }}>
-              Explore the premium reusable components built for international student ROI analysis.
-            </p>
-          </header>
-
-          <AlertBanner type="success" title="Milestone 3 Complete" onClose={() => {}}>
-            All 15 shared components have been successfully built and integrated into the design system.
-          </AlertBanner>
-
-          {/* Section: Data Visuals */}
-          <section style={{ marginTop: 'var(--space-16)' }}>
-            <h2 style={{ marginBottom: 'var(--space-8)' }}>Data Visuals & Stats</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-8)' }}>
-              <div className="glass-panel glass-card flex-center" style={{ padding: 'var(--space-8)' }}>
-                <ROIScoreRing score={85} size={220} />
-              </div>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-                <StatCard 
-                  label="Average Yearly ROI" 
-                  value="12.4%" 
-                  trend="2.1%" 
-                  trendDirection="up" 
-                  subtitle="vs Global Avg" 
-                />
-                <StatCard 
-                  label="Payback Period" 
-                  value="3.8 Yrs" 
-                  trend="0.5" 
-                  trendDirection="down" 
-                  subtitle="Est. Debt Relief" 
-                />
-              </div>
-
-              <div className="glass-panel glass-card" style={{ padding: 'var(--space-8)' }}>
-                <h3>Progress Tracks</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)', marginTop: 'var(--space-6)' }}>
-                  <ProgressBar progress={65} label="Savings Goal" value="$32,500 / $50k" />
-                  <ProgressBar progress={30} label="Loan Repayment" value="$12k / $40k" variant="amber" />
-                  <ProgressBar progress={90} label="Visa Readiness" value="90% Complete" variant="teal" />
-                </div>
-              </div>
+          {!isAuthenticated ? (
+            <div className="flex-center" style={{ minHeight: '60vh', flexDirection: 'column', gap: 'var(--space-6)' }}>
+              <Badge variant="warning">Auth Required</Badge>
+              <h1 className="text-gradient">Unlock Financial Insights</h1>
+              <p className="text-secondary" style={{ maxWidth: '400px', textAlign: 'center' }}>
+                Sign in to access the STEMwise calculation engine and compare global ROI scenarios.
+              </p>
+              <Button variant="primary" icon={LogIn} onClick={() => window.location.href = '/login'}>
+                Go to Login
+              </Button>
             </div>
-          </section>
+          ) : (
+            <>
+              <header style={{ marginBottom: 'var(--space-12)' }}>
+                <Badge variant="excellent" style={{ marginBottom: 'var(--space-4)' }}>Connected to .NET Engine</Badge>
+                <h1 className="text-gradient" style={{ fontSize: 'var(--fs-5xl)' }}>Executive Dashboard</h1>
+                <p className="text-secondary" style={{ maxWidth: '600px', marginTop: 'var(--space-2)' }}>
+                  Real-time projections generated by your unique financial profile.
+                </p>
+              </header>
 
-          {/* Section: Complex Widgets */}
-          <section style={{ marginTop: 'var(--space-16)' }}>
-            <h2 style={{ marginBottom: 'var(--space-8)' }}>Compare & Pathway</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 'var(--space-8)' }}>
-              <ComparisonTable data={comparisonData} />
-              <div className="glass-panel glass-card" style={{ padding: 'var(--space-8)' }}>
-                <h3 style={{ marginBottom: 'var(--space-8)' }}>US Pathway Timeline</h3>
-                <TimelineStep steps={visaSteps} currentStepIndex={1} />
-              </div>
-            </div>
-          </section>
+              <AlertBanner type="info" title="Session Active">
+                Your credentials have been securely verified via Supabase. API tokens are auto-injected.
+              </AlertBanner>
 
-          {/* Section: Interaction Atoms */}
-          <section style={{ marginTop: 'var(--space-16)' }}>
-            <h2 style={{ marginBottom: 'var(--space-8)' }}>Interactive Atoms</h2>
-            <div className="glass-panel" style={{ padding: 'var(--space-8)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 'var(--space-12)' }}>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-                <h4>Buttons & Badges</h4>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
-                  <Button variant="primary" icon={Plus}>Calculate ROI</Button>
-                  <Button variant="outline" icon={Download}>Export Report</Button>
-                  <Button variant="secondary">Cancel</Button>
-                  <Button variant="ghost">Learn More</Button>
-                  <Button variant="primary" isLoading={isLoading} onClick={handleAsyncAction}>Async Action</Button>
+              {/* Data Visuals */}
+              <section style={{ marginTop: 'var(--space-16)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-8)' }}>
+                  <div className="glass-panel glass-card flex-center" style={{ padding: 'var(--space-8)' }}>
+                    <ROIScoreRing score={roiResult?.score || 72} size={220} />
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+                    <StatCard 
+                      label="Projected 10-Year ROI" 
+                      value={roiResult ? `$${roiResult.totalROI.toLocaleString()}` : "$--" } 
+                      trend="3.2%" 
+                      trendDirection="up" 
+                      subtitle="Net Career Value" 
+                    />
+                    <StatCard 
+                      label="Debt-Free Milestone" 
+                      value={roiResult ? `${roiResult.paybackYears} Yrs` : "--" } 
+                      trend="0.5" 
+                      trendDirection="down" 
+                      subtitle="Est. Payback Period" 
+                    />
+                  </div>
+
+                  <div className="glass-panel glass-card" style={{ padding: 'var(--space-8)' }}>
+                    <h3>Live Status</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)', marginTop: 'var(--space-6)' }}>
+                      <ProgressBar progress={65} label="Savings Goal" value="$32,500 / $50k" />
+                      <ProgressBar progress={roiResult ? 100 : 0} label="API Sync" value={roiResult ? "Synchronized" : "Stale"} variant="teal" />
+                    </div>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
-                  <Badge variant="excellent">Excellent</Badge>
-                  <Badge variant="good">Good</Badge>
-                  <Badge variant="warning">Moderate</Badge>
-                  <Badge variant="danger">High Risk</Badge>
+              </section>
+
+              {/* Interaction */}
+              <section style={{ marginTop: 'var(--space-16)' }}>
+                <div className="glass-panel" style={{ padding: 'var(--space-8)' }}>
+                  <h3 style={{ marginBottom: 'var(--space-6)' }}>Model New Scenario</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 'var(--space-12)' }}>
+                    <RangeSlider 
+                      label="Loan Amount" 
+                      min={10000} 
+                      max={150000} 
+                      value={loanValue} 
+                      onChange={(e) => setLoanValue(parseInt(e.target.value))} 
+                      prefix="$"
+                    />
+                    <div style={{ paddingTop: 'var(--space-4)' }}>
+                      <Button variant="primary" icon={Plus} fullWidth onClick={handleCalculateROI} isLoading={isLoading}>
+                        Calculate New ROI
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </section>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-                <h4>Inputs & Selection</h4>
-                <InputField 
-                  label="Target Annual Salary" 
-                  prefix="$" 
-                  placeholder="85,000" 
-                  hint="Enter expected starting salary post-graduation"
-                />
-                <SelectField 
-                  label="Select Destination" 
-                  options={[
-                    { value: 'usa', label: 'United States' },
-                    { value: 'can', label: 'Canada' },
-                    { value: 'ger', label: 'Germany' },
-                  ]} 
-                />
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-                <h4>Dynamic Sliders</h4>
-                <RangeSlider 
-                  label="Study Loan Amount" 
-                  min={10000} 
-                  max={150000} 
-                  step={500} 
-                  value={loanValue} 
-                  onChange={(e) => setLoanValue(parseInt(e.target.value))} 
-                  prefix="$"
-                />
-                <Button variant="outline" onClick={() => setIsModalOpen(true)}>Open Interaction Modal</Button>
-              </div>
-
-            </div>
-          </section>
-
+              {/* Pathway */}
+              <section style={{ marginTop: 'var(--space-16)' }}>
+                <h2 style={{ marginBottom: 'var(--space-8)' }}>Global Comparison</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 'var(--space-8)' }}>
+                  <ComparisonTable data={comparisonData} />
+                  <div className="glass-panel glass-card" style={{ padding: 'var(--space-8)' }}>
+                    <h3 style={{ marginBottom: 'var(--space-8)' }}>US Pathway Timeline</h3>
+                    <TimelineStep steps={visaSteps} currentStepIndex={1} />
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
         </div>
       </main>
 
-      {/* Global Elements */}
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        title="Adjust Scenarios"
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setIsModalOpen(false)}>Dismiss</Button>
-            <Button variant="primary" onClick={() => setIsModalOpen(false)}>Save Changes</Button>
-          </>
-        }
-      >
-        <p className="text-secondary" style={{ marginBottom: 'var(--space-6)' }}>
-          Modify the baseline assumptions for your ROI calculation below.
-        </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-          <InputField label="Living Expenses (Monthly)" prefix="$" placeholder="1,500" />
-          <RangeSlider label="Interest Rate" min={1} max={15} step={0.1} value={8.5} suffix="%" />
-        </div>
-      </Modal>
-
-      {isLoading && <LoadingSpinner fullPage message="Processing Financial Engine..." />}
+      {isLoading && <LoadingSpinner fullPage message="Querying .NET Engine..." />}
     </div>
   );
 }
 
 export default App;
+
