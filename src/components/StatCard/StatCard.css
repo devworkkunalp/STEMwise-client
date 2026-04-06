@@ -1,0 +1,62 @@
+.sw-stat-card {
+  padding: var(--space-6);
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sw-stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-4);
+}
+
+.sw-stat-label {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sw-stat-icon {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.sw-stat-value {
+  font-size: var(--fs-3xl);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.sw-stat-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sw-stat-trend {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.sw-stat-trend--up {
+  color: var(--color-teal);
+  background: rgba(45, 212, 191, 0.1);
+}
+
+.sw-stat-trend--down {
+  color: var(--color-coral);
+  background: rgba(251, 113, 133, 0.1);
+}
+
+.sw-stat-subtitle {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}

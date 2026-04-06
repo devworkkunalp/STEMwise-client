@@ -1,0 +1,72 @@
+.sw-comparison-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  padding: 0;
+}
+
+.sw-comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.sw-th-metric, .sw-td-metric {
+  padding: var(--space-6);
+  background: rgba(255, 255, 255, 0.02);
+  width: 240px;
+  min-width: 200px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-right: 1px solid var(--border-glass);
+}
+
+.sw-th-country {
+  padding: var(--space-6);
+  text-align: center;
+  min-width: 180px;
+}
+
+.sw-country-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sw-country-flag {
+  font-size: 2rem;
+}
+
+.sw-country-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sw-td-value {
+  padding: var(--space-6);
+  text-align: center;
+  border-bottom: 1px solid var(--border-glass);
+  font-size: var(--fs-lg);
+  color: var(--text-primary);
+  position: relative;
+}
+
+.sw-td-value.is-best {
+  background: rgba(45, 212, 191, 0.05);
+  color: var(--color-teal);
+  font-weight: 700;
+}
+
+.sw-best-icon {
+  position: absolute;
+  top: var(--space-6);
+  right: var(--space-4);
+  color: var(--color-teal);
+}
+
+.sw-comparison-table tbody tr:last-child .sw-td-value,
+.sw-comparison-table tbody tr:last-child .sw-td-metric {
+  border-bottom: none;
+}

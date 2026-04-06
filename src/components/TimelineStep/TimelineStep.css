@@ -1,0 +1,116 @@
+.sw-timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0);
+}
+
+.sw-timeline-item {
+  display: flex;
+  gap: var(--space-6);
+  min-height: 100px;
+}
+
+.sw-timeline-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.sw-timeline-node {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg-navy-light);
+  border: 2px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: var(--transition-fast);
+}
+
+.sw-node-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--text-muted);
+  border-radius: 50%;
+}
+
+.sw-node-check {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--bg-midnight);
+}
+
+.sw-timeline-line {
+  width: 2px;
+  background: var(--border-glass);
+  flex: 1;
+  margin: var(--space-1) 0;
+}
+
+.sw-timeline-content {
+  padding-bottom: var(--space-8);
+  flex: 1;
+}
+
+.sw-timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-1);
+}
+
+.sw-timeline-title {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.sw-timeline-duration {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.sw-timeline-desc {
+  font-size: var(--fs-sm);
+  line-height:1.5;
+}
+
+.sw-timeline-risk {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding: var(--space-2);
+  background: rgba(251, 191, 36, 0.05);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--color-amber);
+}
+
+/* Modifiers */
+.is-completed .sw-timeline-node {
+  background: var(--color-teal);
+  border-color: var(--color-teal);
+  box-shadow: 0 0 10px var(--color-teal-glow);
+}
+
+.is-completed .sw-timeline-line {
+  background: var(--color-teal);
+}
+
+.is-active .sw-timeline-node {
+  border-color: var(--color-teal);
+  background: var(--bg-midnight);
+}
+
+.is-active .sw-node-dot {
+  background: var(--color-teal);
+  box-shadow: 0 0 10px var(--color-teal);
+}
+
+.is-active .sw-timeline-title {
+  color: var(--color-teal);
+}

@@ -1,0 +1,87 @@
+.sw-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.sw-input-label {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.sw-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sw-input {
+  width: 100%;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  transition: var(--transition-fast);
+}
+
+.sw-input:focus {
+  outline: none;
+  border-color: var(--color-teal);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.1);
+}
+
+.sw-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Prefixes & Suffixes */
+.sw-input-prefix, .sw-input-suffix {
+  position: absolute;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  pointer-events: none;
+}
+
+.sw-input-prefix {
+  left: var(--space-4);
+}
+
+.sw-input-suffix {
+  right: var(--space-4);
+}
+
+.sw-input.has-prefix {
+  padding-left: calc(var(--space-4) + 1.2rem);
+}
+
+.sw-input.has-suffix {
+  padding-right: calc(var(--space-4) + 1.2rem);
+}
+
+/* Errors & Hints */
+.sw-input-error {
+  font-size: 11px;
+  color: var(--color-coral);
+  margin-top: 2px;
+}
+
+.sw-input-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.sw-input-group.has-error .sw-input {
+  border-color: var(--color-coral);
+}
+
+.sw-input-group.has-error .sw-input:focus {
+  box-shadow: 0 0 10px rgba(251, 113, 133, 0.1);
+}

@@ -1,0 +1,140 @@
+.sw-navbar {
+  position: fixed;
+  top: 0;
+  left: 280px;
+  width: calc(100% - 280px);
+  height: 80px;
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+  border-radius: 0;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  background: rgba(10, 17, 40, 0.8);
+}
+
+@media (max-width: 1024px) {
+  .sw-navbar {
+    left: 0;
+    width: 100%;
+  }
+}
+
+
+.sw-navbar-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.sw-navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.sw-logo-icon {
+  color: var(--color-teal);
+}
+
+.sw-logo-text {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.sw-navbar-links {
+  display: flex;
+  gap: var(--space-8);
+}
+
+.sw-nav-link {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.sw-nav-link:hover {
+  color: var(--color-teal);
+}
+
+.sw-navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.sw-mobile-toggle {
+  display: none;
+  color: var(--text-primary);
+}
+
+/* User Profile */
+.sw-user-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sw-user-name {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sw-user-avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--color-teal), var(--color-sky));
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: var(--bg-midnight);
+}
+
+/* Mobile Menu */
+.sw-mobile-menu {
+  position: absolute;
+  top: 80px;
+  left: 0;
+  width: 100%;
+  background: var(--bg-midnight);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-8);
+  gap: var(--space-6);
+  border-bottom: 1px solid var(--border-glass);
+}
+
+.sw-mobile-menu a {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+}
+
+.sw-mobile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sw-navbar-links {
+    display: none;
+  }
+  
+  .sw-mobile-toggle {
+    display: block;
+  }
+
+  .sw-navbar-actions > .sw-button {
+    display: none;
+  }
+}

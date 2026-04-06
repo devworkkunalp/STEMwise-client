@@ -1,0 +1,132 @@
+.sw-sidebar {
+  width: 280px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-8) var(--space-4);
+  border-radius: 0;
+  border-top: none;
+  border-left: none;
+  border-bottom: none;
+  z-index: 1100;
+  background: rgba(10, 17, 40, 0.95);
+}
+
+.sw-sidebar-header {
+  margin-bottom: var(--space-12);
+  padding: 0 var(--space-4);
+}
+
+.sw-user-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.sw-user-avatar {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--color-teal), var(--color-sky));
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  color: var(--bg-midnight);
+}
+
+.sw-user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.sw-user-name {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sw-user-status {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.sw-sidebar-nav {
+  flex: 1;
+}
+
+.sw-sidebar-menu {
+  list-style: none;
+}
+
+.sw-sidebar-item {
+  margin-bottom: var(--space-2);
+}
+
+.sw-sidebar-link {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: var(--fs-sm);
+  transition: var(--transition-fast);
+}
+
+.sw-sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+}
+
+.sw-sidebar-link.is-active {
+  background: rgba(45, 212, 191, 0.08);
+  color: var(--color-teal);
+  position: relative;
+}
+
+.sw-sidebar-link.is-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 20%;
+  height: 60%;
+  width: 3px;
+  background: var(--color-teal);
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 0 10px var(--color-teal);
+}
+
+.sw-sidebar-icon {
+  flex-shrink: 0;
+}
+
+.sw-sidebar-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border-glass);
+  padding-top: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.text-coral {
+  color: var(--color-coral);
+}
+
+.text-coral:hover {
+  background: rgba(251, 113, 133, 0.05);
+}
+
+/* Responsive Hide on Mobile */
+@media (max-width: 1024px) {
+  .sw-sidebar {
+    display: none;
+  }
+}

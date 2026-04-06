@@ -1,0 +1,64 @@
+.sw-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* Sizes */
+.sw-badge--sm {
+  height: 18px;
+  font-size: 10px;
+}
+
+.sw-badge--md {
+  height: 24px;
+  font-size: 11px;
+}
+
+.sw-badge--lg {
+  height: 30px;
+  padding: 0 var(--space-3);
+  font-size: 12px;
+}
+
+/* Variants */
+.sw-badge--default {
+  background: var(--bg-navy-light);
+  color: var(--text-secondary);
+}
+
+.sw-badge--excellent {
+  background: rgba(45, 212, 191, 0.1);
+  color: var(--color-teal);
+  border: 1px solid rgba(45, 212, 191, 0.2);
+}
+
+.sw-badge--good {
+  background: rgba(56, 189, 248, 0.1);
+  color: var(--color-sky);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.sw-badge--warning {
+  background: rgba(251, 191, 36, 0.1);
+  color: var(--color-amber);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+}
+
+.sw-badge--danger {
+  background: rgba(251, 113, 133, 0.1);
+  color: var(--color-coral);
+  border: 1px solid rgba(251, 113, 133, 0.2);
+}
+
+/* Rounded Pill Variant */
+.sw-badge--pill {
+  border-radius: var(--radius-full);
+}

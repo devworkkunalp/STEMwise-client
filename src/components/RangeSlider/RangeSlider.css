@@ -1,0 +1,95 @@
+.sw-range-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.sw-range-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.sw-range-label {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.sw-range-value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--color-teal);
+}
+
+.sw-range-wrapper {
+  position: relative;
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.sw-range-input {
+  position: absolute;
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  background: transparent;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.sw-range-input:focus {
+  outline: none;
+}
+
+/* Custom Thumb */
+.sw-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--text-primary);
+  border: 2px solid var(--color-teal);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.4);
+  transition: transform 0.1s ease-out;
+}
+
+.sw-range-input::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Track Visuals */
+.sw-range-track-bg {
+  position: absolute;
+  top: 7px;
+  width: 100%;
+  height: 6px;
+  background: var(--bg-navy-light);
+  border-radius: var(--radius-full);
+  z-index: 0;
+}
+
+.sw-range-track-fill {
+  position: absolute;
+  top: 7px;
+  height: 6px;
+  background: linear-gradient(90deg, var(--color-teal), var(--color-sky));
+  border-radius: var(--radius-full);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.sw-range-footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.sw-range-limit {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
