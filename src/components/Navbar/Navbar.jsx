@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, X, Rocket } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import Button from '../Button/Button';
 import './Navbar.css';
 
@@ -9,30 +10,35 @@ import './Navbar.css';
  */
 const Navbar = ({ isAuthenticated = false, user, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <nav className="sw-navbar glass-panel">
       <div className="container-premium sw-navbar-inner">
         {/* Logo */}
-        <div className="sw-navbar-logo">
+        <div 
+          className="sw-navbar-logo" 
+          onClick={() => navigate('/')} 
+          style={{ cursor: 'pointer' }}
+        >
           <Rocket className="sw-logo-icon" size={24} />
           <span className="sw-logo-text">STEM<span className="text-gradient">wise</span></span>
         </div>
 
         {/* Desktop Links */}
         <div className="sw-navbar-links">
-          <a href="#features" className="sw-nav-link">Features</a>
-          <a href="#compare" className="sw-nav-link">Compare</a>
-          <a href="#pricing" className="sw-nav-link">Pricing</a>
-          <a href="#blog" className="sw-nav-link">Blog</a>
+          <Link to="/" className="sw-nav-link">Features</Link>
+          <Link to="/" className="sw-nav-link">Compare</Link>
+          <Link to="/" className="sw-nav-link">Pricing</Link>
+          <Link to="/" className="sw-nav-link">Blog</Link>
         </div>
 
         {/* Auth Actions */}
         <div className="sw-navbar-actions">
           {!isAuthenticated ? (
             <>
-              <Button variant="ghost" size="sm" onClick={() => window.location.href = '/login'}>Sign In</Button>
-              <Button variant="primary" size="sm" onClick={() => window.location.href = '/signup'}>Start Free</Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>Sign In</Button>
+              <Button variant="primary" size="sm" onClick={() => navigate('/signup')}>Start Free</Button>
             </>
           ) : (
             <div className="sw-user-profile">
@@ -61,18 +67,19 @@ const Navbar = ({ isAuthenticated = false, user, onLogout }) => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="sw-mobile-menu animate-fade-in">
-          <a href="#features" onClick={() => setIsMenuOpen(false)}>Features</a>
-          <a href="#compare" onClick={() => setIsMenuOpen(false)}>Compare</a>
-          <a href="#pricing" onClick={() => setIsMenuOpen(false)}>Pricing</a>
-          <a href="#blog" onClick={() => setIsMenuOpen(false)}>Blog</a>
+          <Link to="/" onClick={() => setIsMenuOpen(false)}>Features</Link>
+          <Link to="/" onClick={() => setIsMenuOpen(false)}>Compare</Link>
+          <Link to="/" onClick={() => setIsMenuOpen(false)}>Pricing</Link>
+          <Link to="/" onClick={() => setIsMenuOpen(false)}>Blog</Link>
           <div className="sw-mobile-actions">
-            <Button variant="outline" fullWidth>Sign In</Button>
-            <Button variant="primary" fullWidth>Start Free</Button>
+            <Button variant="outline" fullWidth onClick={() => { navigate('/login'); setIsMenuOpen(false); }}>Sign In</Button>
+            <Button variant="primary" fullWidth onClick={() => { navigate('/signup'); setIsMenuOpen(false); }}>Start Free</Button>
           </div>
         </div>
       )}
     </nav>
   );
 };
+
 
 export default Navbar;
