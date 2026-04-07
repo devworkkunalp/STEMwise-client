@@ -29,8 +29,8 @@ const Sidebar = ({ activeTab, onTabChange, userName = 'Student', profile }) => {
     { id: 'calculator', label: 'ROI Calculator', icon: Calculator, path: '/calculator' },
     { id: 'compare', label: 'Country Compare', icon: Globe, path: '/compare' },
     { id: 'visa', label: 'Visa Pathway', icon: Shield, path: '/visa' },
-    { id: 'loan', label: 'Loan Simulator', icon: PiggyBank, path: '/dashboard' },
-    { id: 'scenarios', label: 'What-If Engine', icon: Zap, path: '/dashboard' },
+    { id: 'loan', label: 'Loan Simulator', icon: PiggyBank, path: '/loan' },
+    { id: 'scenarios', label: 'What-If Engine', icon: Zap, path: '/scenarios' },
   ];
 
 

@@ -35,6 +35,8 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import ROICalculator from './pages/ROICalculator/ROICalculator';
 import CountryCompare from './pages/CountryCompare/CountryCompare';
 import VisaPathway from './pages/VisaPathway/VisaPathway';
+import LoanSimulator from './pages/LoanSimulator/LoanSimulator';
+import WhatIfEngine from './pages/WhatIfEngine/WhatIfEngine';
 
 
 import './index.css';
@@ -127,6 +129,22 @@ function App() {
         element={
           <ProtectedRoute>
             <VisaPathway />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/loan" 
+        element={
+          <ProtectedRoute>
+            <LoanSimulator />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/scenarios" 
+        element={
+          <ProtectedRoute>
+            <WhatIfEngine />
           </ProtectedRoute>
         } 
       />
