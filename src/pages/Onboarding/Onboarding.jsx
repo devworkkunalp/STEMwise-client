@@ -1,28 +1,48 @@
-import React, { useState } from 'react';
-import { ChevronRight, ChevronLeft, Rocket, Globe, GraduationCap, Wallet, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  ChevronRight, 
+  ChevronLeft, 
+  Rocket, 
+  Globe, 
+  GraduationCap, 
+  Wallet, 
+  CheckCircle,
+  Building2,
+  Target,
+  ArrowRight,
+  TrendingUp,
+  Briefcase
+} from 'lucide-react';
 import Button from '../../components/Button/Button';
 import Badge from '../../components/Badge/Badge';
-import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import InputField from '../../components/InputField/InputField';
 import SelectField from '../../components/SelectField/SelectField';
 import RangeSlider from '../../components/RangeSlider/RangeSlider';
-import AlertBanner from '../../components/AlertBanner/AlertBanner';
 import profileService from '../../services/profileService';
+import { useAuth } from '../../context/AuthContext';
 import './Onboarding.css';
 
 const Onboarding = ({ onComplete }) => {
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const totalSteps = 5;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // New Design State
   const [formData, setFormData] = useState({
-    displayName: '',
-    degreeLevel: 1, // 1: Masters (MS) - Matching Enum
-    stemField: 'Computer Science',
-    targetCountry: 'USA',
+    nationality: 'India',
+    stemField: 'Computer Science / AI',
+    degreeLevel: 'Master\'s (MS/MEng)',
     university: '',
-    savings: 10000,
-    scholarship: 0,
-    loanInterest: 8.5
+    tuition: 45000,
+    livingCost: 18000,
+    loanAmount: 52000,
+    loanType: 'Federal Unsubsidized (7.94%)',
+    repaymentTerm: 10,
+    targetCity: 'New York City',
+    targetSalary: 115000,
+    currentSalary: 15000,
+    experienceYears: 2
   });
 
   const nextStep = () => setStep(s => Math.min(s + 1, totalSteps));
@@ -36,187 +56,267 @@ const Onboarding = ({ onComplete }) => {
     setIsSubmitting(true);
     try {
       await profileService.upsertProfile({
-        displayName: formData.displayName,
-        nationality: formData.targetCountry,
-        homeCurrency: 'INR',
+        displayName: user?.name || 'Student',
+        nationality: formData.nationality,
+        homeCurrency: formData.nationality === 'India' ? 'INR' : 'USD',
         stemField: formData.stemField,
-        degreeLevel: formData.degreeLevel,
+        degreeLevel: 1, // Default to MS
         intakeTerm: 'Fall 2026',
-        selectedUniversities: [] // Future: Link to University search
+        targetSalary: formData.targetSalary,
+        currentSalary: formData.currentSalary,
+        annualTuition: formData.tuition,
+        annualLivingCost: formData.livingCost,
+        loanAmount: formData.loanAmount
       });
       if (onComplete) onComplete();
     } catch (error) {
-      console.error("Onboarding submission failed", error);
+      console.error("Onboarding failed", error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Mock Live ROI Calculation for the Teaser
+  const liveROI = useMemo(() => {
+    const totalCost = (formData.tuition + formData.livingCost) * 2;
+    const payback = (totalCost / (formData.targetSalary * 0.4)).toFixed(1);
+    const score = Math.round(75 - (formData.loanAmount / 10000) * 2 + (formData.targetSalary / 10000));
+    return { score: Math.min(98, score), payback };
+  }, [formData]);
 
-  const renderStep = () => {
-    switch (step) {
-      case 1:
-        return (
-          <div className="onboarding-step-content animate-fade-in">
-            <GraduationCap className="step-icon text-gradient" size={48} />
-            <h2>Academic Identity</h2>
-            <p>Tell us about your educational background and goals.</p>
-            <div className="onboarding-form">
-              <InputField 
-                label="Display Name" 
-                placeholder="Arjun Patil" 
-                value={formData.displayName}
-                onChange={(e) => handleInputChange('displayName', e.target.value)}
-              />
-              <SelectField 
-                label="Planned Degree" 
-                options={[
-                  { value: 'Masters', label: 'Masters (MS)' },
-                  { value: 'PhD', label: 'Doctorate (PhD)' },
-                  { value: 'MBA', label: 'Business (MBA)' },
-                ]} 
-                value={formData.degreeLevel}
-                onChange={(e) => handleInputChange('degreeLevel', e.target.value)}
-              />
-              <InputField 
-                label="Field of Specialization" 
-                placeholder="e.g. Artificial Intelligence" 
-                value={formData.stemField}
-                onChange={(e) => handleInputChange('stemField', e.target.value)}
-              />
-            </div>
-          </div>
-        );
-      case 2:
-        return (
-          <div className="onboarding-step-content animate-fade-in">
-            <Globe className="step-icon text-gradient" size={48} />
-            <h2>Destination Goal</h2>
-            <p>Where do you see yourself studying?</p>
-            <div className="onboarding-grid">
-               {['usa', 'germany', 'canada', 'uk'].map(country => (
-                 <div 
-                   key={country} 
-                   className={`country-card ${formData.targetCountry === country ? 'active' : ''}`}
-                   onClick={() => handleInputChange('targetCountry', country)}
-                 >
-                   <span className="country-emoji">
-                     {country === 'usa' ? '🇺🇸' : country === 'germany' ? '🇩🇪' : country === 'canada' ? '🇨🇦' : '🇬🇧'}
-                   </span>
-                   <span className="country-name">{country.toUpperCase()}</span>
-                 </div>
-               ))}
-            </div>
-          </div>
-        );
-      case 3:
-        return (
-          <div className="onboarding-step-content animate-fade-in">
-            <Rocket className="step-icon text-gradient" size={48} />
-            <h2>University Selection</h2>
-            <p>Which institution are you targeting?</p>
-            <div className="onboarding-form">
-              <InputField 
-                label="University Name" 
-                placeholder="e.g. Stanford University" 
-                value={formData.university}
-                onChange={(e) => handleInputChange('university', e.target.value)}
-                hint="We'll use this to estimate your tuition costs."
-              />
-              <div className="info-box">
-                <p>💡 Tip: Top-tier universities often have higher initial costs but significantly higher ROI.</p>
-              </div>
-            </div>
-          </div>
-        );
-      case 4:
-        return (
-          <div className="onboarding-step-content animate-fade-in">
-            <Wallet className="step-icon text-gradient" size={48} />
-            <h2>Financial Profile</h2>
-            <p>Let's map out your budget and funding.</p>
-            <div className="onboarding-form">
-               <RangeSlider 
-                  label="Available Savings" 
-                  min={0} 
-                  max={100000} 
-                  value={formData.savings}
-                  onChange={(e) => handleInputChange('savings', parseInt(e.target.value))}
-                  prefix="$"
-               />
-               <RangeSlider 
-                  label="Expected Scholarship" 
-                  min={0} 
-                  max={50000} 
-                  value={formData.scholarship}
-                  onChange={(e) => handleInputChange('scholarship', parseInt(e.target.value))}
-                  prefix="$"
-               />
-               <RangeSlider 
-                  label="Anticipated Loan Interest" 
-                  min={1} 
-                  max={15} 
-                  step={0.1}
-                  value={formData.loanInterest}
-                  onChange={(e) => handleInputChange('loanInterest', parseFloat(e.target.value))}
-                  suffix="%"
-               />
-            </div>
-          </div>
-        );
-      case 5:
-        return (
-          <div className="onboarding-step-content animate-fade-in">
-            <CheckCircle className="step-icon text-gradient" size={48} />
-            <h2>Analysis Summary</h2>
-            <p>You're ready to unlock your career projections.</p>
-            <div className="summary-card glass-panel">
-              <div className="summary-item">
-                <span className="summary-label">Goal:</span>
-                <span className="summary-value">{formData.degreeLevel} in {formData.stemField}</span>
-              </div>
-              <div className="summary-item">
-                <span className="summary-label">Destination:</span>
-                <span className="summary-value">{formData.targetCountry.toUpperCase()}</span>
-              </div>
-              <div className="summary-item">
-                <span className="summary-label">Financials:</span>
-                <span className="summary-value">${formData.savings.toLocaleString()} Savings | {formData.loanInterest}% Interest</span>
-              </div>
-            </div>
-            <AlertBanner type="info" title="Final Step">
-              Your profile will be used to generate a 10-year ROI projection.
-            </AlertBanner>
-          </div>
-        );
-      default:
-        return null;
+  const stepInfo = {
+    1: { 
+        title: "Tell us about yourself", 
+        desc: "We use your nationality and field to benchmark against students with similar profiles.",
+        context: "Academic Profile"
+    },
+    2: { 
+        title: "Where are you heading?", 
+        desc: "Institution prestige and location significantly impact your first-year salary outcomes.",
+        context: "Destination Strategy"
+    },
+    3: { 
+        title: "How are you funding it?", 
+        desc: "We model your real repayment timeline, including interest, on your OPT salary.",
+        context: "Financial Plan"
+    },
+    4: { 
+        title: "Target Outcome", 
+        desc: "Living costs in hubs like NYC or SF require a higher salary buffer to maintain ROI.",
+        context: "Career Target"
+    },
+    5: { 
+        title: "Final Baseline", 
+        desc: "Your current opportunity cost is the #1 hidden expense of your STEM degree.",
+        context: "Wealth Summary"
     }
   };
 
+  const currentInfo = stepInfo[step];
+
   return (
-    <div className="onboarding-page-root">
-      <div className="onboarding-container glass-panel">
-        <div className="onboarding-header">
-          <Badge variant="excellent">Step {step} of {totalSteps}</Badge>
-          <ProgressBar progress={(step / totalSteps) * 100} height="6px" variant="teal" />
-        </div>
+    <div className="onboarding-2panel-root">
+      
+      {/* LEFT PANEL: Context & Intelligence */}
+      <div className="onboarding-left-panel">
+        <div className="panel-content animate-fade-in">
+          <span className="step-count-teal">
+            STEP {step} OF {totalSteps}
+          </span>
+          <h1 className="syne-headline">{currentInfo.title}</h1>
+          <p className="panel-desc">{currentInfo.desc}</p>
 
-        <div className="onboarding-body">
-          {renderStep()}
-        </div>
-
-        <div className="onboarding-footer">
-          {step > 1 && (
-            <Button variant="outline" icon={ChevronLeft} onClick={prevStep}>Back</Button>
-          )}
-          <div style={{ marginLeft: 'auto' }}>
-            {step < totalSteps ? (
-              <Button variant="primary" icon={ChevronRight} onClick={nextStep}>Next Step</Button>
-            ) : (
-              <Button variant="primary" icon={Rocket} onClick={handleSubmit} isLoading={isSubmitting}>Let's Go!</Button>
-            )}
+          <div className="live-preview-widget glass-panel">
+             <span className="live-tag">LIVE PREVIEW</span>
+             {step < 2 ? (
+               <div className="preview-placeholder">
+                  <div className="dash-row">
+                    <div className="dash is-active" />
+                    <div className="dash is-active" />
+                  </div>
+                  <p className="text-teal-muted">Complete setup to see your score</p>
+               </div>
+             ) : (
+               <div className="preview-metrics animate-slide-up">
+                  <div className="metric-main">
+                     <span className="metric-value">{liveROI.score}</span>
+                     <span className="metric-label">ROI Score</span>
+                  </div>
+                  <div className="metric-sub">
+                     Payback: <strong>{liveROI.payback} years</strong> at current inputs
+                  </div>
+               </div>
+             )}
           </div>
+        </div>
+        <div className="panel-footer-links">
+           <span className="text-teal-label">YOUR {currentInfo.context.toUpperCase()}</span>
+        </div>
+      </div>
+
+      {/* RIGHT PANEL: Focused Interaction */}
+      <div className="onboarding-right-panel">
+        <div className="form-container">
+          
+          {/* Progress Dashes */}
+          <div className="step-progress-dashes">
+             {[1,2,3,4,5].map(i => (
+               <div 
+                 key={i} 
+                 className={`dash ${i < step ? 'is-complete' : i === step ? 'is-active' : ''}`} 
+               />
+             ))}
+          </div>
+
+          <div className="form-content-area">
+             {step === 1 && (
+               <div className="form-step animate-fade-in">
+                  <SelectField 
+                    label="Home Country" 
+                    options={[{value: 'India', label: 'IN India'}, {value: 'China', label: 'CN China'}, {value: 'USA', label: 'US USA'}]} 
+                    value={formData.nationality}
+                    onChange={(e) => handleInputChange('nationality', e.target.value)}
+                  />
+                  <SelectField 
+                    label="STEM Field" 
+                    options={[{value: 'Computer Science / AI', label: 'Computer Science / AI'}, {value: 'Data Science', label: 'Data Science'}, {value: 'Mechanical Eng', label: 'Mechanical Engineering'}]} 
+                    value={formData.stemField}
+                    onChange={(e) => handleInputChange('stemField', e.target.value)}
+                  />
+                  <SelectField 
+                    label="Degree Level" 
+                    options={[{value: 'Master\'s (MS/MEng)', label: 'Master\'s (MS/MEng)'}, {value: 'PhD', label: 'Doctorate (PhD)'}]} 
+                    value={formData.degreeLevel}
+                    onChange={(e) => handleInputChange('degreeLevel', e.target.value)}
+                  />
+               </div>
+             )}
+
+             {step === 2 && (
+               <div className="form-step animate-fade-in">
+                  <InputField 
+                    label="Target University" 
+                    placeholder="e.g. Stanford University" 
+                    value={formData.university}
+                    onChange={(e) => handleInputChange('university', e.target.value)}
+                  />
+                  <div className="grid-2">
+                    <InputField 
+                        label="Annual Tuition (USD)" 
+                        type="number" 
+                        value={formData.tuition}
+                        onChange={(e) => handleInputChange('tuition', parseInt(e.target.value))}
+                    />
+                    <InputField 
+                        label="Living Cost (USD)" 
+                        type="number" 
+                        value={formData.livingCost}
+                        onChange={(e) => handleInputChange('livingCost', parseInt(e.target.value))}
+                    />
+                  </div>
+               </div>
+             )}
+
+             {step === 3 && (
+               <div className="form-step animate-fade-in">
+                  <div className="label-with-value">
+                     <span className="field-label">Loan Amount</span>
+                     <span className="field-value">${formData.loanAmount.toLocaleString()}</span>
+                  </div>
+                  <RangeSlider 
+                    min={0} max={150000} step={1000} 
+                    value={formData.loanAmount}
+                    onChange={(e) => handleInputChange('loanAmount', parseInt(e.target.value))}
+                  />
+                  <SelectField 
+                    label="Loan Type" 
+                    options={[
+                        {value: 'Federal Unsubsidized (7.94%)', label: 'Federal Unsubsidized (7.94%)'},
+                        {value: 'Private - No Cosigner (10.5%)', label: 'Private - No Cosigner (10.5%)'},
+                        {value: 'India-Based Collateral (9.2%)', label: 'India-Based Collateral (9.2%)'}
+                    ]} 
+                    value={formData.loanType}
+                    onChange={(e) => handleInputChange('loanType', e.target.value)}
+                  />
+                  <SelectField 
+                    label="Repayment Term" 
+                    options={[{value: 10, label: '10 Years'}, {value: 15, label: '15 Years'}]} 
+                    value={formData.repaymentTerm}
+                    onChange={(e) => handleInputChange('repaymentTerm', parseInt(e.target.value))}
+                  />
+               </div>
+             )}
+
+             {step === 4 && (
+                <div className="form-step animate-fade-in">
+                   <SelectField 
+                    label="Target Metro Area" 
+                    options={[{value: 'New York City', label: 'New York City'}, {value: 'San Francisco', label: 'San Francisco / SV'}, {value: 'Austin', label: 'Austin, TX'}]} 
+                    value={formData.targetCity}
+                    onChange={(e) => handleInputChange('targetCity', e.target.value)}
+                  />
+                  <div className="label-with-value">
+                     <span className="field-label">Target Salary</span>
+                     <span className="field-value">${formData.targetSalary.toLocaleString()}</span>
+                  </div>
+                   <RangeSlider 
+                    min={60000} max={250000} step={5000} 
+                    value={formData.targetSalary}
+                    onChange={(e) => handleInputChange('targetSalary', parseInt(e.target.value))}
+                  />
+                </div>
+             )}
+
+             {step === 5 && (
+                <div className="form-step animate-fade-in">
+                   <InputField 
+                        label="Current Salary (INR/Local)" 
+                        type="number" 
+                        value={formData.currentSalary}
+                        onChange={(e) => handleInputChange('currentSalary', parseInt(e.target.value))}
+                        hint="Used to calculate your degree opportunity cost."
+                    />
+                    <SelectField 
+                        label="Work Experience" 
+                        options={[{value: 2, label: '2-4 Years (Intermediate)'}, {value: 5, label: '5+ Years (Senior)'}, {value: 0, label: 'Fresher'}]} 
+                        value={formData.experienceYears}
+                        onChange={(e) => handleInputChange('experienceYears', parseInt(e.target.value))}
+                    />
+                </div>
+             )}
+          </div>
+
+          <div className="form-actions-footer">
+             {step === 5 ? (
+               <Button 
+                variant="primary" 
+                size="lg" 
+                fullWidth 
+                className="btn-onboarding-teal"
+                onClick={handleSubmit}
+                isLoading={isSubmitting}
+               >
+                  Generate My Vision
+               </Button>
+             ) : (
+               <Button 
+                variant="primary" 
+                size="lg" 
+                fullWidth 
+                className="btn-onboarding-teal"
+                onClick={nextStep}
+               >
+                  Continue →
+               </Button>
+             )}
+             
+             {step > 1 && (
+               <button className="btn-onboarding-back" onClick={prevStep}>
+                  Back to previous step
+               </button>
+             )}
+          </div>
+
         </div>
       </div>
     </div>

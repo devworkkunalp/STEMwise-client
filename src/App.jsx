@@ -37,6 +37,7 @@ import CountryCompare from './pages/CountryCompare/CountryCompare';
 import VisaPathway from './pages/VisaPathway/VisaPathway';
 import LoanSimulator from './pages/LoanSimulator/LoanSimulator';
 import WhatIfEngine from './pages/WhatIfEngine/WhatIfEngine';
+import LandingPage from './pages/LandingPage/LandingPage';
 
 
 import './index.css';
@@ -58,38 +59,9 @@ function App() {
 
   if (authLoading) return <LoadingSpinner fullPage message="Verifying session..." />;
 
-  /**
-   * Landing Page / Protected Entry Point Component
-   */
-  const LandingOrRedirect = () => {
-    if (isAuthenticated) {
-      if (!profile) return <Navigate to="/onboarding" replace />;
-      return <Navigate to="/dashboard" replace />;
-    }
-    return (
-      <div className="sw-app-root">
-        <Navbar isAuthenticated={false} onLogout={handleLogout} />
-        <main className="sw-main-content" style={{ marginLeft: 0, width: '100%' }}>
-          <div className="container-premium animate-fade-in" style={{ paddingTop: '100px' }}>
-            <div className="flex-center" style={{ minHeight: '60vh', flexDirection: 'column', gap: 'var(--space-6)' }}>
-              <Badge variant="warning">Auth Required</Badge>
-              <h1 className="text-gradient">Unlock Financial Insights</h1>
-              <p className="text-secondary" style={{ maxWidth: '400px', textAlign: 'center' }}>
-                Sign in to access the STEMwise calculation engine and compare global ROI scenarios.
-              </p>
-              <Button variant="primary" icon={LogIn} onClick={() => navigate('/login')}>
-                Go to Login
-              </Button>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  };
-
   return (
     <Routes>
-      <Route path="/" element={<LandingOrRedirect />} />
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route 
