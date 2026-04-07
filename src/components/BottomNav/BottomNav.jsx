@@ -6,7 +6,7 @@ import {
   Shield, 
   Zap 
 } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './BottomNav.css';
 
 /**
@@ -15,13 +15,14 @@ import './BottomNav.css';
  */
 const BottomNav = ({ activeTab, onTabChange }) => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
-    { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
-    { id: 'calculator', label: 'ROI', icon: Calculator },
-    { id: 'compare', label: 'Compare', icon: Globe },
-    { id: 'visa', label: 'Visa', icon: Shield },
-    { id: 'scenarios', label: 'What-If', icon: Zap },
+    { id: 'dashboard', label: 'Home', icon: LayoutDashboard, path: '/dashboard' },
+    { id: 'calculator', label: 'ROI', icon: Calculator, path: '/calculator' },
+    { id: 'compare', label: 'Compare', icon: Globe, path: '/dashboard' },
+    { id: 'visa', label: 'Visa', icon: Shield, path: '/dashboard' },
+    { id: 'scenarios', label: 'What-If', icon: Zap, path: '/dashboard' },
   ];
 
   return (
@@ -30,11 +31,15 @@ const BottomNav = ({ activeTab, onTabChange }) => {
         <button 
           key={item.id}
           className={`sw-bottom-nav-item ${activeTab === item.id ? 'is-active' : ''}`}
-          onClick={() => onTabChange && onTabChange(item.id)}
+          onClick={() => {
+            if (onTabChange) onTabChange(item.id);
+            navigate(item.path);
+          }}
         >
           <item.icon size={20} />
           <span>{item.label}</span>
         </button>
+
       ))}
     </nav>
   );

@@ -9,26 +9,47 @@ export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isFetchingProfile = React.useRef(false);
 
-  const refreshProfile = async (userId) => {
+  const refreshProfile = async (userId, force = false) => {
+    // If already fetching or already have profile for this user, skip (unless forced)
+    if ((isFetchingProfile.current || (profile && user?.id === userId)) && !force) {
+      return;
+    }
+
+    isFetchingProfile.current = true;
+    
+    // Safety timeout: don't let a slow API hang the whole app initialization
+    const timeout = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Profile fetch timeout")), 5000)
+    );
+
     try {
-      const data = await profileService.getMyProfile();
+      const data = await Promise.race([
+        profileService.getMyProfile(),
+        timeout
+      ]);
       setProfile(data);
     } catch (err) {
-      console.warn("No profile found for user yet.");
-      setProfile(null);
+      console.warn("Profile unavailable or timeout:", err.message);
+      // Don't set profile to null if it's just a timeout/network error on a retry
+      if (!profile) setProfile(null);
+    } finally {
+      isFetchingProfile.current = false;
     }
   };
+
 
   useEffect(() => {
     const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         setSession(session);
-        setUser(session?.user ?? null);
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
         
-        if (session?.user) {
-          await refreshProfile(session.user.id);
+        if (currentUser) {
+          await refreshProfile(currentUser.id);
         }
       } catch (err) {
         console.error("Critical session check failure:", err);
@@ -40,13 +61,16 @@ export const AuthProvider = ({ children }) => {
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      const currentUser = session?.user ?? null;
       
-      if (session?.user) {
-        await refreshProfile(session.user.id);
-      } else {
+      setSession(session);
+      setUser(currentUser);
+      
+      // Only fetch profile on specific events to avoid the refresh loop
+      if (currentUser && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        await refreshProfile(currentUser.id);
+      } else if (!currentUser) {
         setProfile(null);
       }
       

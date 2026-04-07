@@ -100,22 +100,23 @@ const Dashboard = () => {
   const displayName = profile?.displayName || user?.email?.split('@')[0] || 'Student';
 
   return (
-    <div className="dashboard-page-root animate-fade-in">
+    <div className="sw-app-root">
       <Navbar 
         isAuthenticated={true} 
         user={{ name: displayName }} 
         onLogout={() => {}} // Logout handled in App level navigation
       />
       
-      <Sidebar 
-        activeTab={activeTab} 
-        onTabChange={setActiveTab} 
-        userName={displayName}
-        profile={profile}
-      />
+      <div className="dashboard-page-root">
+        <Sidebar 
+          activeTab={activeTab} 
+          onTabChange={setActiveTab} 
+          userName={displayName}
+          profile={profile}
+        />
 
-      <main className="dashboard-main">
-        <div className="dashboard-content">
+        <main className="dashboard-main">
+          <div className="dashboard-content animate-fade-in">
           
           {/* T11.2 Greeting Header */}
           <header className="dashboard-header animate-slide-up">
@@ -225,10 +226,11 @@ const Dashboard = () => {
 
         </div>
       </main>
-
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-      {isLoading && <LoadingSpinner fullPage message="Querying .NET Analytics Engine..." />}
     </div>
+
+    <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+    {isLoading && <LoadingSpinner fullPage message="Querying .NET Analytics Engine..." />}
+  </div>
   );
 };
 

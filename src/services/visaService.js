@@ -1,32 +1,47 @@
 import api from './api';
 
 /**
- * STEMwise Visa & Pathway Service
- * Communicates with the .NET backend for visa policy and loan scenario data.
+ * STEMwise Visa Service
+ * Handles immigration probability and employer sponsorship data.
  */
 const visaService = {
   /**
-   * get the visa pathway timeline and risk assessment for a specific country.
+   * Calculates cumulative H-1B success probability.
    */
-  async getPathway(countryCode) {
+  async getVisaProbability(payload) {
     try {
-      const response = await api.get(`/visa/pathway/${countryCode}`);
+      const response = await api.post('/calculation/visa', payload);
       return response.data;
     } catch (error) {
-      console.error(`Error fetching visa pathway for ${countryCode}:`, error);
+      console.error('Error fetching visa probability:', error);
       throw error;
     }
   },
 
   /**
-   * get the updated loan scenario based on interest rate and loan amount.
+   * Fetches top H-1B sponsors for a given metro area.
    */
-  async getLoanScenario(payload) {
+  async getTopSponsors(metro) {
     try {
-      const response = await api.post('/visa/loan-scenario', payload);
+      const response = await api.get(`/salary/h1b-employers`, {
+        params: { metro }
+      });
       return response.data;
     } catch (error) {
-      console.error('Error fetching loan scenario:', error);
+      console.error('Error fetching top sponsors:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Fetches historical H-1B statistics.
+   */
+  async getH1BStats() {
+    try {
+      const response = await api.get('/salary/h1b-stats');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching H-1B stats:', error);
       throw error;
     }
   }

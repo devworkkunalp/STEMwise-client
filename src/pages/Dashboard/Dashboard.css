@@ -1,19 +1,21 @@
 .dashboard-page-root {
-  min-height: 100vh;
   display: flex;
+  min-height: calc(100vh - 80px); /* 80px Navbar height */
   background-color: var(--bg-midnight);
+  padding-top: 80px; /* Offset for fixed Navbar */
 }
 
 .dashboard-main {
   flex: 1;
   margin-left: 280px; /* Sidebar width */
+  width: calc(100% - 280px);
   padding-bottom: var(--space-20);
 }
 
 .dashboard-content {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 100px var(--space-8) var(--space-20);
+  padding: var(--space-8) var(--space-8) var(--space-20);
 }
 
 .dashboard-header {

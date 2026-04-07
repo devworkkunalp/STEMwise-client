@@ -26,12 +26,13 @@ const Sidebar = ({ activeTab, onTabChange, userName = 'Student', profile }) => {
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { id: 'calculator', label: 'ROI Calculator', icon: Calculator, path: '/dashboard' },
-    { id: 'compare', label: 'Country Compare', icon: Globe, path: '/dashboard' },
-    { id: 'visa', label: 'Visa Pathway', icon: Shield, path: '/dashboard' },
+    { id: 'calculator', label: 'ROI Calculator', icon: Calculator, path: '/calculator' },
+    { id: 'compare', label: 'Country Compare', icon: Globe, path: '/compare' },
+    { id: 'visa', label: 'Visa Pathway', icon: Shield, path: '/visa' },
     { id: 'loan', label: 'Loan Simulator', icon: PiggyBank, path: '/dashboard' },
     { id: 'scenarios', label: 'What-If Engine', icon: Zap, path: '/dashboard' },
   ];
+
 
   // T11.7: Nationality Flag Helper
   const getFlag = (country) => {
@@ -83,11 +84,15 @@ const Sidebar = ({ activeTab, onTabChange, userName = 'Student', profile }) => {
               <li key={item.id} className="sw-sidebar-item">
                 <button 
                   className={`sw-sidebar-link ${isActive ? 'is-active' : ''}`}
-                  onClick={() => onTabChange && onTabChange(item.id)}
+                  onClick={() => {
+                    if (onTabChange) onTabChange(item.id);
+                    navigate(item.path);
+                  }}
                 >
                   <item.icon size={18} className="sw-sidebar-icon" />
                   <span className="sw-sidebar-label">{item.label}</span>
                 </button>
+
               </li>
             );
           })}

@@ -32,6 +32,10 @@ import Onboarding from './pages/Onboarding/Onboarding';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/Signup';
 import Dashboard from './pages/Dashboard/Dashboard';
+import ROICalculator from './pages/ROICalculator/ROICalculator';
+import CountryCompare from './pages/CountryCompare/CountryCompare';
+import VisaPathway from './pages/VisaPathway/VisaPathway';
+
 
 import './index.css';
 
@@ -102,6 +106,31 @@ function App() {
           </ProtectedRoute>
         } 
       />
+      <Route 
+        path="/calculator" 
+        element={
+          <ProtectedRoute>
+            <ROICalculator />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/compare" 
+        element={
+          <ProtectedRoute>
+            <CountryCompare />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/visa" 
+        element={
+          <ProtectedRoute>
+            <VisaPathway />
+          </ProtectedRoute>
+        } 
+      />
+
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -109,4 +138,5 @@ function App() {
 }
 
 export default App;
+
 
