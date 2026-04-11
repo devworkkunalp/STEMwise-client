@@ -175,6 +175,52 @@
   color: var(--color-teal);
 }
 
+/* Metrics Grid */
+.metrics-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-12);
+}
+
+.metric-detail-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.metric-detail-card .m-label {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.metric-detail-card .m-values {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.m-base {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.m-adj {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  font-family: var(--font-mono);
+}
+
 /* Narrative Box */
 .analysis-narrative-box {
   background: rgba(255, 255, 255, 0.02);

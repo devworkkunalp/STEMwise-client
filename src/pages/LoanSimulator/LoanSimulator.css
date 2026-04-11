@@ -108,6 +108,71 @@
   gap: var(--space-4);
 }
 
+/* Interest Toggle */
+.interest-toggle-box {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.interest-toggle-box .input-label {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  letter-spacing: 0.5px;
+}
+
+.interest-toggle-box .input-help {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: var(--space-2);
+  opacity: 0.7;
+}
+
+.custom-switch {
+  width: 36px;
+  height: 20px;
+  background: var(--navy4);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.custom-switch.is-on {
+  background: var(--color-teal);
+}
+
+.switch-handle {
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.2s ease;
+}
+
+.custom-switch.is-on .switch-handle {
+  transform: translateX(16px);
+}
+
+/* Gap Alert */
+.gap-alert-mini {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  color: var(--color-coral);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+  margin-bottom: var(--space-4);
+}
+
 /* Results Section */
 .loan-card-results {
   background: rgba(45, 212, 191, 0.03);

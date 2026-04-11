@@ -90,28 +90,30 @@ const WhatIfEngine = () => {
 
   if (authLoading && !profile) return <LoadingSpinner fullPage message="Securely retrieving your risk scenarios..." />;
 
-  const selectScenario = (s) => {
+  const selectScenario = async (s) => {
+    if (!profile) return;
+    setIsLoading(true);
     setSelectedScenario(s);
-    const result = scenarioService.modelScenario(baseROI, s.id);
-    setModeledResult(result);
-    
-    // Scroll to detail smoothly
-    setTimeout(() => {
-        const detail = document.getElementById('scenario-detail-view');
-        if (detail) detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
+    try {
+      const result = await scenarioService.modelScenario(profile.id, s.id);
+      setModeledResult(result);
+      
+      // Scroll to detail smoothly
+      setTimeout(() => {
+          const detail = document.getElementById('scenario-detail-view');
+          if (detail) detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    } catch (err) {
+      console.error("Modeling failed", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const saveScenarioResult = async () => {
     if (!modeledResult) return;
     try {
-      await scenarioService.saveScenario({
-        profileId: profile.id,
-        scenarioType: modeledResult.typeName,
-        baseRoi: Math.round(baseROI?.roiPercentage || 0),
-        adjustedRoi: Math.round(modeledResult?.roiPercentage || 0),
-        impactDelta: Math.round(modeledResult?.impactScore || 0)
-      });
+      await scenarioService.saveScenario(modeledResult);
       alert("Scenario saved to your profile history!");
     } catch (err) {
       console.error("Save failed", err);
@@ -174,64 +176,55 @@ const WhatIfEngine = () => {
                  <div className="analysis-metrics-row">
                     <div className="delta-card base-delta">
                        <span className="delta-label">Base ROI</span>
-                       <span className="delta-value">{Math.round(baseROI?.roiPercentage || 0)}%</span>
+                       <span className="delta-value">{Math.round(modeledResult?.baseRoi || 0)}%</span>
                     </div>
                     <div className="delta-arrow">
                        <ArrowRight size={32} className={(modeledResult?.impactScore || 0) < 0 ? 'text-coral' : 'text-teal'} />
                        <span className={`impact-badge ${(modeledResult?.impactScore || 0) < 0 ? 'bg-coral' : 'bg-teal'}`}>
-                          {(modeledResult?.impactScore || 0) > 0 ? '+' : ''}{modeledResult?.impactScore || 0}
+                          {(modeledResult?.impactScore || 0) > 0 ? '+' : ''}{Math.round(modeledResult?.impactScore || 0)}
                        </span>
                     </div>
                     <div className={`delta-card adjusted-delta ${(modeledResult?.impactScore || 0) < 0 ? 'is-negative' : 'is-positive'}`}>
                        <span className="delta-label">Adjusted ROI</span>
-                       <span className="delta-value">{Math.round(modeledResult?.roiPercentage || 0)}%</span>
+                       <span className="delta-value">{Math.round(modeledResult?.adjustedRoi || 0)}%</span>
                     </div>
+                 </div>
+
+                 {/* New Metrics Table */}
+                 <div className="metrics-detail-grid">
+                    {modeledResult.metrics?.map((m, idx) => (
+                       <div key={idx} className="metric-detail-card">
+                          <span className="m-label">{m.label}</span>
+                          <div className="m-values">
+                             <span className="m-base">{m.baseValue}</span>
+                             <ArrowRight size={12} className="text-muted" />
+                             <span className={`m-adj ${m.isNegative ? 'text-coral' : 'text-teal'}`}>{m.adjustedValue}</span>
+                          </div>
+                       </div>
+                    ))}
                  </div>
 
                  <div className="analysis-narrative-box">
                     <div className="narrative-icon text-amber"><AlertTriangle size={20} /></div>
                     <div className="narrative-content">
                        <h4>Strategic Risk Assessment</h4>
-                       <p className="text-secondary">
-                          {selectedScenario.id === 'H1B_DENIED' && "Returning to India after 3 years cuts your 10-year repayment window by 70%. Your ROI score drops heavily because you lose out on year 5-10 of cumulative USD savings, which is when the highest growth occurs."}
-                          {selectedScenario.id === 'RECESSION' && "A 20% salary cut delays your break-even milestone by roughly 1.4 years. While the degree is still profitable, the 'Excellent ROI' threshold is lost."}
-                          {selectedScenario.id === 'CURRENCY_CRASH' && "A 20% devalation of the INR during your first 5 years makes your US-denominated loan significantly more expensive to repay if your family is providing house/collateral fallback."}
-                          {selectedScenario.id === 'LEVEL_3_PROMO' && "Moving into Level III prioritization virtually guarantees H-1B selection in today's wage-based climate. This secures your 10-year path and significantly raises your projected lifetime earnings."}
-                          {/* Generic fallback for others if needed */}
-                          {['STUDY_DELAY', 'OPT_GAP'].includes(selectedScenario.id) && "Delays in study or employment have a compounding negative effect on ROI due to increased interest accrual and lost opportunity cost of early earnings."}
-                       </p>
+                       <p className="text-secondary">{modeledResult.narrative}</p>
                     </div>
                  </div>
 
                  <div className="pivot-pathways-row">
                     <h3 className="dashboard-section-title"><Target size={20} className="text-teal" /> Recommended Pivots</h3>
                     <div className="pivot-grid">
-                       <div className="pivot-item glass-card">
-                          <div className="pivot-icon bg-sky"><Globe size={18} /></div>
-                          <div className="pivot-info">
-                             <span className="pivot-name">Canada Express Entry</span>
-                             <span className="pivot-roi">ROI: 68% (Low Risk)</span>
-                          </div>
-                          <ChevronRight size={14} className="text-muted" />
-                       </div>
-                       
-                       <div className="pivot-item glass-card">
-                          <div className="pivot-icon bg-amber"><Badge variant="teal" style={{ padding: 0 }}><span style={{ fontSize: '10px' }}>O-1</span></Badge></div>
-                          <div className="pivot-info" style={{ marginLeft: 'var(--space-3)' }}>
-                             <span className="pivot-name">Talent-Based Pivot</span>
-                             <span className="pivot-roi">ROI: 84% (High Bar)</span>
-                          </div>
-                          <ChevronRight size={14} className="text-muted" />
-                       </div>
-
-                       <div className="pivot-item glass-card">
-                          <div className="pivot-icon bg-coral"><TrendingDown size={18} /></div>
-                          <div className="pivot-info">
-                             <span className="pivot-name">Home Market Return</span>
-                             <span className="pivot-roi">ROI: 32% (Stability)</span>
-                          </div>
-                          <ChevronRight size={14} className="text-muted" />
-                       </div>
+                       {modeledResult.recommendedPivots?.map((p, idx) => (
+                         <div key={idx} className="pivot-item glass-card">
+                            <div className="pivot-icon bg-sky"><Globe size={18} /></div>
+                            <div className="pivot-info">
+                               <span className="pivot-name">{p.name}</span>
+                               <span className="pivot-roi">ROI: {p.roi} ({p.riskLevel} Risk)</span>
+                            </div>
+                            <ChevronRight size={14} className="text-muted" />
+                         </div>
+                       ))}
                     </div>
                  </div>
               </section>

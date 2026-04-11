@@ -42,6 +42,7 @@ const LoanSimulator = () => {
       rate: 7.9,
       tenure: 10,
       grace: 6,
+      isCapitalized: true,
       result: null
     },
     {
@@ -51,6 +52,7 @@ const LoanSimulator = () => {
       rate: 11.5,
       tenure: 10,
       grace: 24,
+      isCapitalized: true,
       result: null
     }
   ]);
@@ -59,22 +61,34 @@ const LoanSimulator = () => {
 
   // Calculate comparisons
   const runSimulation = async () => {
+    if (!profile) return;
     setIsLoading(true);
     try {
+      // Total degree cost for gap detection (e.g. 2 years * (tuition + living))
+      const totalCost = (profile.annualTuition + profile.annualLivingCost) * (profile.programDurationYears || 2);
+
       const updatedLoans = await Promise.all(loans.map(async (loan) => {
         const res = await loanService.calculateLoan({
           principal: loan.principal,
-          interestRate: loan.rate,
-          termYears: loan.tenure,
-          gracePeriodMonths: loan.grace
+          annualInterestRate: loan.rate,
+          tenureYears: loan.tenure,
+          gracePeriodMonths: loan.grace,
+          isInterestCapitalized: loan.isCapitalized,
+          totalEstimatedCost: totalCost
         });
         return { ...loan, result: res };
       }));
       setLoans(updatedLoans);
       
-      // Generate chart data for the first loan (example)
-      if (updatedLoans[0]?.result) {
-        generateChartData(updatedLoans[0]);
+      // Map the backend amortization schedule for the first loan to the chart
+      if (updatedLoans[0]?.result?.amortizationSchedule) {
+        const chartData = updatedLoans[0].result.amortizationSchedule.map(point => ({
+          name: `Month ${point.month}`,
+          principal: point.principalPaid,
+          interest: point.interestPaid,
+          balance: point.remainingBalance
+        }));
+        setAmortizationData(chartData);
       }
     } catch (err) {
       console.error("Simulation failed", err);
@@ -83,31 +97,9 @@ const LoanSimulator = () => {
     }
   };
 
-  const generateChartData = (loan) => {
-    const data = [];
-    const monthlyEMI = loan.result.monthlyEMI;
-    let balance = parseFloat(loan.principal);
-    const monthlyRate = (loan.rate / (12 * 100));
-
-    // Simple amortization visualization for the chart
-    for (let i = 1; i <= loan.tenure * 12; i += 6) { // Sample every 6 months
-      const interest = balance * monthlyRate;
-      const principalPaid = monthlyEMI - interest;
-      balance = Math.max(0, balance - principalPaid);
-      
-      data.push({
-        name: `Month ${i}`,
-        principal: Math.round(principalPaid * 6),
-        interest: Math.round(interest * 6),
-        balance: Math.round(balance)
-      });
-    }
-    setAmortizationData(data);
-  };
-
   useEffect(() => {
     runSimulation();
-  }, []);
+  }, [profile]);
 
   const updateLoan = (id, field, value) => {
     setLoans(loans.map(l => l.id === id ? { ...l, [field]: value } : l));
@@ -122,6 +114,7 @@ const LoanSimulator = () => {
         rate: 8.5,
         tenure: 10,
         grace: 6,
+        isCapitalized: true,
         result: null
       }]);
     }
@@ -190,69 +183,97 @@ const LoanSimulator = () => {
                          </div>
                       </div>
 
-                      <div className="loan-card-body">
-                         <div className="input-group">
-                           <InputField 
-                              label="Principal Amount"
-                              type="number"
-                              value={loan.principal}
-                              onChange={(e) => updateLoan(loan.id, 'principal', parseInt(e.target.value))}
-                              prefix="$"
-                           />
-                           <InputField 
-                              label="Interest Rate"
-                              type="number"
-                              step="0.1"
-                              value={loan.rate}
-                              onChange={(e) => updateLoan(loan.id, 'rate', parseFloat(e.target.value))}
-                              suffix="%"
-                           />
-                         </div>
-                         <div className="input-group">
-                           <InputField 
-                              label="Tenure (Yrs)"
-                              type="number"
-                              value={loan.tenure}
-                              onChange={(e) => updateLoan(loan.id, 'tenure', parseInt(e.target.value))}
-                           />
-                           <InputField 
-                              label="Grace (Mo)"
-                              type="number"
-                              value={loan.grace}
-                              onChange={(e) => updateLoan(loan.id, 'grace', parseInt(e.target.value))}
-                           />
-                         </div>
-                      </div>
+                       <div className="loan-card-body">
+                          <div className="input-group">
+                            <InputField 
+                               label="Principal Amount"
+                               type="number"
+                               value={loan.principal}
+                               onChange={(e) => updateLoan(loan.id, 'principal', parseInt(e.target.value))}
+                               prefix="$"
+                            />
+                            <InputField 
+                               label="Interest Rate"
+                               type="number"
+                               step="0.1"
+                               value={loan.rate}
+                               onChange={(e) => updateLoan(loan.id, 'rate', parseFloat(e.target.value))}
+                               suffix="%"
+                            />
+                          </div>
+                          <div className="input-group">
+                            <InputField 
+                               label="Tenure (Yrs)"
+                               type="number"
+                               value={loan.tenure}
+                               onChange={(e) => updateLoan(loan.id, 'tenure', parseInt(e.target.value))}
+                            />
+                            <InputField 
+                               label="Grace (Mo)"
+                               type="number"
+                               value={loan.grace}
+                               onChange={(e) => updateLoan(loan.id, 'grace', parseInt(e.target.value))}
+                            />
+                          </div>
+                          
+                          {/* Interest Treatment Toggle */}
+                          <div className="interest-toggle-box">
+                             <div className="flex-between">
+                                <span className="input-label">Capitalize Interest</span>
+                                <div 
+                                  className={`custom-switch ${loan.isCapitalized ? 'is-on' : ''}`}
+                                  onClick={() => updateLoan(loan.id, 'isCapitalized', !loan.isCapitalized)}
+                                >
+                                  <div className="switch-handle" />
+                                </div>
+                             </div>
+                             <p className="input-help">
+                               {loan.isCapitalized 
+                                 ? "Add accrued interest to principal after grace." 
+                                 : "Pay interest monthly during study period."}
+                             </p>
+                          </div>
+                       </div>
 
-                      <div className="loan-card-results">
-                         <div className="result-metric">
-                            <span className="metric-label">Monthly EMI</span>
-                            <span className="metric-value">${loan.result?.monthlyEMI.toLocaleString() || '---'}</span>
-                         </div>
-                         
-                         <div className="dti-indicator-row">
-                            <div className="flex-between">
-                               <span className="metric-sub">DTI Ratio</span>
-                               <span className={`dti-value ${dti > 20 ? 'text-coral' : 'text-teal'}`}>{dti.toFixed(1)}%</span>
+                       <div className="loan-card-results">
+                          {/* Gap Detection Alert */}
+                          {loan.result?.isGapPresent && (
+                            <div className="gap-alert-mini animate-pulse">
+                               <AlertTriangle size={14} />
+                               <span>Funding Gap: <strong>${Math.round(loan.result.fundingGap).toLocaleString()}</strong></span>
                             </div>
-                            <div className="dti-bar">
-                               <div className="dti-fill" style={{ width: `${Math.min(100, dti * 2.5)}%`, backgroundColor: dti > 20 ? 'var(--color-coral)' : 'var(--color-teal)' }}></div>
-                            </div>
-                         </div>
+                          )}
 
-                         <div className="total-interest-row">
-                            <Info size={14} className="text-secondary" />
-                            <span>Total Interest: <strong>${loan.result?.totalInterestPayable.toLocaleString() || '0'}</strong></span>
-                         </div>
-                      </div>
+                          <div className="result-metric">
+                             <span className="metric-label">Monthly EMI</span>
+                             <span className="metric-value">${loan.result?.monthlyEMI.toLocaleString() || '---'}</span>
+                          </div>
+                          
+                          <div className="dti-indicator-row">
+                             <div className="flex-between">
+                                <span className="metric-sub">DTI Ratio</span>
+                                <span className={`dti-value ${dti > 20 ? 'text-coral' : 'text-teal'}`}>{dti.toFixed(1)}%</span>
+                             </div>
+                             <div className="dti-bar">
+                                <div className="dti-fill" style={{ width: `${Math.min(100, dti * 2.5)}%`, backgroundColor: dti > 20 ? 'var(--color-coral)' : 'var(--color-teal)' }}></div>
+                             </div>
+                          </div>
 
-                      <div className="card-status-footer">
-                         {dti > 20 ? (
-                            <Badge variant="danger" icon={AlertTriangle}>High Risk DTI</Badge>
-                         ) : (
-                            <Badge variant="success" icon={CheckCircle2}>Sustainable</Badge>
-                         )}
-                      </div>
+                          <div className="total-interest-row">
+                             <Info size={14} className="text-secondary" />
+                             <span>Total Interest: <strong>${loan.result?.totalInterestPayable.toLocaleString() || '0'}</strong></span>
+                          </div>
+                       </div>
+
+                       <div className="card-status-footer">
+                          {dti > 20 ? (
+                             <Badge variant="danger" icon={AlertTriangle}>High Risk DTI</Badge>
+                          ) : loan.result?.isGapPresent ? (
+                             <Badge variant="warning" icon={AlertTriangle}>Gap Detected</Badge>
+                          ) : (
+                             <Badge variant="success" icon={CheckCircle2}>Sustainable</Badge>
+                          )}
+                       </div>
                    </div>
                  );
                })}
