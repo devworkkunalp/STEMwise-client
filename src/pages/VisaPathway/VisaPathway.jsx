@@ -35,13 +35,13 @@ const VisaPathway = () => {
   const [visaData, setVisaData] = useState(null);
   const [employers, setEmployers] = useState([]);
 
-  // Default probabilities for H-1B lottery (Wage-Based)
-  const [wageLevels, setWageLevels] = useState([
-    { level: 'Level I', rate: 12, label: 'Entry Level', description: 'Lowest selection probability. High wage-based risk.' },
-    { level: 'Level II', rate: 24, label: 'Qualified', description: 'Standard selection rate for most new grads.' },
-    { level: 'Level III', rate: 48, label: 'Experienced', description: 'Significantly higher selection odds via wage-based selection.' },
-    { level: 'Level IV', rate: 72, label: 'Fully Competent', description: 'Highest priority. Near certain selection in current climate.' },
-  ]);
+  // The probability matrix is now driven by the backend
+  const displayWageLevels = visaData?.probabilityMatrix || [
+    { level: 'Level I', rate: 15, label: 'Entry Level', description: 'Lowest selection probability.' },
+    { level: 'Level II', rate: 48, label: 'Qualified', description: 'Standard selection rate.' },
+    { level: 'Level III', rate: 61, label: 'Experienced', description: 'Higher selection odds.' },
+    { level: 'Level IV', rate: 78, label: 'Fully Competent', description: 'Highest priority.' },
+  ];
 
   // Hardcoded Timeline for Arjun's Profile (Standard STEM)
   const timelineSteps = [
@@ -62,7 +62,7 @@ const VisaPathway = () => {
           salary: profile.targetSalary || 115000,
           city: profile.targetCity || 'San Francisco',
           fieldOfStudy: profile.specialization || 'CS',
-          isStem: profile.fieldOfStudy === 'STEM' || profile.specialization?.toLowerCase().includes('computer')
+          isStem: profile.stemField === 'STEM' || profile.specialization?.toLowerCase().includes('computer')
         });
         setVisaData(response);
 
@@ -80,7 +80,7 @@ const VisaPathway = () => {
   }, [profile]);
 
   // Dynamic Timeline Calculation
-  const isStem = profile?.fieldOfStudy === 'STEM' || profile?.specialization?.toLowerCase().includes('computer');
+  const isStem = profile?.stemField === 'STEM' || profile?.specialization?.toLowerCase().includes('computer');
   const visaTimeline = [
     { id: 1, title: 'F-1 Study Phase', status: 'Completed', duration: `${profile?.programDurationYears || 2} Years`, description: 'Full-time study authorization.' },
     { id: 2, title: 'OPT Phase 1', status: 'Active', duration: '12 Months', description: 'Initial work authorization.' },
@@ -125,7 +125,7 @@ const VisaPathway = () => {
                  <p className="text-secondary">AI-driven probability model for <strong>{profile?.nationality || 'India'}</strong> to **H-1B** transition.</p>
               </div>
               <div className="header-actions">
-                 <Button variant="outline" icon={Clock}>Detailed Timeline</Button>
+                 <Button variant="outline" icon={Clock} onClick={() => alert('Detailed probability breakdown for each attempt coming soon!')}>Detailed Timeline</Button>
               </div>
             </header>
 
@@ -160,9 +160,8 @@ const VisaPathway = () => {
                   </div>
 
                   <div className="wage-level-chart">
-                    {wageLevels.map((lvl) => {
-                      const levelInt = parseInt(lvl.level.split(' ')[1]) || (lvl.level === 'Level I' ? 1 : (lvl.level === 'Level II' ? 2 : (lvl.level === 'Level III' ? 3 : 4)));
-                      const isUserLevel = visaData?.wageLevel === levelInt;
+                    {displayWageLevels.map((lvl) => {
+                      const isUserLevel = lvl.isUserLevel;
                       return (
                         <div key={lvl.level} className={`wage-level-bar-item ${isUserLevel ? 'is-active' : ''}`}>
                           <div className="bar-info">
@@ -177,7 +176,7 @@ const VisaPathway = () => {
                           </div>
                           {isUserLevel && (
                             <div className="user-level-indicator">
-                              <Zap size={10} fill="currentColor" /> You are here
+                              <Zap size={10} fill="currentColor" /> YOU ARE HERE
                             </div>
                           )}
                         </div>
@@ -203,23 +202,29 @@ const VisaPathway = () => {
                       <div className="path-item">
                          <div className="path-header">
                             <span className="path-name">Canada</span>
-                            <Badge variant="success">High Odds</Badge>
+                            <Badge variant={isStem ? "success" : "teal"}>{isStem ? "High Odds" : "Viable"}</Badge>
                          </div>
-                         <p>Express Entry STEM category probability >75% for your profile.</p>
+                         <p>{isStem 
+                            ? "Express Entry STEM category probability >75% for your profile. Direct PR route likely." 
+                            : "General Express Entry or Provincial Nominee Program (PNP) is a strong alternative."}</p>
                       </div>
                       <div className="path-item">
                          <div className="path-header">
                             <span className="path-name">UK / Germany</span>
                             <Badge variant="primary">Stable</Badge>
                          </div>
-                         <p>Direct sponsorship via Blue Card (DE) or Scale-up (UK) is viable.</p>
+                         <p>Direct sponsorship via EU Blue Card (Germany) or Skilled Worker (UK) is highly viable for your credentials.</p>
                       </div>
                       <div className="path-item">
                          <div className="path-header">
                             <span className="path-name">O-1 / EB-2 NIW</span>
-                            <Badge variant="warning">High Merit</Badge>
+                            <Badge variant={visaData?.cumulativeSuccessProbability > 0.8 ? "success" : "warning"}>
+                                {visaData?.cumulativeSuccessProbability > 0.8 ? "Recommended" : "High Merit"}
+                            </Badge>
                          </div>
-                         <p>Viable extraordinary ability route if profile score exceeds 85/100.</p>
+                         <p>{visaData?.wageLevel >= 3 
+                            ? "Your high wage level and role specialization make you a strong candidate for an O-1A 'Extraordinary Ability' visa." 
+                            : "Viable merit-based route if your achievements and citations exceed sector benchmarks."}</p>
                       </div>
                    </div>
                 </div>
@@ -231,19 +236,24 @@ const VisaPathway = () => {
                      <h3>Top H-1B Sponsors in {profile?.targetCity?.split(',')[0]}</h3>
                    </div>
                    <div className="sponsor-list">
-                     {employers.length > 0 ? employers.map((emp) => (
-                       <div key={emp.id} className="sponsor-item">
-                          <div className="sponsor-info">
-                             <span className="sponsor-name">{emp.name}</span>
-                             <span className="sponsor-industry">{emp.primaryStemFields?.slice(0, 2).join(', ')}</span>
-                          </div>
-                          <div className="sponsor-stats">
-                             <span className="sponsor-filings">{(emp.h1bFilingsTotal || 0).toLocaleString()} <span>Filings</span></span>
-                             <Badge variant="teal">{emp.sponsorScore}/100 Score</Badge>
-                          </div>
+                     {employers.length > 0 ? (
+                       employers.map((emp) => (
+                         <div key={emp.id} className="sponsor-item">
+                            <div className="sponsor-info">
+                               <span className="sponsor-name">{emp.name}</span>
+                               <span className="sponsor-industry">{emp.primaryStemFields?.slice(0, 2).join(', ')}</span>
+                            </div>
+                            <div className="sponsor-stats">
+                               <span className="sponsor-filings">{(emp.h1bFilingsTotal || 0).toLocaleString()} <span>Filings</span></span>
+                               <Badge variant="teal">{emp.sponsorScore}/100 Score</Badge>
+                            </div>
+                         </div>
+                       ))
+                     ) : (
+                       <div className="text-secondary p-8 text-center">
+                         <Search size={24} className="mb-2 opacity-50" />
+                         <p>No major sponsors found for {profile?.targetCity?.split(',')[0]} in our current benchmarks.</p>
                        </div>
-                     )) : (
-                       <div className="text-secondary p-4">Searching local sponsorship data...</div>
                      )}
                    </div>
                 </div>
