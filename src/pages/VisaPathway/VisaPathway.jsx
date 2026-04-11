@@ -9,7 +9,8 @@ import {
   Zap,
   Info,
   Building2,
-  Calendar
+  Calendar,
+  ShieldAlert
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import visaService from '../../services/visaService';
@@ -28,12 +29,12 @@ import BottomNav from '../../components/BottomNav/BottomNav';
 import './VisaPathway.css';
 
 const VisaPathway = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading, authError, refreshProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('visa');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [visaData, setVisaData] = useState(null);
   const [employers, setEmployers] = useState([]);
-  
+
   // Default probabilities for H-1B lottery (Wage-Based)
   const [wageLevels, setWageLevels] = useState([
     { level: 'Level I', rate: 12, label: 'Entry Level', description: 'Lowest selection probability. High wage-based risk.' },
@@ -41,32 +42,6 @@ const VisaPathway = () => {
     { level: 'Level III', rate: 48, label: 'Experienced', description: 'Significantly higher selection odds via wage-based selection.' },
     { level: 'Level IV', rate: 72, label: 'Fully Competent', description: 'Highest priority. Near certain selection in current climate.' },
   ]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        // 1. Fetch Visa Probability based on profile
-        const visaResult = await visaService.getVisaProbability({
-          baseSalary: profile?.targetSalary || 120000,
-          field: profile?.specialization || 'Computer Science',
-          metroArea: profile?.targetCity || 'San Francisco, CA'
-        });
-        setVisaData(visaResult);
-
-        // 2. Fetch Top Employers in their target city
-        const topEmployers = await visaService.getTopSponsors(profile?.targetCity?.split(',')[0] || 'San Jose');
-        setEmployers(topEmployers);
-
-      } catch (err) {
-        console.error("Error loading visa data", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (profile) fetchData();
-  }, [profile]);
 
   // Hardcoded Timeline for Arjun's Profile (Standard STEM)
   const timelineSteps = [
@@ -78,28 +53,79 @@ const VisaPathway = () => {
     { id: 6, title: 'H-1B Lottery 3', status: 'Pending', duration: 'April 2028', description: 'Final attempt under STEM OPT.' },
   ];
 
-  if (!profile && !isLoading) {
-      return <LoadingSpinner message="Waiting for profile..." />;
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!profile) return;
+      setIsLoading(true);
+      try {
+        const response = await calculationService.getVisaProbability({
+          salary: profile.targetSalary || 115000,
+          city: profile.targetCity || 'San Francisco',
+          fieldOfStudy: profile.specialization || 'CS',
+          isStem: profile.fieldOfStudy === 'STEM' || profile.specialization?.toLowerCase().includes('computer')
+        });
+        setVisaData(response);
+
+        const topEmployers = await visaService.getTopSponsors(profile?.targetCity?.split(',')[0] || 'San Jose');
+        setEmployers(topEmployers);
+
+      } catch (err) {
+        console.error("Error loading visa data", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [profile]);
+
+  // Dynamic Timeline Calculation
+  const isStem = profile?.fieldOfStudy === 'STEM' || profile?.specialization?.toLowerCase().includes('computer');
+  const visaTimeline = [
+    { id: 1, title: 'F-1 Study Phase', status: 'Completed', duration: `${profile?.programDurationYears || 2} Years`, description: 'Full-time study authorization.' },
+    { id: 2, title: 'OPT Phase 1', status: 'Active', duration: '12 Months', description: 'Initial work authorization.' },
+    isStem && { id: 3, title: 'STEM Extension', status: 'In Scope', duration: '24 Months', description: 'Additional 2 years of work authorization.' },
+    { id: 4, title: 'H-1B Lottery 1', status: 'Risk', duration: 'April 2026', description: 'First sponsorship attempt.', risk: 'Wage-based' },
+    isStem && { id: 5, title: 'H-1B Lottery 2', status: 'Pending', duration: 'April 2027', description: 'Second attempt.' },
+    isStem && { id: 6, title: 'H-1B Lottery 3', status: 'Pending', duration: 'April 2028', description: 'Final attempt.' },
+  ].filter(Boolean);
+
+  // Error Recovery UI
+  if (authError && !profile) {
+    return (
+      <div className="flex-center h-screen flex-column p-4 text-center sw-app-root">
+        <ShieldAlert size={48} className="text-coral mb-4" />
+        <h2 className="title-gradient">Connection Issue</h2>
+        <p className="text-secondary mb-6 max-width-400">
+          We couldn't retrieve your profile data. The server might be busy.
+        </p>
+        <Button variant="primary" onClick={() => refreshProfile(user?.id, true)}>
+          Retry Loading Profile
+        </Button>
+      </div>
+    );
   }
+
+  if (authLoading && !profile) return <LoadingSpinner fullPage message="Securely retrieving your visa pathway..." />;
 
   return (
     <div className="sw-app-root">
       <Navbar isAuthenticated={true} user={user} />
       
-      <div className="dashboard-page-root">
+      <div className="visa-page-root">
         <Sidebar activeTab="visa" onTabChange={(id) => setActiveTab(id)} profile={profile} />
         
-        <main className="dashboard-main">
-          <div className="dashboard-content animate-fade-in">
+        <main className="visa-main">
+          <div className="visa-content animate-fade-in">
             
             <header className="visa-header">
               <div className="visa-header-info">
                  <Badge variant="teal">Visa Intelligence</Badge>
                  <h1 className="text-gradient">Immigration Roadmap</h1>
-                 <p className="text-secondary">Data-driven probability model for <strong>{profile?.nationality || 'India'}</strong> to **H-1B** transition.</p>
+                 <p className="text-secondary">AI-driven probability model for <strong>{profile?.nationality || 'India'}</strong> to **H-1B** transition.</p>
               </div>
               <div className="header-actions">
-                 <Button variant="outline" icon={Clock}>Update Timeline</Button>
+                 <Button variant="outline" icon={Clock}>Detailed Timeline</Button>
               </div>
             </header>
 
@@ -111,7 +137,7 @@ const VisaPathway = () => {
                   <h3>Immigration Timeline</h3>
                 </div>
                 <div className="timeline-wrapper">
-                  <TimelineStep steps={timelineSteps} currentStepIndex={1} />
+                  <TimelineStep steps={visaTimeline} currentStepIndex={1} />
                 </div>
               </section>
 
@@ -125,17 +151,18 @@ const VisaPathway = () => {
                   
                   <div className="probability-summary">
                     <div className="main-odds-value">
-                      <span className="odds-number">{visaData?.successProbability || '28.4'}%</span>
-                      <span className="odds-label">Cumulative Success Chance</span>
+                      <span className="odds-number">{(visaData?.cumulativeSuccessProbability * 100).toFixed(1)}%</span>
+                      <span className="odds-label">Selection Chance via {visaData?.totalAttempts || 1} Attempt{visaData?.totalAttempts > 1 ? 's' : ''}</span>
                     </div>
                     <div className="odds-narrative">
-                      <p>Based on your <strong>Level {visaData?.wageLevel || 'II'}</strong> salary benchmark in <strong>{profile?.targetCity || 'San Francisco'}</strong>.</p>
+                      <p>Currently classified as <strong>Level {visaData?.wageLevel || 'II'}</strong> in <strong>{profile?.targetCity || 'San Francisco'}</strong>.</p>
                     </div>
                   </div>
 
                   <div className="wage-level-chart">
                     {wageLevels.map((lvl) => {
-                      const isUserLevel = `Level ${visaData?.wageLevel}` === lvl.level || (visaData?.wageLevel === 2 && lvl.level === 'Level II');
+                      const levelInt = parseInt(lvl.level.split(' ')[1]) || (lvl.level === 'Level I' ? 1 : (lvl.level === 'Level II' ? 2 : (lvl.level === 'Level III' ? 3 : 4)));
+                      const isUserLevel = visaData?.wageLevel === levelInt;
                       return (
                         <div key={lvl.level} className={`wage-level-bar-item ${isUserLevel ? 'is-active' : ''}`}>
                           <div className="bar-info">
@@ -161,9 +188,40 @@ const VisaPathway = () => {
                   <div className="optimization-tip-box">
                     <div className="tip-icon"><Info size={16} /></div>
                     <div className="tip-content">
-                        <strong>Optimization Strategy:</strong> Your current role in SF is Level II. Relocating to <strong>Austin, TX</strong> with the same salary would push you to <strong>Level III</strong>, increasing your odds to <strong>48%</strong> per attempt.
+                        <strong>Optimization Strategy:</strong> {visaData?.optimizationTip || 'Analyzing your profile for wage-level advantages...'}
                     </div>
                   </div>
+                </div>
+
+                {/* Alternative Pathways Card */}
+                <div className="glass-panel sponsor-list-card alternative-paths-card">
+                   <div className="section-title">
+                     <ShieldCheck size={20} className="text-teal" />
+                     <h3>Global Alternative Pathways</h3>
+                   </div>
+                   <div className="path-grid">
+                      <div className="path-item">
+                         <div className="path-header">
+                            <span className="path-name">Canada</span>
+                            <Badge variant="success">High Odds</Badge>
+                         </div>
+                         <p>Express Entry STEM category probability >75% for your profile.</p>
+                      </div>
+                      <div className="path-item">
+                         <div className="path-header">
+                            <span className="path-name">UK / Germany</span>
+                            <Badge variant="primary">Stable</Badge>
+                         </div>
+                         <p>Direct sponsorship via Blue Card (DE) or Scale-up (UK) is viable.</p>
+                      </div>
+                      <div className="path-item">
+                         <div className="path-header">
+                            <span className="path-name">O-1 / EB-2 NIW</span>
+                            <Badge variant="warning">High Merit</Badge>
+                         </div>
+                         <p>Viable extraordinary ability route if profile score exceeds 85/100.</p>
+                      </div>
+                   </div>
                 </div>
 
                 {/* Top Sponsors in Metro */}

@@ -1,3 +1,23 @@
+.visa-page-root {
+  display: flex;
+  min-height: calc(100vh - 80px);
+  background-color: var(--bg-midnight);
+  padding-top: 80px;
+}
+
+.visa-main {
+  flex: 1;
+  margin-left: 280px;
+  width: calc(100% - 280px);
+  padding-bottom: var(--space-20);
+}
+
+.visa-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-12) var(--space-20);
+}
+
 .visa-header {
   margin-bottom: var(--space-12);
   display: flex;

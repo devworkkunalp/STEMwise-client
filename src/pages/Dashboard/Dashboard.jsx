@@ -9,7 +9,8 @@ import {
   PieChart, 
   ShieldCheck, 
   DollarSign, 
-  Zap 
+  Zap,
+  ShieldAlert
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import calculationService from '../../services/calculationService';
@@ -33,7 +34,7 @@ import './Dashboard.css';
 
 
 const Dashboard = () => {
-  const { user, profile, refreshProfile, isAuthenticated } = useAuth();
+  const { user, profile, refreshProfile, isAuthenticated, authError, loading } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isLoading, setIsLoading] = useState(false);
   const [roiResult, setRoiResult] = useState(null);
@@ -54,9 +55,14 @@ const Dashboard = () => {
       setIsLoading(true);
       try {
         const result = await calculationService.calculateROI({
-          loanAmount: loanValue,
-          degreeType: profile?.degreeLevel === 1 ? 'MS CS' : 'PhD',
-          country: profile?.nationality || 'USA'
+          AnnualTuition: profile?.annualTuition || 45000,
+          AnnualLivingCost: profile?.annualLivingCost || 18000,
+          DurationYears: profile?.programDuration || 2,
+          FinalSalaryBenchmark: profile?.targetSalary || 115000,
+          CurrentSalary: profile?.currentSalary || 15000,
+          HomeCurrency: profile?.nationality === 'India' ? 'INR' : 'USD',
+          StudyCurrency: 'USD',
+          TaxRate: 0.25
         });
         setRoiResult(result);
         setLastUpdated(new Date().toLocaleTimeString());
@@ -99,6 +105,24 @@ const Dashboard = () => {
 
   const displayName = profile?.displayName || user?.email?.split('@')[0] || 'Student';
 
+  // Error Recovery UI
+  if (authError && !profile) {
+    return (
+      <div className="flex-center h-screen flex-column p-4 text-center sw-app-root">
+        <ShieldAlert size={48} className="text-coral mb-4" />
+        <h2 className="title-gradient">Connection Issue</h2>
+        <p className="text-secondary mb-6 max-width-400">
+          We couldn't retrieve your profile data. The server might be busy.
+        </p>
+        <Button variant="primary" onClick={() => refreshProfile(user?.id, true)}>
+          Retry Loading Profile
+        </Button>
+      </div>
+    );
+  }
+
+  if (loading && !profile) return <LoadingSpinner fullPage message="Securely retrieving your STEM engine..." />;
+
   return (
     <div className="sw-app-root">
       <Navbar 
@@ -140,30 +164,33 @@ const Dashboard = () => {
              </AlertBanner>
           </div>
 
-          {/* T11.3 Top Stat Cards Row */}
-          <section className="dashboard-grid" style={{ marginTop: 'var(--space-12)' }}>
-             <div className="glass-panel glass-card flex-center" style={{ padding: 'var(--space-8)' }}>
-                <ROIScoreRing score={roiResult?.score || 72} size={200} />
-             </div>
-             
-             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+          {/* T19.1 & T19.3: Refined Dashboard Grid */}
+          <section className="dashboard-grid-overhaul animate-slide-up">
+              {/* ROI Score Ring - Primary Visual */}
+              <div className="sw-main-ring-panel">
+                <ROIScoreRing score={roiResult?.roiPercentage || 72} size={220} />
+                <div className="sw-ring-narrative">
+                   <h3 className="text-gradient">Strong ROI Potential</h3>
+                   <p className="text-secondary">Your profile is trending in the top 15% for STEM graduates from {profile?.nationality || 'India'}.</p>
+                </div>
+              </div>
+              
+              {/* StatCards Cluster */}
+              <div className="sw-stats-cluster">
                 <StatCard 
                   label="10-Year ROI Potential" 
-                  value={roiResult ? `$${roiResult.totalROI.toLocaleString()}` : "$--" } 
+                  value={roiResult?.netEarnings10Yr ? `$${roiResult.netEarnings10Yr.toLocaleString()}` : "$--" } 
                   trend="Excellent" 
                   icon={TrendingUp}
                   subtitle="Net Lifetime Value" 
                 />
                 <StatCard 
                   label="Debt-Free Milestone" 
-                  value={roiResult ? `${roiResult.paybackYears} Yrs` : "2.4 Yrs" } 
+                  value={roiResult?.breakEvenYear ? `${roiResult.breakEvenYear} Yrs` : "2.4 Yrs" } 
                   trend="-0.5 Yrs" 
                   icon={Clock}
                   subtitle="Projected Repayment" 
                 />
-             </div>
-
-             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
                 <StatCard 
                   label="H-1B Chance (Intl)" 
                   value="28.4%" 
@@ -173,12 +200,12 @@ const Dashboard = () => {
                 />
                 <StatCard 
                   label="Total Cost Est." 
-                  value={roiResult ? `$${roiResult.totalCost.toLocaleString()}` : "$85,400" } 
-                  trend="INR 71.3L" 
+                  value={roiResult?.totalInvestment ? `$${roiResult.totalInvestment.toLocaleString()}` : "$--" } 
+                  trend={roiResult?.totalInvestment ? `INR ${((roiResult.totalInvestment * 84) / 100000).toFixed(1)}L` : "INR --"} 
                   icon={DollarSign}
                   subtitle="Home Currency FX Rate" 
                 />
-             </div>
+              </div>
           </section>
 
           {/* T11.4 & T11.5 Visual Row */}

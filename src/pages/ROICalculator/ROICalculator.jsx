@@ -35,35 +35,72 @@ const ROICalculator = () => {
   const [formData, setFormData] = useState({
     universityName: profile?.targetUniversity || '',
     programName: profile?.degreeName || '',
+    degreeLevel: profile?.degreeLevel || 'Masters',
+    fieldOfStudy: profile?.fieldOfStudy || 'Computer Science',
+    destinationCountry: profile?.destinationCountry || 'USA',
     annualTuition: profile?.annualTuition || 45000,
     annualLivingCost: profile?.annualLivingCost || 20000,
     programDurationYears: profile?.programDurationYears || 2,
     loanAmount: profile?.loanAmount || 50000,
     interestRate: profile?.loanInterestRate || 10.5,
+    repaymentTerm: 10,
     targetRole: 'Software Engineer',
     targetCity: 'San Francisco, CA',
     expectedSalary: 120000
   });
 
   const [roiResult, setRoiResult] = useState(null);
+  const [showWarning, setShowWarning] = useState(false);
 
   // Debounced Calculation
   const runCalculation = useCallback(async (data) => {
     setIsLoading(true);
     try {
-      // Mocking the call to calculation engine
-      // In production, this calls the .NET backend
       const result = await calculationService.calculateROI({
-        userId: user?.id,
-        ...data
+        AnnualTuition: data.annualTuition,
+        AnnualLivingCost: data.annualLivingCost,
+        DurationYears: data.programDurationYears,
+        FinalSalaryBenchmark: data.expectedSalary,
+        CurrentSalary: profile?.currentSalary || 20000,
+        LoanAmount: data.loanAmount,
+        InterestRate: data.interestRate,
+        RepaymentTerm: data.repaymentTerm,
+        HomeCurrency: profile?.homeCurrency || 'INR',
+        StudyCurrency: 'USD'
       });
       setRoiResult(result);
+      setShowWarning(data.expectedSalary < 60000);
     } catch (err) {
       console.error("Calculation failed", err);
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id]);
+  }, [profile?.currentSalary, profile?.homeCurrency]);
+
+  // Data Enrichment Trigger
+  const enrichData = useCallback(async () => {
+    if (!formData.universityName && !formData.programName) return;
+    
+    try {
+      const enriched = await calculationService.enrichProfile({
+        universityName: formData.universityName,
+        programName: formData.programName,
+        targetRole: formData.targetRole,
+        targetCity: formData.targetCity,
+        homeCountry: profile?.nationality || 'India'
+      });
+      
+      if (enriched.school?.tuition) {
+        setFormData(prev => ({ 
+          ...prev, 
+          annualTuition: enriched.school.tuition,
+          expectedSalary: enriched.school.medianEarnings10Yr || prev.expectedSalary
+        }));
+      }
+    } catch (err) {
+      console.log("Enrichment skipped or failed", err);
+    }
+  }, [formData.universityName, formData.programName, formData.targetRole, formData.targetCity, profile?.nationality]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -72,6 +109,13 @@ const ROICalculator = () => {
     return () => clearTimeout(timer);
   }, [formData, runCalculation]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      enrichData();
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [formData.universityName, formData.programName, enrichData]);
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -79,8 +123,7 @@ const ROICalculator = () => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Simulate API call to save scenario
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 800));
       alert("Scenario saved to your profile!");
     } finally {
       setIsSaving(false);
@@ -103,37 +146,78 @@ const ROICalculator = () => {
               <p className="text-secondary">Adjust your variables to see how they impact your 10-year ROI.</p>
             </header>
 
+            {showWarning && (
+              <div className="sw-salary-warning sw-calc-fade-in">
+                <AlertTriangle size={18} />
+                <span>
+                  <strong>Salary Warning:</strong> $60,000 is below the typical 25th percentile for STEM graduates in major US hubs. Consider a more competitive target.
+                </span>
+              </div>
+            )}
+
             {/* Section 1: Education */}
             <section className="sw-calculator-section glass-panel sw-calc-fade-in" style={{ animationDelay: '100ms' }}>
               <div className="sw-section-header">
                 <div className="sw-section-icon"><GraduationCap size={18} /></div>
-                <h3>Education Costs</h3>
+                <h3>Enrollment Profile</h3>
               </div>
               <div className="sw-input-grid">
+                <SelectField 
+                   label="Destination" 
+                   value={formData.destinationCountry} 
+                   onChange={(e) => handleInputChange('destinationCountry', e.target.value)}
+                   options={[
+                     { value: 'USA', label: 'United States' },
+                     { value: 'Germany', label: 'Germany' },
+                     { value: 'Canada', label: 'Canada' },
+                     { value: 'Australia', label: 'Australia' }
+                   ]}
+                />
+                <SelectField 
+                   label="Degree Level" 
+                   value={formData.degreeLevel} 
+                   onChange={(e) => handleInputChange('degreeLevel', e.target.value)}
+                   options={[
+                     { value: 'Masters', label: "Master's Degree" },
+                     { value: 'PhD', label: 'Doctorate (PhD)' },
+                     { value: 'Bootcamp', label: 'Accredited Bootcamp' }
+                   ]}
+                />
+                <SelectField 
+                   label="Field of Study" 
+                   value={formData.fieldOfStudy} 
+                   onChange={(e) => handleInputChange('fieldOfStudy', e.target.value)}
+                   options={[
+                     { value: 'Computer Science', label: 'Computer Science' },
+                     { value: 'Biomedical', label: 'Biomedical Sciences' },
+                     { value: 'Data Science', label: 'Data Science' },
+                     { value: 'MBA', label: 'Business Administration' }
+                   ]}
+                />
                 <InputField 
                   label="University" 
                   value={formData.universityName} 
-                  onChange={(v) => handleInputChange('universityName', v)}
+                  onChange={(e) => handleInputChange('universityName', e.target.value)}
                   placeholder="e.g. Carnegie Mellon"
                 />
                 <InputField 
                   label="Program" 
                   value={formData.programName} 
-                  onChange={(v) => handleInputChange('programName', v)}
+                  onChange={(e) => handleInputChange('programName', e.target.value)}
                   placeholder="e.g. MS in Computer Science"
                 />
                 <InputField 
                   label="Annual Tuition (USD)" 
                   type="number"
                   value={formData.annualTuition} 
-                  onChange={(v) => handleInputChange('annualTuition', parseFloat(v))}
+                  onChange={(e) => handleInputChange('annualTuition', parseFloat(e.target.value) || 0)}
                   prefix="$"
                 />
                 <InputField 
                   label="Duration (Years)" 
                   type="number"
                   value={formData.programDurationYears} 
-                  onChange={(v) => handleInputChange('programDurationYears', parseFloat(v))}
+                  onChange={(e) => handleInputChange('programDurationYears', parseFloat(e.target.value) || 0)}
                 />
               </div>
             </section>
@@ -150,7 +234,7 @@ const ROICalculator = () => {
                 max={200000} 
                 step={5000} 
                 value={formData.loanAmount} 
-                onChange={(v) => handleInputChange('loanAmount', v)}
+                onChange={(e) => handleInputChange('loanAmount', parseFloat(e.target.value) || 0)}
                 formatValue={(v) => `$${v.toLocaleString()}`}
               />
               <div className="sw-input-grid" style={{ marginTop: 'var(--space-2)' }}>
@@ -158,14 +242,14 @@ const ROICalculator = () => {
                   label="Interest Rate (%)" 
                   type="number"
                   value={formData.interestRate} 
-                  onChange={(v) => handleInputChange('interestRate', parseFloat(v))}
+                  onChange={(e) => handleInputChange('interestRate', parseFloat(e.target.value) || 0)}
                   suffix="%"
                 />
                 <InputField 
                   label="Annual Living Cost" 
                   type="number"
                   value={formData.annualLivingCost} 
-                  onChange={(v) => handleInputChange('annualLivingCost', parseFloat(v))}
+                  onChange={(e) => handleInputChange('annualLivingCost', parseFloat(e.target.value) || 0)}
                   prefix="$"
                 />
               </div>
@@ -187,13 +271,13 @@ const ROICalculator = () => {
                     { value: 'UX Designer', label: 'UX Designer' }
                   ]}
                   value={formData.targetRole}
-                  onChange={(v) => handleInputChange('targetRole', v)}
+                  onChange={(e) => handleInputChange('targetRole', e.target.value)}
                 />
                 <InputField 
                   label="Expected Base Salary" 
                   type="number"
                   value={formData.expectedSalary} 
-                  onChange={(v) => handleInputChange('expectedSalary', parseFloat(v))}
+                  onChange={(e) => handleInputChange('expectedSalary', parseFloat(e.target.value) || 0)}
                   prefix="$"
                 />
               </div>
@@ -221,14 +305,20 @@ const ROICalculator = () => {
                 <div className="sw-results-stats">
                   <StatCard 
                     label="Total Investment" 
-                    value={`$${(formData.annualTuition * formData.programDurationYears + formData.annualLivingCost * formData.programDurationYears).toLocaleString()}`}
+                    value={`$${roiResult?.totalInvestment?.toLocaleString() || '0'}`}
                     subtitle="Tuition + Living + Interest"
                   />
                   <StatCard 
                     label="Payback Period" 
-                    value={`${roiResult?.paybackPeriodYears || '0.0'} Years`}
-                    trend={roiResult?.paybackPeriodYears < 3 ? 'up' : 'down'}
+                    value={`${roiResult?.breakEvenYear || '0.0'} Years`}
+                    trend={roiResult?.breakEvenYear < 3.5 ? 'up' : 'down'}
                     subtitle="Time to break even"
+                  />
+                  <StatCard 
+                    label="Annual Delta" 
+                    value={`$${roiResult?.incrementalEarnings?.toLocaleString() || '0'}`}
+                    trend="up"
+                    subtitle="Incremental Earnings"
                   />
                 </div>
 

@@ -15,7 +15,7 @@ const StatCard = ({
   className = ''
 }) => {
   return (
-    <div className={`sw-stat-card glass-panel glass-card ${className}`}>
+    <div className={`sw-stat-card ${className}`}>
       <div className="sw-stat-content">
         <div className="sw-stat-header">
           <span className="sw-stat-label">{label}</span>

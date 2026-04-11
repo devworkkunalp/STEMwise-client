@@ -29,35 +29,37 @@ import BottomNav from '../../components/BottomNav/BottomNav';
 
 import './WhatIfEngine.css';
 
+const scenarioCards = [
+  { id: 'H1B_DENIED', title: 'H-1B Lottery Denied', description: 'Model impact of returning home after OPT expiration.', icon: ShieldAlert, color: 'coral' },
+  { id: 'RECESSION', title: 'Economic Recession', description: 'Model a 20% drop in target STEM salaries.', icon: TrendingDown, color: 'amber' },
+  { id: 'CURRENCY_CRASH', title: 'Currency Devaluation', description: 'Model a 20% spike in repayment cost due to FX.', icon: DollarSign, color: 'sky' },
+  { id: 'JOB_GAP', title: 'Extended Job Search', description: 'Model 6 months of unemployment post-graduation.', icon: Clock, color: 'teal' },
+  { id: 'LEVEL_3_PROMO', title: 'Level 3 Promotion', description: 'Model wage-based H-1B prioritization boost.', icon: Zap, color: 'indigo' },
+  { id: 'STUDY_DELAY', title: 'Progression Delay', description: 'Model 1-year gap in degree completion.', icon: ArrowUpRight, color: 'rose' }
+];
+
 const WhatIfEngine = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading, authError, refreshProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('scenarios');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [baseROI, setBaseROI] = useState(null);
   const [selectedScenario, setSelectedScenario] = useState(null);
   const [modeledResult, setModeledResult] = useState(null);
 
-  const scenarioCards = [
-    { id: 'H1B_DENIED', title: 'H-1B Denied', icon: ShieldAlert, color: 'coral', description: 'Model a permanent return home after 3 years (OPT).' },
-    { id: 'RECESSION', title: 'Recession -20%', icon: TrendingDown, color: 'amber', description: 'Model a 20% drop in target salary due to economic hiring downturn.' },
-    { id: 'CURRENCY_CRASH', title: 'Currency Crash', icon: DollarSign, color: 'coral', description: 'Model a 20% INR devaluation against the USD during repayment.' },
-    { id: 'STUDY_DELAY', title: '1-Year Study Delay', icon: Clock, color: 'amber', description: 'Model an extra year of tuition and opportunity cost.' },
-    { id: 'OPT_GAP', title: '6-Month Job Gap', icon: Zap, color: 'coral', description: 'Model 6 months of post-grad unemployment while on OPT clock.' },
-    { id: 'LEVEL_3_PROMO', title: 'Level III Promotion', icon: ArrowUpRight, color: 'teal', description: 'Model an early promotion into Wage-Based Selection priority.' },
-  ];
-
   useEffect(() => {
     const fetchBase = async () => {
+      if (!profile) return;
       setIsLoading(true);
       try {
-        // Fetch real base result from calculation service
         const latest = await calculationService.calculateROI({
           annualTuition: profile?.annualTuition || 45000,
           annualLivingCost: profile?.annualLivingCost || 18000,
           durationYears: profile?.programDuration || 2,
           finalSalaryBenchmark: profile?.targetSalary || 115000,
           currentSalary: profile?.currentSalary || 15000,
-          homeCurrency: profile?.nationality === 'India' ? 'INR' : 'USD'
+          homeCurrency: profile?.nationality === 'India' ? 'INR' : 'USD',
+          studyCurrency: 'USD',
+          taxRate: 0.25
         });
         setBaseROI(latest);
       } catch (err) {
@@ -67,8 +69,26 @@ const WhatIfEngine = () => {
       }
     };
 
-    if (profile) fetchBase();
+    fetchBase();
   }, [profile]);
+
+  // Error Recovery UI
+  if (authError && !profile) {
+    return (
+      <div className="flex-center h-screen flex-column p-4 text-center sw-app-root">
+        <ShieldAlert size={48} className="text-coral mb-4" />
+        <h2 className="title-gradient">Connection Issue</h2>
+        <p className="text-secondary mb-6 max-width-400">
+          We couldn't retrieve your profile data. The server might be busy.
+        </p>
+        <Button variant="primary" onClick={() => refreshProfile(user?.id, true)}>
+          Retry Loading Profile
+        </Button>
+      </div>
+    );
+  }
+
+  if (authLoading && !profile) return <LoadingSpinner fullPage message="Securely retrieving your risk scenarios..." />;
 
   const selectScenario = (s) => {
     setSelectedScenario(s);
@@ -88,9 +108,9 @@ const WhatIfEngine = () => {
       await scenarioService.saveScenario({
         profileId: profile.id,
         scenarioType: modeledResult.typeName,
-        baseRoi: Math.round(baseROI.roiScore),
-        adjustedRoi: Math.round(modeledResult.roiScore),
-        impactDelta: Math.round(modeledResult.impactScore)
+        baseRoi: Math.round(baseROI?.roiPercentage || 0),
+        adjustedRoi: Math.round(modeledResult?.roiPercentage || 0),
+        impactDelta: Math.round(modeledResult?.impactScore || 0)
       });
       alert("Scenario saved to your profile history!");
     } catch (err) {
@@ -102,11 +122,11 @@ const WhatIfEngine = () => {
     <div className="sw-app-root">
       <Navbar isAuthenticated={true} user={user} />
       
-      <div className="dashboard-page-root">
+      <div className="whatif-page-root">
         <Sidebar activeTab="scenarios" onTabChange={(id) => setActiveTab(id)} profile={profile} />
         
-        <main className="dashboard-main">
-          <div className="dashboard-content animate-fade-in">
+        <main className="whatif-main">
+          <div className="whatif-content animate-fade-in">
             
             <header className="whatif-header">
               <div className="whatif-header-info">
@@ -154,17 +174,17 @@ const WhatIfEngine = () => {
                  <div className="analysis-metrics-row">
                     <div className="delta-card base-delta">
                        <span className="delta-label">Base ROI</span>
-                       <span className="delta-value">{Math.round(baseROI?.roiScore)}%</span>
+                       <span className="delta-value">{Math.round(baseROI?.roiPercentage || 0)}%</span>
                     </div>
                     <div className="delta-arrow">
-                       <ArrowRight size={32} className={modeledResult.impactScore < 0 ? 'text-coral' : 'text-teal'} />
-                       <span className={`impact-badge ${modeledResult.impactScore < 0 ? 'bg-coral' : 'bg-teal'}`}>
-                          {modeledResult.impactScore > 0 ? '+' : ''}{modeledResult.impactScore}
+                       <ArrowRight size={32} className={(modeledResult?.impactScore || 0) < 0 ? 'text-coral' : 'text-teal'} />
+                       <span className={`impact-badge ${(modeledResult?.impactScore || 0) < 0 ? 'bg-coral' : 'bg-teal'}`}>
+                          {(modeledResult?.impactScore || 0) > 0 ? '+' : ''}{modeledResult?.impactScore || 0}
                        </span>
                     </div>
-                    <div className={`delta-card adjusted-delta ${modeledResult.impactScore < 0 ? 'is-negative' : 'is-positive'}`}>
+                    <div className={`delta-card adjusted-delta ${(modeledResult?.impactScore || 0) < 0 ? 'is-negative' : 'is-positive'}`}>
                        <span className="delta-label">Adjusted ROI</span>
-                       <span className="delta-value">{Math.round(modeledResult.roiScore)}%</span>
+                       <span className="delta-value">{Math.round(modeledResult?.roiPercentage || 0)}%</span>
                     </div>
                  </div>
 

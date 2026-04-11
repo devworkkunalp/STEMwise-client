@@ -23,7 +23,7 @@ import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner';
 import './CountryCompare.css';
 
 const CountryCompare = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading, authError, refreshProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('compare');
   const [isLoading, setIsLoading] = useState(true);
   const [allCountries, setAllCountries] = useState([]);
@@ -33,11 +33,36 @@ const CountryCompare = () => {
   // Fetch all countries reference data
   useEffect(() => {
     const fetchCountries = async () => {
-      const data = await countryService.getAllCountries();
-      setAllCountries(data);
+      try {
+        const data = await countryService.getAllCountries();
+        setAllCountries(data);
+      } catch (err) {
+        console.error("Countries fetch failed:", err);
+      }
     };
     fetchCountries();
   }, []);
+
+  // Update loading state based on comparison
+  useEffect(() => {
+    if (comparisonData.length > 0) setIsLoading(false);
+  }, [comparisonData]);
+
+  // Helper for differentiated country benchmarks
+  const getCountryBenchmarks = (code) => {
+    switch (code) {
+      case 'DE': return { tuition: 500, salary: 65000, duration: 2, currency: 'EUR' }; // Germany
+      case 'GB': return { tuition: 32000, salary: 55000, duration: 1, currency: 'GBP' }; // UK (1-yr Masters)
+      case 'CA': return { tuition: 28000, salary: 78000, duration: 2, currency: 'CAD' }; // Canada
+      case 'AU': return { tuition: 40000, salary: 82000, duration: 2, currency: 'AUD' }; // Australia
+      default: return { 
+        tuition: profile?.annualTuition || 45000, 
+        salary: profile?.targetSalary || 115000, 
+        duration: profile?.programDurationYears || 2, 
+        currency: 'USD' 
+      };
+    }
+  };
 
   // Run batch comparison
   const runComparison = useCallback(async () => {
@@ -45,25 +70,37 @@ const CountryCompare = () => {
     setIsLoading(true);
     
     try {
-      // Map user profile to multiple country-specific ROI requests
-      const requests = selectedCodes.map(code => ({
-        userId: user?.id,
-        destinationCountry: code,
-        degreeLevel: profile.degreeLevel,
-        specialization: profile.specialization,
-        // Override with country-specific benchmarks if needed
-        // (Backend handling most of this logic based on ISO code)
-        isComparisonScenario: true
-      }));
+      const requests = selectedCodes.map(code => {
+        const benchmarks = getCountryBenchmarks(code);
+        return {
+          annualTuition: benchmarks.tuition,
+          annualLivingCost: benchmarks.tuition === 500 ? 12000 : 18000, // Germany cost adjustment
+          durationYears: benchmarks.duration,
+          finalSalaryBenchmark: benchmarks.salary,
+          currentSalary: profile.currentSalary || 20000,
+          homeCurrency: profile.nationality === 'India' ? 'INR' : 'USD',
+          studyCurrency: benchmarks.currency,
+          taxRate: 0.25,
+          loanAmount: profile.loanAmount || 30000, // Sync loan
+          interestRate: profile.loanInterestRate || 10.5
+        };
+      });
 
       const results = await calculationService.getComparison(requests);
-      setComparisonData(results);
+      
+      const mappedResults = results.map((res, index) => ({
+        ...res,
+        countryCode: selectedCodes[index],
+        // Use the benchmarks for display columns if needed
+        benchmarks: getCountryBenchmarks(selectedCodes[index])
+      }));
+      setComparisonData(mappedResults);
     } catch (err) {
       console.error("Comparison failed:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [profile, selectedCodes, user?.id]);
+  }, [profile, selectedCodes]);
 
   useEffect(() => {
     runComparison();
@@ -83,7 +120,35 @@ const CountryCompare = () => {
 
   const getCountryInfo = (code) => allCountries.find(c => c.code === code);
 
-  if (!profile) return <LoadingSpinner fullPage message="Loading profile..." />;
+  // Helper for finding "Winners"
+  const getBestMetrics = () => {
+    if (!comparisonData.length) return {};
+    return {
+      maxRoi: Math.max(...comparisonData.map(r => r.roiScore || 0)),
+      minPayback: Math.min(...comparisonData.map(r => r.breakEvenYear || 99)),
+      minCost: Math.min(...comparisonData.map(r => r.totalInvestment || 999999))
+    };
+  };
+
+  const bestMetrics = getBestMetrics();
+
+  // Error Recovery UI
+  if (authError && !profile) {
+    return (
+      <div className="flex-center h-screen flex-column p-4 text-center">
+        <ShieldAlert size={48} className="text-coral mb-4" />
+        <h2 className="title-gradient">Connection Issue</h2>
+        <p className="text-secondary mb-6 max-width-400">
+          We couldn't retrieve your profile data. The server might be busy.
+        </p>
+        <Button variant="primary" onClick={() => refreshProfile(user?.id, true)}>
+          Retry Loading Profile
+        </Button>
+      </div>
+    );
+  }
+
+  if (!profile || authLoading) return <LoadingSpinner fullPage message="Securely retrieving your global matrix..." />;
 
   return (
     <div className="sw-app-root">
@@ -131,10 +196,10 @@ const CountryCompare = () => {
                   {comparisonData.map((res, i) => (
                     <td key={i} className="sw-data-cell">
                       <div className="flex-center" style={{ gap: 'var(--space-2)' }}>
-                        <span className={`sw-metric-value ${res.roiScore > 70 ? 'text-teal' : 'text-amber'}`}>
-                          {res.roiScore}/100
+                        <span className={`sw-metric-value ${res.roiScore === bestMetrics.maxRoi ? 'text-teal fw-700' : 'text-amber'}`}>
+                          {res.roiScore || 0}/100
                         </span>
-                        {res.roiScore > 75 && <Sparkles size={12} className="text-teal" />}
+                        {res.roiScore === bestMetrics.maxRoi && <Sparkles size={12} className="text-teal" />}
                       </div>
                     </td>
                   ))}
@@ -144,8 +209,8 @@ const CountryCompare = () => {
                 <tr>
                   <td className="sw-metric-label">Total Cost (INR)</td>
                   {comparisonData.map((res, i) => (
-                    <td key={i} className={`sw-data-cell ${res.totalInvestment < 4000000 ? 'best-value' : ''}`}>
-                      <span className="sw-metric-value">₹{res.totalInvestmentInLocalCurrencyShort || '---'}</span>
+                    <td key={i} className={`sw-data-cell ${res.totalInvestment === bestMetrics.minCost ? 'best-value' : ''}`}>
+                      <span className="sw-metric-value">₹{((res.totalInvestment * 84) / 100000).toFixed(1)}L</span>
                       <span className="sw-metric-sub">Incl. Tuition + Fees</span>
                     </td>
                   ))}
@@ -153,11 +218,11 @@ const CountryCompare = () => {
 
                 {/* Starting Salary Row */}
                 <tr>
-                  <td className="sw-metric-label">Avg Salary</td>
+                  <td className="sw-metric-label">Avg Salary (USD)</td>
                   {comparisonData.map((res, i) => (
-                    <td key={i} className={`sw-data-cell ${res.avgSalary > 100000 ? 'best-value' : ''}`}>
-                      <span className="sw-metric-value text-teal">${res.avgSalary?.toLocaleString()}</span>
-                      <span className="sw-metric-sub">USD Equivalent</span>
+                    <td key={i} className={`sw-data-cell ${res.benchmarks?.salary === Math.max(...comparisonData.map(r => r.benchmarks?.salary || 0)) ? 'best-value' : ''}`}>
+                      <span className="sw-metric-value text-teal">${res.benchmarks?.salary?.toLocaleString() || '---'}</span>
+                      <span className="sw-metric-sub">Country Benchmark</span>
                     </td>
                   ))}
                 </tr>
@@ -167,8 +232,8 @@ const CountryCompare = () => {
                   <td className="sw-metric-label">Payback Period</td>
                   {comparisonData.map((res, i) => (
                     <td key={i} className="sw-data-cell">
-                      <span className={`sw-metric-value ${res.paybackPeriodYears < 2 ? 'text-teal' : ''}`}>
-                        {res.paybackPeriodYears} Years
+                      <span className={`sw-metric-value ${res.breakEvenYear === bestMetrics.minPayback ? 'text-teal fw-700 underline' : ''}`}>
+                        {res.breakEvenYear || 0} Years
                       </span>
                     </td>
                   ))}

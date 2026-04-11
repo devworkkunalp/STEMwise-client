@@ -9,21 +9,21 @@ export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState(null);
   const isFetchingProfile = React.useRef(false);
 
-  const refreshProfile = async (userId, force = false) => {
-    // If already fetching or already have profile for this user, skip (unless forced)
+  const refreshProfile = async (userId, force = false, retryCount = 1) => {
     if ((isFetchingProfile.current || (profile && user?.id === userId)) && !force) {
       return;
     }
 
     isFetchingProfile.current = true;
+    setAuthError(null);
     
-    // Safety timeout: don't let a slow API hang the whole app initialization
+    // 8-second safety timeout for backend pooler
     const timeout = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error("Profile fetch timeout")), 5000)
+      setTimeout(() => reject(new Error("Profile fetch timeout")), 8000)
     );
-
     try {
       const data = await Promise.race([
         profileService.getMyProfile(),
@@ -31,11 +31,11 @@ export const AuthProvider = ({ children }) => {
       ]);
       setProfile(data);
     } catch (err) {
-      console.warn("Profile unavailable or timeout:", err.message);
-      // Don't set profile to null if it's just a timeout/network error on a retry
-      if (!profile) setProfile(null);
+      console.warn("Profile fetch failed or timed out:", err.message);
+      setAuthError(err.message);
     } finally {
       isFetchingProfile.current = false;
+      setLoading(false); // ALWAYS unset loading to prevent UI hang
     }
   };
 
@@ -85,6 +85,7 @@ export const AuthProvider = ({ children }) => {
     session,
     profile,
     loading,
+    authError,
     isAuthenticated: !!user,
     refreshProfile
   };

@@ -15,6 +15,14 @@
   background: rgba(10, 17, 40, 0.95);
 }
 
+.sw-sidebar-brand {
+  margin-bottom: var(--space-8);
+  padding: 0 var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
 .sw-sidebar-header {
   margin-bottom: var(--space-12);
   padding: 0 var(--space-4);

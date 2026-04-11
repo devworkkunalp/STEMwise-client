@@ -44,41 +44,40 @@ const scenarioService = {
     switch (type) {
       case 'H1B_DENIED':
         // Return home after 3 years (OPT)
-        // Assume home earnings are much lower
-        adjusted.roiScore = Math.max(0, baseROI.roiScore - 35);
-        adjusted.paybackYears = 'Never (US-only)';
+        adjusted.roiPercentage = Math.max(0, (baseROI?.roiPercentage || 0) - 35);
+        adjusted.breakEvenYear = 'Never (US-only)';
         impactScore = -35;
         break;
       
       case 'RECESSION':
         // -20% Salary benchmark
-        adjusted.roiScore = Math.max(0, baseROI.roiScore - 15);
-        adjusted.totalROI = baseROI.totalROI * 0.8;
+        adjusted.roiPercentage = Math.max(0, (baseROI?.roiPercentage || 0) - 15);
+        adjusted.netEarnings10Yr = (baseROI?.netEarnings10Yr || 0) * 0.8;
         impactScore = -15;
         break;
 
       case 'CURRENCY_CRASH':
         // INR -20% (Repayment is harder)
-        adjusted.roiScore = Math.max(0, baseROI.roiScore - 10);
+        adjusted.roiPercentage = Math.max(0, (baseROI?.roiPercentage || 0) - 10);
         impactScore = -10;
         break;
 
       case 'JOB_GAP':
         // 6 months unemployed post-grad
-        adjusted.roiScore = Math.max(0, baseROI.roiScore - 8);
-        adjusted.paybackYears = parseFloat(baseROI.paybackYears) + 0.5;
+        adjusted.roiPercentage = Math.max(0, (baseROI?.roiPercentage || 0) - 8);
+        adjusted.breakEvenYear = (baseROI?.breakEvenYear || 0) + 1;
         impactScore = -8;
         break;
 
       case 'LEVEL_3_PROMO':
         // Higher wage selection boost
-        adjusted.roiScore = Math.min(100, baseROI.roiScore + 12);
+        adjusted.roiPercentage = Math.min(100, (baseROI?.roiPercentage || 0) + 12);
         impactScore = 12;
         break;
 
       case 'STUDY_DELAY':
         // 1 year extra study (tuition + opportunity cost)
-        adjusted.roiScore = Math.max(0, baseROI.roiScore - 12);
+        adjusted.roiPercentage = Math.max(0, (baseROI?.roiPercentage || 0) - 12);
         impactScore = -12;
         break;
 

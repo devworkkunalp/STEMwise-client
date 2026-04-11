@@ -18,11 +18,11 @@
 }
 
 .sw-timeline-node {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--bg-navy-light);
-  border: 2px solid var(--border-glass);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,21 +33,21 @@
 .sw-node-dot {
   width: 6px;
   height: 6px;
-  background: var(--text-muted);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
 }
 
 .sw-node-check {
-  font-size: 14px;
-  font-weight: 800;
+  font-size: 10px;
+  font-weight: 900;
   color: var(--bg-midnight);
 }
 
 .sw-timeline-line {
-  width: 2px;
-  background: var(--border-glass);
+  width: 1px;
+  background: rgba(255, 255, 255, 0.1);
   flex: 1;
-  margin: var(--space-1) 0;
+  margin: 4px 0;
 }
 
 .sw-timeline-content {
@@ -75,7 +75,8 @@
 
 .sw-timeline-desc {
   font-size: var(--fs-sm);
-  line-height:1.5;
+  color: var(--text-muted);
+  line-height: 1.5;
 }
 
 .sw-timeline-risk {
@@ -83,8 +84,9 @@
   align-items: center;
   gap: var(--space-2);
   margin-top: var(--space-3);
-  padding: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   background: rgba(251, 191, 36, 0.05);
+  border: 1px solid rgba(251, 191, 36, 0.1);
   border-radius: var(--radius-sm);
   font-size: 11px;
   color: var(--color-amber);
@@ -94,23 +96,37 @@
 .is-completed .sw-timeline-node {
   background: var(--color-teal);
   border-color: var(--color-teal);
-  box-shadow: 0 0 10px var(--color-teal-glow);
+  box-shadow: 0 0 12px rgba(45, 212, 191, 0.3);
 }
 
 .is-completed .sw-timeline-line {
   background: var(--color-teal);
+  opacity: 0.5;
 }
 
 .is-active .sw-timeline-node {
   border-color: var(--color-teal);
   background: var(--bg-midnight);
+  animation: pulse-teal 2s infinite;
 }
 
 .is-active .sw-node-dot {
   background: var(--color-teal);
-  box-shadow: 0 0 10px var(--color-teal);
+  box-shadow: 0 0 8px var(--color-teal);
 }
 
 .is-active .sw-timeline-title {
   color: var(--color-teal);
+}
+
+@keyframes pulse-teal {
+  0% {
+    box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(45, 212, 191, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(45, 212, 191, 0);
+  }
 }

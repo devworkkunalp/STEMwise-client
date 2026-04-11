@@ -38,6 +38,7 @@ import VisaPathway from './pages/VisaPathway/VisaPathway';
 import LoanSimulator from './pages/LoanSimulator/LoanSimulator';
 import WhatIfEngine from './pages/WhatIfEngine/WhatIfEngine';
 import LandingPage from './pages/LandingPage/LandingPage';
+import Profile from './pages/Profile/Profile';
 
 
 import './index.css';
@@ -101,6 +102,14 @@ function App() {
         element={
           <ProtectedRoute>
             <VisaPathway />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/profile" 
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         } 
       />

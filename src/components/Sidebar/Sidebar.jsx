@@ -53,27 +53,9 @@ const Sidebar = ({ activeTab, onTabChange, userName = 'Student', profile }) => {
 
   return (
     <aside className="sw-sidebar glass-panel animate-slide-right">
-      {/* T11.7 Profile Card */}
-      <div className="sw-sidebar-header">
-        <div className="sw-user-card glass-panel" style={{ padding: 'var(--space-4)', width: '100%' }}>
-          <div className="flex-center" style={{ gap: 'var(--space-4)', justifyContent: 'flex-start' }}>
-            <div className="sw-user-avatar">
-              {userName.charAt(0)}
-              <span className="sw-user-flag">{getFlag(profile?.nationality)}</span>
-            </div>
-            <div className="sw-user-info">
-              <span className="sw-user-name">{userName}</span>
-              <div className="sw-user-subtext">
-                 <GraduationCap size={12} />
-                 <span>{profile?.degreeLevel === 1 ? 'Masters' : 'PhD'} • {profile?.specialization || 'STEM'}</span>
-              </div>
-              <div className="sw-user-subtext">
-                 <Calendar size={12} />
-                 <span>Fall 2024 Intake</span>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* T11.7 Logo Area (New) */}
+      <div className="sw-sidebar-brand">
+         <span className="text-gradient" style={{ fontWeight: 800, fontSize: '20px', letterSpacing: '1px' }}>STEMwise</span>
       </div>
 
       <nav className="sw-sidebar-nav">
@@ -100,7 +82,27 @@ const Sidebar = ({ activeTab, onTabChange, userName = 'Student', profile }) => {
       </nav>
 
       <div className="sw-sidebar-footer">
-        <button className="sw-sidebar-link">
+        {/* T19.2 relocated Profile Card */}
+        <div 
+          className="sw-user-card glass-panel clickable" 
+          onClick={() => navigate('/profile')}
+          style={{ padding: 'var(--space-3)', width: '100%', marginBottom: 'var(--space-4)', border: '1px solid var(--border-glass)', cursor: 'pointer' }}
+        >
+          <div className="flex-center" style={{ gap: 'var(--space-3)', justifyContent: 'flex-start' }}>
+            <div className="sw-user-avatar" style={{ width: '36px', height: '36px', fontSize: '14px' }}>
+              {userName.charAt(0)}
+              <span className="sw-user-flag" style={{ fontSize: '12px' }}>{getFlag(profile?.nationality)}</span>
+            </div>
+            <div className="sw-user-info">
+              <span className="sw-user-name" style={{ fontSize: '13px' }}>{userName}</span>
+              <span className="sw-user-subtext" style={{ fontSize: '10px' }}>
+                 {profile?.degreeLevel === 'PhD' ? 'PhD' : 'Masters'} • {profile?.specialization || 'STEM'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <button className={`sw-sidebar-link ${location.pathname === '/profile' ? 'is-active' : ''}`} onClick={() => navigate('/profile')}>
           <Settings size={18} className="sw-sidebar-icon" />
           <span className="sw-sidebar-label">Settings</span>
         </button>

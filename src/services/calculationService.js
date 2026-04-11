@@ -32,6 +32,19 @@ const calculationService = {
   },
 
   /**
+   * get H-1B lottery selection probability and wage level classification.
+   */
+  async getVisaProbability(payload) {
+    try {
+      const response = await api.post('/calculation/visa', payload);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching visa probability:', error);
+      throw error;
+    }
+  },
+
+  /**
    * get high-level statistics for international student outcomes.
    */
   async getGlobalStats() {
@@ -40,6 +53,19 @@ const calculationService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching global stats:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * trigger the full data enrichment pipeline (Scorecard + DOL + FX + H1B).
+   */
+  async enrichProfile(payload) {
+    try {
+      const response = await api.post('/enrichment/profile', payload);
+      return response.data;
+    } catch (error) {
+      console.error('Error enriching profile:', error);
       throw error;
     }
   }

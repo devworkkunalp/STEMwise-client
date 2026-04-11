@@ -46,31 +46,36 @@ const RepaymentChart = ({ data = [] }) => {
           data={defaultData}
           margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+          <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.03)" vertical={false} />
           <XAxis 
             dataKey="year" 
             axisLine={false}
             tickLine={false}
-            tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+            tick={{ fill: 'var(--text-muted)', fontSize: 11, fontWeight: 500 }}
             dy={10}
           />
           <YAxis 
             axisLine={false}
             tickLine={false}
-            tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
             tickFormatter={(value) => `$${value / 1000}k`}
           />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
           <Bar 
             dataKey="amount" 
-            radius={[4, 4, 0, 0]}
-            barSize={40}
+            radius={[2, 2, 0, 0]}
+            barSize={48}
           >
             {defaultData.map((entry, index) => (
               <Cell 
                 key={`cell-${index}`} 
-                fill={index === 2 ? 'var(--color-teal)' : 'rgba(45, 212, 191, 0.3)'}
-                style={{ filter: index === 2 ? 'drop-shadow(0 0 8px var(--color-teal-glow))' : 'none' }}
+                fill={index === 2 ? 'var(--color-teal)' : 'rgba(255, 255, 255, 0.05)'}
+                stroke={index === 2 ? 'var(--color-teal)' : 'rgba(255, 255, 255, 0.1)'}
+                strokeWidth={1}
+                style={{ 
+                  filter: index === 2 ? 'drop-shadow(0 0 12px rgba(45, 212, 191, 0.4))' : 'none',
+                  transition: 'all 0.3s ease'
+                }}
               />
             ))}
           </Bar>

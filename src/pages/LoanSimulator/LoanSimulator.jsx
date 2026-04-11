@@ -64,8 +64,8 @@ const LoanSimulator = () => {
       const updatedLoans = await Promise.all(loans.map(async (loan) => {
         const res = await loanService.calculateLoan({
           principal: loan.principal,
-          annualInterestRate: loan.rate,
-          tenureYears: loan.tenure,
+          interestRate: loan.rate,
+          termYears: loan.tenure,
           gracePeriodMonths: loan.grace
         });
         return { ...loan, result: res };
@@ -143,11 +143,11 @@ const LoanSimulator = () => {
     <div className="sw-app-root">
       <Navbar isAuthenticated={true} user={user} />
       
-      <div className="dashboard-page-root">
+      <div className="loan-page-root">
         <Sidebar activeTab="loan" onTabChange={(id) => setActiveTab(id)} profile={profile} />
         
-        <main className="dashboard-main">
-          <div className="dashboard-content animate-fade-in">
+        <main className="loan-main">
+          <div className="loan-content animate-fade-in">
             
             <header className="loan-header">
               <div className="loan-header-info">
