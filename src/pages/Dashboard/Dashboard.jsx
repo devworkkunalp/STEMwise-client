@@ -124,142 +124,147 @@ const Dashboard = () => {
   if (loading && !profile) return <LoadingSpinner fullPage message="Securely retrieving your STEM engine..." />;
 
   return (
-    <div className="sw-app-root">
-      <Navbar 
-        isAuthenticated={true} 
-        user={{ name: displayName }} 
-        onLogout={() => {}} // Logout handled in App level navigation
+    <div className="shell">
+      <Sidebar 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab} 
+        userName={displayName}
+        profile={profile}
       />
-      
-      <div className="dashboard-page-root">
-        <Sidebar 
-          activeTab={activeTab} 
-          onTabChange={setActiveTab} 
-          userName={displayName}
-          profile={profile}
-        />
 
-        <main className="dashboard-main">
-          <div className="dashboard-content animate-fade-in">
+      <div className="main">
+        <div id="pg-dashboard" className="page active" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           
-          {/* T11.2 Greeting Header */}
-          <header className="dashboard-header animate-slide-up">
-            <div className="greeting-text">
-              <h1 className="text-gradient">{getGreeting()}, {displayName} 👋</h1>
-              <p>DATA LIVE AS OF {lastUpdated} • STEM ENGINE 2.1</p>
+          <div className="topbar">
+            <div>
+              <div className="tb-breadcrumb">DASHBOARD</div>
+              <div className="tb-title">Your STEM Analytics</div>
             </div>
-            <div className="header-actions">
-               <Badge variant="teal">Live ROI Tracker</Badge>
+            <div className="tb-right">
+              <div style={{ fontSize: '11px', color: 'var(--hint)', fontFamily: 'var(--fm)' }}>
+                Data live as of {lastUpdated}
+              </div>
+              <button className="btn btn-primary" onClick={handleRecalculate}>
+                {isLoading ? 'Syncing...' : 'Live ROI Sync'}
+              </button>
             </div>
-          </header>
-
-          {/* T11.6 Policy Alert Banner */}
-          <div className="policy-banner-container animate-fade-in">
-             <AlertBanner 
-               type="warning" 
-               title="Policy Update: H-1B Wage-Based Selection" 
-               icon={AlertTriangle}
-             >
-                The DHS has proposed a resume of wage-based prioritization for the March 2026 lottery. Low-wage positions may see significantly reduced selection rates. <a href="#" className="auth-link">Analyze your risk →</a>
-             </AlertBanner>
           </div>
 
-          {/* T19.1 & T19.3: Refined Dashboard Grid */}
-          <section className="dashboard-grid-overhaul animate-slide-up">
-              {/* ROI Score Ring - Primary Visual */}
-              <div className="sw-main-ring-panel">
-                <ROIScoreRing score={roiResult?.roiPercentage || 72} size={220} />
-                <div className="sw-ring-narrative">
-                   <h3 className="text-gradient">Strong ROI Potential</h3>
-                   <p className="text-secondary">Your profile is trending in the top 15% for STEM graduates from {profile?.nationality || 'India'}.</p>
-                </div>
-              </div>
-              
-              {/* StatCards Cluster */}
-              <div className="sw-stats-cluster">
-                <StatCard 
-                  label="10-Year ROI Potential" 
-                  value={roiResult?.netEarnings10Yr ? `$${roiResult.netEarnings10Yr.toLocaleString()}` : "$--" } 
-                  trend="Excellent" 
-                  icon={TrendingUp}
-                  subtitle="Net Lifetime Value" 
-                />
-                <StatCard 
-                  label="Debt-Free Milestone" 
-                  value={roiResult?.breakEvenYear ? `${roiResult.breakEvenYear} Yrs` : "2.4 Yrs" } 
-                  trend="-0.5 Yrs" 
-                  icon={Clock}
-                  subtitle="Projected Repayment" 
-                />
-                <StatCard 
-                  label="H-1B Chance (Intl)" 
-                  value="28.4%" 
-                  trend="High Risk" 
-                  icon={PieChart}
-                  subtitle="Based on MS Quota" 
-                />
-                <StatCard 
-                  label="Total Cost Est." 
-                  value={roiResult?.totalInvestment ? `$${roiResult.totalInvestment.toLocaleString()}` : "$--" } 
-                  trend={roiResult?.totalInvestment ? `INR ${((roiResult.totalInvestment * 84) / 100000).toFixed(1)}L` : "INR --"} 
-                  icon={DollarSign}
-                  subtitle="Home Currency FX Rate" 
-                />
-              </div>
-          </section>
+          <div className="pbody">
+            
+            {/* Greeting */}
+            <div className="section-title" style={{ fontSize: '20px', marginBottom: '24px' }}>
+              {getGreeting()}, {displayName} 👋
+            </div>
 
-          {/* T11.4 & T11.5 Visual Row */}
-          <section className="dashboard-row">
-             <div className="glass-panel chart-container">
-                <h3 className="dashboard-section-title"><TrendingUp size={20} className="text-teal" /> Repayment Timeline</h3>
-                <p className="text-secondary" style={{ marginBottom: 'var(--space-8)' }}>Cumulative net worth progression based on median STEM salaries.</p>
-                <div style={{ height: '300px' }}>
-                  <RepaymentChart />
-                </div>
-             </div>
-
-             <div className="glass-panel" style={{ padding: 'var(--space-8)' }}>
-                <h3 className="dashboard-section-title"><ShieldCheck size={20} className="text-teal" /> Visa Pathway Status</h3>
-                <TimelineStep steps={visaSteps} currentStepIndex={1} />
-             </div>
-          </section>
-
-          {/* Scenario Sandbox */}
-          <section style={{ marginTop: 'var(--space-16)' }}>
-            <div className="glass-panel" style={{ padding: 'var(--space-8)' }}>
-              <div className="flex-between" style={{ marginBottom: 'var(--space-8)' }}>
-                 <div>
-                    <h3 className="dashboard-section-title"><Zap size={20} className="text-amber" /> ROI Sandbox</h3>
-                    <p className="text-secondary">Model adjustments to your loan or tuition to see immediate ROI impact.</p>
-                 </div>
-                 <Badge variant="warning">Draft Scenario</Badge>
-              </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 'var(--space-12)', alignItems: 'center' }}>
-                <RangeSlider 
-                  label="Adjust Loan Amount" 
-                  min={10000} 
-                  max={150000} 
-                  value={loanValue} 
-                  onChange={(e) => setLoanValue(parseInt(e.target.value))} 
-                  prefix="$"
-                />
-                <Button variant="primary" icon={Plus} onClick={handleRecalculate} isLoading={isLoading}>
-                  Recalculate Projections
-                </Button>
+            {/* Policy Alert Banner */}
+            <div className="alert a-warn">
+              <span>⚠️</span>
+              <div>
+                <strong>Policy Update: H-1B Wage-Based Selection</strong>
+                The DHS has proposed a resume of wage-based prioritization for the March 2026 lottery. Low-wage positions may see significantly reduced selection rates. <a href="#" style={{ textDecoration: 'underline' }}>Analyze your risk →</a>
               </div>
             </div>
-          </section>
 
+            {/* Main Stats Grid */}
+            <div className="g-3070" style={{ marginBottom: '16px' }}>
+              
+              {/* ROI Score Card */}
+              <div className="card card-teal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '30px 20px' }}>
+                <div className="eyebrow" style={{ color: 'var(--teal)' }}>10-Yr ROI Score</div>
+                <div style={{ fontSize: '56px', fontWeight: '800', fontFamily: 'var(--fd)', color: 'var(--white)', lineHeight: '1', margin: '14px 0' }}>
+                  {roiResult?.roiPercentage || 72}
+                </div>
+                <span className="badge b-teal">Top 15% for {profile?.nationality || 'India'}</span>
+              </div>
+
+              {/* StatCards Cluster */}
+              <div className="g2">
+                <div className="card">
+                  <div className="flex-between">
+                    <span className="eyebrow">Net Lifetime Value</span>
+                    <TrendingUp size={14} className="text-teal" />
+                  </div>
+                  <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'var(--fd)', marginTop: '8px' }}>
+                    {roiResult?.netEarnings10Yr ? `$${roiResult.netEarnings10Yr.toLocaleString()}` : "$--"}
+                  </div>
+                  <div className="label" style={{ marginTop: '4px' }}>10-Year ROI Potential</div>
+                </div>
+
+                <div className="card">
+                  <div className="flex-between">
+                    <span className="eyebrow">Projected Repayment</span>
+                    <Clock size={14} className="text-amber" />
+                  </div>
+                  <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'var(--fd)', marginTop: '8px' }}>
+                    {roiResult?.breakEvenYear ? `${roiResult.breakEvenYear} Yrs` : "2.4 Yrs"}
+                  </div>
+                  <div className="label" style={{ marginTop: '4px' }}>Debt-Free Milestone</div>
+                </div>
+
+                <div className="card">
+                  <div className="flex-between">
+                    <span className="eyebrow">MS Quota</span>
+                    <PieChart size={14} className="text-coral" />
+                  </div>
+                  <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'var(--fd)', marginTop: '8px' }}>
+                    28.4%
+                  </div>
+                  <div className="label" style={{ marginTop: '4px' }}>H-1B Chance ({profile?.nationality || 'Intl'})</div>
+                </div>
+
+                <div className="card">
+                  <div className="flex-between">
+                    <span className="eyebrow">Home Currency FX</span>
+                    <DollarSign size={14} className="text-sky" />
+                  </div>
+                  <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'var(--fd)', marginTop: '8px' }}>
+                    {roiResult?.totalInvestment ? `$${roiResult.totalInvestment.toLocaleString()}` : "$--"}
+                  </div>
+                  <div className="label" style={{ marginTop: '4px' }}>Total Cost Estimate</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="g2">
+              {/* Repayment Chart */}
+              <div className="card">
+                <div className="section-title">Repayment Timeline</div>
+                <div className="label" style={{ marginBottom: '16px' }}>Cumulative net worth progression based on median STEM salaries.</div>
+                <div style={{ height: '260px' }}>
+                  <RepaymentChart />
+                </div>
+              </div>
+
+              {/* Sandbox Model */}
+              <div className="card">
+                <div className="section-title">ROI Sandbox Modeling</div>
+                <div className="label" style={{ marginBottom: '16px' }}>Model adjustments to your loan to see immediate ROI impact.</div>
+                
+                <div className="input-group">
+                  <label className="input-label">Adjust Loan Amount</label>
+                  <div className="slider-val">${loanValue.toLocaleString()}</div>
+                  <input 
+                    type="range" 
+                    min="10000" 
+                    max="150000" 
+                    step="5000"
+                    value={loanValue}
+                    onChange={(e) => setLoanValue(parseInt(e.target.value))}
+                  />
+                  <div className="slider-labels"><span>$10K</span><span>$150K</span></div>
+                </div>
+
+                <button className="btn btn-primary btn-full" onClick={handleRecalculate} style={{ marginTop: '16px' }}>
+                  {isLoading ? 'Analyzing Impact...' : 'Run Scenario'}
+                </button>
+              </div>
+            </div>
+
+          </div>
         </div>
-      </main>
+      </div>
     </div>
-
-    <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-    {isLoading && <LoadingSpinner fullPage message="Querying .NET Analytics Engine..." />}
-  </div>
   );
 };
-
-
 export default Dashboard;

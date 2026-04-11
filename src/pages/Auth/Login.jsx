@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react';
+import { LogIn, Mail, Lock, AlertCircle, Sparkles } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import authService from '../../services/authService';
 import Button from '../../components/Button/Button';
@@ -48,8 +48,11 @@ const Login = () => {
 
   return (
     <div className="auth-page-root animate-fade-in">
-      <div className="auth-container glass-panel">
+      <div className="auth-container">
         <div className="auth-header">
+          <div className="auth-logo-icon">
+            <Sparkles size={32} />
+          </div>
           <h1 className="text-gradient">Welcome Back</h1>
           <p>Sign in to access your STEMwise dashboard.</p>
         </div>

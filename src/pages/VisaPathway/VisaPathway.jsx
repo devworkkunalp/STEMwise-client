@@ -109,165 +109,224 @@ const VisaPathway = () => {
   if (authLoading && !profile) return <LoadingSpinner fullPage message="Securely retrieving your visa pathway..." />;
 
   return (
-    <div className="sw-app-root">
-      <Navbar isAuthenticated={true} user={user} />
+    <div className="shell">
+      <Sidebar activeTab="visa" onTabChange={(id) => setActiveTab(id)} profile={profile} userName={profile?.displayName || user?.email?.split('@')[0] || 'Student'} />
       
-      <div className="visa-page-root">
-        <Sidebar activeTab="visa" onTabChange={(id) => setActiveTab(id)} profile={profile} />
-        
-        <main className="visa-main">
-          <div className="visa-content animate-fade-in">
+      <div className="main">
+        <div id="pg-visa" className="page active" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          
+          <div className="topbar">
+            <div>
+              <div className="tb-breadcrumb">VISA PATHWAY</div>
+              <div className="tb-title">Immigration Roadmap</div>
+            </div>
+            <div className="tb-right">
+              <div style={{ fontSize: '11px', color: 'var(--hint)', fontFamily: 'var(--fm)' }}>
+                Targeting: {profile?.targetCity || 'San Francisco'}
+              </div>
+              <button className="btn btn-outline" onClick={() => alert('Detailed probability breakdown for each attempt coming soon!')}>
+                Detailed Timeline
+              </button>
+            </div>
+          </div>
+
+          <div className="pbody">
             
-            <header className="visa-header">
-              <div className="visa-header-info">
-                 <Badge variant="teal">Visa Intelligence</Badge>
-                 <h1 className="text-gradient">Immigration Roadmap</h1>
-                 <p className="text-secondary">AI-driven probability model for <strong>{profile?.nationality || 'India'}</strong> to **H-1B** transition.</p>
-              </div>
-              <div className="header-actions">
-                 <Button variant="outline" icon={Clock} onClick={() => alert('Detailed probability breakdown for each attempt coming soon!')}>Detailed Timeline</Button>
-              </div>
-            </header>
+            <div className="section-title" style={{ fontSize: '20px', marginBottom: '20px' }}>
+              <span className="badge b-teal" style={{ marginBottom: '8px' }}>Visa Intelligence</span>
+              <div>AI-driven probability model for {profile?.nationality || 'India'} to H-1B transition.</div>
+            </div>
 
-            <div className="visa-grid-layout">
+            <div className="g-7030">
               {/* Left Panel: Timeline */}
-              <section className="visa-timeline-panel glass-panel">
-                <div className="section-title">
-                  <Calendar size={20} className="text-teal" />
-                  <h3>Immigration Timeline</h3>
-                </div>
-                <div className="timeline-wrapper">
-                  <TimelineStep steps={visaTimeline} currentStepIndex={1} />
-                </div>
-              </section>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div className="card">
+                  <div className="section-title" style={{ marginBottom: '16px' }}>Your Immigration Chain</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                    
+                    <div style={{ display: 'flex', gap: '14px', padding: '14px 0', borderBottom: '1px solid var(--bdr)' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--teal)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '700', color: 'var(--navy)', flexShrink: 0 }}>1</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--white)' }}>F-1 Student Visa</div>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>Duration: {profile?.programDurationYears || 2} years · Status: Active · Fall 2026 entry</div>
+                        <span className="badge b-teal" style={{ marginTop: '5px' }}>Active</span>
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '14px', padding: '14px 0', borderBottom: '1px solid var(--bdr)' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--sky)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '700', color: 'var(--navy)', flexShrink: 0 }}>2</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--white)' }}>OPT — 12 Months</div>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>Post-graduation work auth · Avg salary ${((profile?.targetSalary || 115000) * 0.85 / 1000).toFixed(0)}K–${((profile?.targetSalary || 115000) * 1.05 / 1000).toFixed(0)}K</div>
+                        <div style={{ fontSize: '11px', color: 'var(--hint)', marginTop: '2px' }}>60-day unemployment limit · Loan repayment begins</div>
+                      </div>
+                    </div>
 
-              {/* Right Panel: Odds Calculator */}
-              <section className="visa-odds-panel">
-                <div className="glass-panel odds-hero-card">
-                  <div className="flex-between">
-                    <h3 className="section-title"><TrendingUp size={20} className="text-teal" /> H-1B Selection Odds</h3>
-                    <Badge variant="warning">Wage-Based Selection Model</Badge>
+                    {isStem && (
+                      <div style={{ display: 'flex', gap: '14px', padding: '14px 0', borderBottom: '1px solid var(--bdr)' }}>
+                        <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--sky)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '700', color: 'var(--navy)', flexShrink: 0 }}>3</div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--white)' }}>STEM OPT +24 Months</div>
+                          <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>CIP code eligible ✓ · E-Verify employer required</div>
+                          <div style={{ fontSize: '11px', color: 'var(--teal)', marginTop: '2px', fontWeight: '500' }}>3 H-1B lottery entries — use every one</div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div style={{ display: 'flex', gap: '14px', padding: '14px 0' }}>
+                      <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(244,168,50,.15)', border: '2px dashed var(--amber)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '700', color: 'var(--amber)', flexShrink: 0 }}>{isStem ? '4' : '3'}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--amber)' }}>H-1B Decision (Wage-Based)</div>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>Wage-based lottery · Feb 2026 system active</div>
+                        <div style={{ fontSize: '11px', color: 'var(--amber)', marginTop: '2px' }}>Your estimated odds shown →</div>
+                      </div>
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                {/* If denied */}
+                <div className="card card-amber">
+                  <div className="section-title" style={{ color: 'var(--amber)', marginBottom: '14px' }}>If H-1B Denied — Your Alternative Paths</div>
+                  <div className="g2" style={{ gap: '10px' }}>
+                    <div style={{ padding: '10px 12px', background: 'rgba(0,0,0,.2)', borderRadius: '8px', border: '1px solid rgba(255,255,255,.05)' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--white)', fontWeight: '600' }}>O-1 Visa</div>
+                      <div style={{ fontSize: '10px', color: 'var(--muted)' }}>Extraordinary ability route</div>
+                      <div style={{ fontSize: '10px', color: 'var(--teal)', marginTop: '4px' }}>ROI: 68 · Payback +0.4yr</div>
+                    </div>
+                    <div style={{ padding: '10px 12px', background: 'rgba(0,0,0,.2)', borderRadius: '8px', border: '1px solid rgba(255,255,255,.05)' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--white)', fontWeight: '600' }}>EB-2 NIW</div>
+                      <div style={{ fontSize: '10px', color: 'var(--muted)' }}>National Interest Waiver</div>
+                      <div style={{ fontSize: '10px', color: 'var(--teal)', marginTop: '4px' }}>ROI: 70 · Payback +0.3yr</div>
+                    </div>
+                    <div style={{ padding: '10px 12px', background: 'rgba(0,0,0,.2)', borderRadius: '8px', border: '1px solid rgba(255,255,255,.05)' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--white)', fontWeight: '600' }}>Canada Express Entry</div>
+                      <div style={{ fontSize: '10px', color: 'var(--muted)' }}>PGWP → PR pathway</div>
+                      <div style={{ fontSize: '10px', color: 'var(--teal)', marginTop: '4px' }}>ROI: 61 · Payback 3.8yr</div>
+                    </div>
+                    <div style={{ padding: '10px 12px', background: 'rgba(0,0,0,.2)', borderRadius: '8px', border: '1px solid rgba(255,255,255,.05)' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--white)', fontWeight: '600' }}>Return Home</div>
+                      <div style={{ fontSize: '10px', color: 'var(--muted)' }}>Expat premium path</div>
+                      <div style={{ fontSize: '10px', color: 'var(--coral)', marginTop: '4px' }}>ROI: 52 · Payback 5.8yr</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Panel: Odds & Models */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                
+                <div className="card card-purple">
+                  <div className="section-title" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                     <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><TrendingUp size={16} /> H-1B Odds</span>
+                     <span className="badge b-amber">Wage-Based Model</span>
                   </div>
                   
-                  <div className="probability-summary">
-                    <div className="main-odds-value">
-                      <span className="odds-number">{(visaData?.cumulativeSuccessProbability * 100).toFixed(1)}%</span>
-                      <span className="odds-label">Selection Chance via {visaData?.totalAttempts || 1} Attempt{visaData?.totalAttempts > 1 ? 's' : ''}</span>
+                  <div style={{ display: 'flex', gap: '16px', alignItems: 'center', margin: '20px 0' }}>
+                    <div style={{ padding: '16px', borderRadius: '12px', background: 'var(--n4)', textAlign: 'center', border: '1px solid var(--bdr)' }}>
+                      <div style={{ fontSize: '32px', fontWeight: '800', fontFamily: 'var(--fd)', color: 'var(--teal)', lineHeight: '1' }}>
+                        {(visaData?.cumulativeSuccessProbability * 100).toFixed(1)}%
+                      </div>
+                      <div className="eyebrow" style={{ marginTop: '6px' }}>Selection via {visaData?.totalAttempts || 1} Attempt{visaData?.totalAttempts > 1 ? 's' : ''}</div>
                     </div>
-                    <div className="odds-narrative">
-                      <p>Currently classified as <strong>Level {visaData?.wageLevel || 'II'}</strong> in <strong>{profile?.targetCity || 'San Francisco'}</strong>.</p>
+                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                      Currently classified as <strong style={{ color: 'var(--white)' }}>Level {visaData?.wageLevel || 'II'}</strong> in <strong style={{ color: 'var(--white)' }}>{profile?.targetCity || 'San Francisco'}</strong>.
                     </div>
                   </div>
 
-                  <div className="wage-level-chart">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {displayWageLevels.map((lvl) => {
-                      const isUserLevel = lvl.isUserLevel;
+                      const isUserLevel = lvl.level.includes(visaData?.wageLevel || 'II');
                       return (
-                        <div key={lvl.level} className={`wage-level-bar-item ${isUserLevel ? 'is-active' : ''}`}>
-                          <div className="bar-info">
-                             <div className="bar-labels">
-                               <span className="bar-name">{lvl.level}</span>
-                               <span className="bar-desc">{lvl.label}</span>
-                             </div>
-                             <span className="bar-rate">{lvl.rate}%</span>
+                        <div key={lvl.level} style={{ padding: '10px 14px', borderRadius: '8px', background: isUserLevel ? 'rgba(0,201,167,.08)' : 'var(--n4)', border: `1px solid ${isUserLevel ? 'rgba(0,201,167,.3)' : 'transparent'}` }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '11px' }}>
+                            <strong style={{ color: isUserLevel ? 'var(--teal)' : 'var(--white)' }}>{lvl.level} — {lvl.label}</strong>
+                            <strong style={{ fontFamily: 'var(--fm)' }}>{lvl.rate}%</strong>
                           </div>
-                          <div className="bar-track">
-                             <div className="bar-fill" style={{ width: `${lvl.rate}%` }}></div>
+                          <div className="prog-track">
+                             <div className="prog-fill" style={{ width: `${lvl.rate}%`, background: isUserLevel ? 'var(--color-teal)' : 'var(--n5)' }}></div>
                           </div>
-                          {isUserLevel && (
-                            <div className="user-level-indicator">
-                              <Zap size={10} fill="currentColor" /> YOU ARE HERE
-                            </div>
-                          )}
                         </div>
                       );
                     })}
                   </div>
 
-                  <div className="optimization-tip-box">
-                    <div className="tip-icon"><Info size={16} /></div>
-                    <div className="tip-content">
-                        <strong>Optimization Strategy:</strong> {visaData?.optimizationTip || 'Analyzing your profile for wage-level advantages...'}
+                  <div className="alert a-info" style={{ marginTop: '16px', marginBottom: 0 }}>
+                    <span>💡</span>
+                    <div>
+                        <strong>Optimization Strategy</strong>
+                        {visaData?.optimizationTip || 'Analyzing your profile for wage-level advantages...'}
                     </div>
                   </div>
                 </div>
 
-                {/* Alternative Pathways Card */}
-                <div className="glass-panel sponsor-list-card alternative-paths-card">
-                   <div className="section-title">
-                     <ShieldCheck size={20} className="text-teal" />
-                     <h3>Global Alternative Pathways</h3>
-                   </div>
-                   <div className="path-grid">
-                      <div className="path-item">
-                         <div className="path-header">
-                            <span className="path-name">Canada</span>
-                            <Badge variant={isStem ? "success" : "teal"}>{isStem ? "High Odds" : "Viable"}</Badge>
+                <div className="card">
+                   <div className="section-title">Global Alternative Pathways</div>
+                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <div style={{ background: 'var(--n4)', padding: '12px', borderRadius: '8px' }}>
+                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                            <strong style={{ fontSize: '12px', color: 'var(--sky)' }}>Canada</strong>
+                            <span className="badge b-sky">{isStem ? 'High Odds' : 'Viable'}</span>
                          </div>
-                         <p>{isStem 
-                            ? "Express Entry STEM category probability >75% for your profile. Direct PR route likely." 
-                            : "General Express Entry or Provincial Nominee Program (PNP) is a strong alternative."}</p>
+                         <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
+                            {isStem ? "Express Entry STEM category probability >75% for your profile. Direct PR route likely." : "General Express Entry or PNP is a strong alternative."}
+                         </div>
                       </div>
-                      <div className="path-item">
-                         <div className="path-header">
-                            <span className="path-name">UK / Germany</span>
-                            <Badge variant="primary">Stable</Badge>
+                      <div style={{ background: 'var(--n4)', padding: '12px', borderRadius: '8px' }}>
+                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                            <strong style={{ fontSize: '12px', color: 'var(--amber)' }}>UK / Germany</strong>
+                            <span className="badge b-amber">Stable</span>
                          </div>
-                         <p>Direct sponsorship via EU Blue Card (Germany) or Skilled Worker (UK) is highly viable for your credentials.</p>
+                         <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
+                            Direct sponsorship via EU Blue Card (Germany) or Skilled Worker (UK) is highly viable.
+                         </div>
                       </div>
-                      <div className="path-item">
-                         <div className="path-header">
-                            <span className="path-name">O-1 / EB-2 NIW</span>
-                            <Badge variant={visaData?.cumulativeSuccessProbability > 0.8 ? "success" : "warning"}>
-                                {visaData?.cumulativeSuccessProbability > 0.8 ? "Recommended" : "High Merit"}
-                            </Badge>
+                      <div style={{ background: 'var(--n4)', padding: '12px', borderRadius: '8px' }}>
+                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                            <strong style={{ fontSize: '12px', color: 'var(--purple)' }}>O-1 / EB-2 NIW</strong>
+                            <span className="badge b-purple">{visaData?.cumulativeSuccessProbability > 0.8 ? "Recommended" : "High Merit"}</span>
                          </div>
-                         <p>{visaData?.wageLevel >= 3 
-                            ? "Your high wage level and role specialization make you a strong candidate for an O-1A 'Extraordinary Ability' visa." 
-                            : "Viable merit-based route if your achievements and citations exceed sector benchmarks."}</p>
+                         <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
+                            {visaData?.wageLevel >= 3 ? "Your high wage level and role specialization make you a strong candidate for an O-1A." : "Viable merit-based route if your achievements exceed benchmarks."}
+                         </div>
                       </div>
                    </div>
                 </div>
 
-                {/* Top Sponsors in Metro */}
-                <div className="glass-panel sponsor-list-card">
-                   <div className="section-title">
-                     <Building2 size={20} className="text-teal" />
-                     <h3>Top H-1B Sponsors in {profile?.targetCity?.split(',')[0]}</h3>
+                <div className="card">
+                   <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                     <Building2 size={16} className="text-teal" /> Top H-1B Sponsors in {profile?.targetCity?.split(',')[0]}
                    </div>
-                   <div className="sponsor-list">
+                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '14px' }}>
                      {employers.length > 0 ? (
                        employers.map((emp) => (
-                         <div key={emp.id} className="sponsor-item">
-                            <div className="sponsor-info">
-                               <span className="sponsor-name">{emp.name}</span>
-                               <span className="sponsor-industry">{emp.primaryStemFields?.slice(0, 2).join(', ')}</span>
+                         <div key={emp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--bdr)' }}>
+                            <div>
+                               <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--white)' }}>{emp.name}</div>
+                               <div style={{ fontSize: '10px', color: 'var(--hint)' }}>{emp.primaryStemFields?.slice(0, 2).join(', ')}</div>
                             </div>
-                            <div className="sponsor-stats">
-                               <span className="sponsor-filings">{(emp.h1bFilingsTotal || 0).toLocaleString()} <span>Filings</span></span>
-                               <Badge variant="teal">{emp.sponsorScore}/100 Score</Badge>
+                            <div style={{ textAlign: 'right' }}>
+                               <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--teal)' }}>{(emp.h1bFilingsTotal || 0).toLocaleString()} <span>Filings</span></div>
+                               <div className="badge b-dim" style={{ marginTop: '2px' }}>{emp.sponsorScore}/100 Score</div>
                             </div>
                          </div>
                        ))
                      ) : (
-                       <div className="text-secondary p-8 text-center">
-                         <Search size={24} className="mb-2 opacity-50" />
-                         <p>No major sponsors found for {profile?.targetCity?.split(',')[0]} in our current benchmarks.</p>
+                       <div style={{ padding: '24px', textAlign: 'center', color: 'var(--hint)' }}>
+                         <Search size={24} style={{ opacity: 0.5, marginBottom: '8px' }} />
+                         <div style={{ fontSize: '12px' }}>No major sponsors found for {profile?.targetCity?.split(',')[0]} in our current benchmarks.</div>
                        </div>
                      )}
                    </div>
                 </div>
-              </section>
+
+              </div>
             </div>
 
           </div>
-        </main>
+        </div>
       </div>
-
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-      {isLoading && <LoadingSpinner fullPage message="Querying USCIS & DOL Benchmark Data..." />}
     </div>
   );
 };
-
 export default VisaPathway;

@@ -151,147 +151,169 @@ const CountryCompare = () => {
   if (!profile || authLoading) return <LoadingSpinner fullPage message="Securely retrieving your global matrix..." />;
 
   return (
-    <div className="sw-app-root">
-      <Navbar isAuthenticated={true} user={user} />
+    <div className="shell">
+      <Sidebar activeTab="compare" onTabChange={(id) => setActiveTab(id)} profile={profile} userName={profile?.displayName || user?.email?.split('@')[0] || 'Student'} />
       
-      <div className="sw-compare-page">
-        <Sidebar activeTab="compare" onTabChange={(id) => setActiveTab(id)} profile={profile} />
-        
-        <main className="sw-compare-container">
-          <header className="sw-compare-header sw-calc-fade-in">
-            <div className="sw-header-stack">
-              <Badge variant="primary">Country Comparison</Badge>
-              <h1 className="text-gradient">Global ROI Matrix</h1>
-              <p className="text-secondary">Comparing outcomes for <strong>{profile.degreeName}</strong> in <strong>{profile.specialization}</strong>.</p>
+      <div className="main">
+        <div id="pg-compare" className="page active" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          
+          <div className="topbar">
+            <div>
+              <div className="tb-breadcrumb">COUNTRY COMPARISON</div>
+              <div className="tb-title">Global ROI Matrix</div>
             </div>
-            <div className="flex" style={{ gap: 'var(--space-3)' }}>
-              <Button variant="outline" icon={Download} />
-              <Button variant="primary" icon={Plus}>Add Country</Button>
+            <div className="tb-right">
+              <button className="btn btn-outline">
+                <Download size={14} style={{ marginRight: '6px' }} /> Export
+              </button>
+              <button className="btn btn-primary" onClick={() => { if(!selectedCodes.includes('AU')) addCountry('AU'); else alert('Max countries reached or AU already added'); }}>
+                <Plus size={14} style={{ marginRight: '6px' }} /> Add Country
+              </button>
             </div>
-          </header>
+          </div>
 
-          {/* Comparison Matrix */}
-          <section className="sw-compare-matrix-wrapper glass-panel sw-calc-fade-in" style={{ animationDelay: '100ms' }}>
-            <table className="sw-compare-matrix">
-              <thead>
-                <tr>
-                  <th className="sw-metric-label">METRIC</th>
-                  {selectedCodes.map(code => {
-                    const country = getCountryInfo(code);
-                    return (
-                      <th key={code}>
-                        <div className="sw-country-header">
-                           <span className="sw-country-flag">{country?.flagEmoji || '🌐'}</span>
-                           <span className="sw-country-name">{country?.name || code}</span>
-                        </div>
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                {/* ROI Score Row */}
-                <tr>
-                  <td className="sw-metric-label">ROI Score</td>
-                  {comparisonData.map((res, i) => (
-                    <td key={i} className="sw-data-cell">
-                      <div className="flex-center" style={{ gap: 'var(--space-2)' }}>
-                        <span className={`sw-metric-value ${res.roiScore === bestMetrics.maxRoi ? 'text-teal fw-700' : 'text-amber'}`}>
-                          {res.roiScore || 0}/100
-                        </span>
-                        {res.roiScore === bestMetrics.maxRoi && <Sparkles size={12} className="text-teal" />}
-                      </div>
-                    </td>
-                  ))}
-                </tr>
-
-                {/* Total Cost Row */}
-                <tr>
-                  <td className="sw-metric-label">Total Cost (INR)</td>
-                  {comparisonData.map((res, i) => (
-                    <td key={i} className={`sw-data-cell ${res.totalInvestment === bestMetrics.minCost ? 'best-value' : ''}`}>
-                      <span className="sw-metric-value">₹{((res.totalInvestment * 84) / 100000).toFixed(1)}L</span>
-                      <span className="sw-metric-sub">Incl. Tuition + Fees</span>
-                    </td>
-                  ))}
-                </tr>
-
-                {/* Starting Salary Row */}
-                <tr>
-                  <td className="sw-metric-label">Avg Salary (USD)</td>
-                  {comparisonData.map((res, i) => (
-                    <td key={i} className={`sw-data-cell ${res.benchmarks?.salary === Math.max(...comparisonData.map(r => r.benchmarks?.salary || 0)) ? 'best-value' : ''}`}>
-                      <span className="sw-metric-value text-teal">${res.benchmarks?.salary?.toLocaleString() || '---'}</span>
-                      <span className="sw-metric-sub">Country Benchmark</span>
-                    </td>
-                  ))}
-                </tr>
-
-                {/* Payback Period Row */}
-                <tr>
-                  <td className="sw-metric-label">Payback Period</td>
-                  {comparisonData.map((res, i) => (
-                    <td key={i} className="sw-data-cell">
-                      <span className={`sw-metric-value ${res.breakEvenYear === bestMetrics.minPayback ? 'text-teal fw-700 underline' : ''}`}>
-                        {res.breakEvenYear || 0} Years
-                      </span>
-                    </td>
-                  ))}
-                </tr>
-
-                {/* Visa Risk Row */}
-                <tr>
-                  <td className="sw-metric-label">Work Visa Risk</td>
-                  {selectedCodes.map(code => {
-                    const country = getCountryInfo(code);
-                    const risk = country?.visaRisk || 'Medium';
-                    return (
-                      <td key={code} className={`sw-data-cell ${risk === 'High' ? 'high-risk' : ''}`}>
-                        <Badge variant={risk === 'High' ? 'danger' : risk === 'Low' ? 'success' : 'warning'}>
-                          {risk}
-                        </Badge>
-                      </td>
-                    );
-                  })}
-                </tr>
-
-                {/* PR Pathway Row */}
-                <tr>
-                  <td className="sw-metric-label">PR Pathway</td>
-                  {selectedCodes.map(code => {
-                    const country = getCountryInfo(code);
-                    return (
-                      <td key={code} className="sw-data-cell">
-                        <span className="sw-metric-sub" style={{ fontSize: '11px', color: 'var(--color-off-white)' }}>
-                          {country?.prPathway || 'Post-Grad Route'}
-                        </span>
-                      </td>
-                    );
-                  })}
-                </tr>
-              </tbody>
-            </table>
-          </section>
-
-          {/* Insight Summary */}
-          <footer className="sw-insight-banner glass-panel sw-calc-fade-in" style={{ animationDelay: '300ms' }}>
-            <div className="sw-insight-grid">
-               <div className="sw-section-icon"><Zap size={20} /></div>
-               <div>
-                 <h4 style={{ margin: '0 0 4px 0' }}>Strategic Summary for {user?.name || 'Arjun'}</h4>
-                 <p className="text-secondary" style={{ fontSize: '13px', margin: 0, lineHeight: 1.5 }}>
-                   <strong>Germany</strong> offers the fastest ROI with a 1.4-year payback, but carries higher language barrier risks. 
-                   The <strong>USA</strong> remains the highest earnings potential ($118k avg), but is offset by the H-1B lottery risk. 
-                   <strong>Canada</strong> provides the most balanced PR pathway for STEM profiles.
-                 </p>
-               </div>
-               <Button variant="outline" icon={ArrowRight} style={{ marginLeft: 'auto' }}>See Best Scenario</Button>
+          <div className="pbody">
+            
+            <div className="section-title" style={{ fontSize: '20px', marginBottom: '20px' }}>
+              Comparing outcomes for <strong>{profile?.degreeName || 'MS'}</strong> in <strong>{profile?.specialization || 'STEM'}</strong>.
             </div>
-          </footer>
-        </main>
+
+            {/* Comparison Matrix */}
+            <div className="card" style={{ padding: 0, overflowX: 'auto', marginBottom: '24px' }}>
+              <table className="ctable">
+                <thead>
+                  <tr>
+                    <th>METRIC</th>
+                    {selectedCodes.map(code => {
+                      const country = getCountryInfo(code);
+                      return (
+                        <th key={code} className={code === 'US' ? 'hl' : ''}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', textAlign: 'center' }}>
+                             <span style={{ fontSize: '18px' }}>{country?.flagEmoji || '🌐'}</span>
+                             <span>{country?.name || code}</span>
+                          </div>
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* ROI Score Row */}
+                  <tr>
+                    <td className="row-label">ROI Score</td>
+                    {comparisonData.map((res, i) => {
+                      const code = selectedCodes[i];
+                      return (
+                        <td key={i} className={code === 'US' ? 'col-hl hl' : ''} style={{ textAlign: 'center' }}>
+                          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ color: res.roiScore === bestMetrics.maxRoi ? 'var(--teal)' : 'var(--white)', fontWeight: res.roiScore === bestMetrics.maxRoi ? '700' : 'normal' }}>
+                              {res.roiScore || 0}/100
+                            </span>
+                            {res.roiScore === bestMetrics.maxRoi && <Sparkles size={12} className="text-teal" />}
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+
+                  {/* Total Cost Row */}
+                  <tr>
+                    <td className="row-label">Total Cost (INR)</td>
+                    {comparisonData.map((res, i) => {
+                      const code = selectedCodes[i];
+                      return (
+                        <td key={i} className={code === 'US' ? 'col-hl hl' : ''} style={{ textAlign: 'center' }}>
+                          <span style={{ display: 'block', color: 'var(--white)' }}>₹{((res.totalInvestment * 84) / 100000).toFixed(1)}L</span>
+                          <span style={{ fontSize: '10px', color: 'var(--hint)' }}>Incl. Tuition + Fees</span>
+                        </td>
+                      );
+                    })}
+                  </tr>
+
+                  {/* Starting Salary Row */}
+                  <tr>
+                    <td className="row-label">Avg Salary (USD)</td>
+                    {comparisonData.map((res, i) => {
+                      const code = selectedCodes[i];
+                      return (
+                        <td key={i} className={code === 'US' ? 'col-hl hl' : ''} style={{ textAlign: 'center' }}>
+                          <span style={{ display: 'block', color: 'var(--teal)', fontWeight: '600' }}>${res.benchmarks?.salary?.toLocaleString() || '---'}</span>
+                          <span style={{ fontSize: '10px', color: 'var(--hint)' }}>Country Benchmark</span>
+                        </td>
+                      );
+                    })}
+                  </tr>
+
+                  {/* Payback Period Row */}
+                  <tr>
+                    <td className="row-label">Payback Period</td>
+                    {comparisonData.map((res, i) => {
+                      const code = selectedCodes[i];
+                      return (
+                        <td key={i} className={code === 'US' ? 'col-hl hl' : ''} style={{ textAlign: 'center' }}>
+                          <span style={{ color: res.breakEvenYear === bestMetrics.minPayback ? 'var(--teal)' : 'var(--white)' }}>
+                            {res.breakEvenYear || 0} Years
+                          </span>
+                        </td>
+                      );
+                    })}
+                  </tr>
+
+                  {/* Visa Risk Row */}
+                  <tr>
+                    <td className="row-label">Work Visa Risk</td>
+                    {selectedCodes.map(code => {
+                      const country = getCountryInfo(code);
+                      const risk = country?.visaRisk || 'Medium';
+                      return (
+                        <td key={code} className={code === 'US' ? 'col-hl hl' : ''} style={{ textAlign: 'center' }}>
+                          <div className={`badge ${risk === 'High' ? 'b-coral' : risk === 'Low' ? 'b-teal' : 'b-amber'}`}>
+                            {risk}
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+
+                  {/* PR Pathway Row */}
+                  <tr>
+                    <td className="row-label">PR Pathway</td>
+                    {selectedCodes.map(code => {
+                      const country = getCountryInfo(code);
+                      return (
+                        <td key={code} className={code === 'US' ? 'col-hl hl' : ''} style={{ textAlign: 'center' }}>
+                          <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
+                            {country?.prPathway || 'Post-Grad Route'}
+                          </span>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Insight Summary */}
+            <div className="card card-teal">
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                 <div style={{ background: 'var(--teal)', color: 'var(--navy)', width: '30px', height: '30px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Zap size={16} />
+                 </div>
+                 <div style={{ flex: 1 }}>
+                   <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--white)', marginBottom: '6px' }}>Strategic Summary for {user?.name || profile?.displayName || 'Arjun'}</div>
+                   <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                     <strong>Germany</strong> offers the fastest ROI with a 1.4-year payback, but carries higher language barrier risks. 
+                     The <strong>USA</strong> remains the highest earnings potential ($118k avg), but is offset by the H-1B lottery risk. 
+                     <strong>Canada</strong> provides the most balanced PR pathway for STEM profiles.
+                   </div>
+                 </div>
+                 <button className="btn btn-outline" style={{ flexShrink: 0 }}>See Best Scenario <ArrowRight size={14} style={{ marginLeft: '4px' }}/></button>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
-
-      <BottomNav activeTab={activeTab} onTabChange={(id) => setActiveTab(id)} />
     </div>
   );
 };

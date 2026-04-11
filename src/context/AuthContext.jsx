@@ -41,34 +41,16 @@ export const AuthProvider = ({ children }) => {
 
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        setSession(session);
-        const currentUser = session?.user ?? null;
-        setUser(currentUser);
-        
-        if (currentUser) {
-          await refreshProfile(currentUser.id);
-        }
-      } catch (err) {
-        console.error("Critical session check failure:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    let mounted = true;
 
-
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      const currentUser = session?.user ?? null;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
+      if (!mounted) return;
       
-      setSession(session);
+      const currentUser = currentSession?.user ?? null;
+      setSession(currentSession);
       setUser(currentUser);
       
-      // Only fetch profile on specific events to avoid the refresh loop
-      if (currentUser && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+      if (currentUser && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED')) {
         await refreshProfile(currentUser.id);
       } else if (!currentUser) {
         setProfile(null);
@@ -77,7 +59,10 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription?.unsubscribe();
+    };
   }, []);
 
   const value = {

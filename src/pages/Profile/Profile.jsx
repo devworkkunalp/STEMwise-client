@@ -59,77 +59,102 @@ const Profile = () => {
   };
 
   return (
-    <div className="sw-app-root">
-      <Navbar isAuthenticated={true} user={user} />
-      <div className="sw-profile-page">
-        <Sidebar activeTab="settings" onTabChange={(id) => setActiveTab(id)} profile={profile} />
-        <main className="sw-profile-container">
-          <header className="sw-profile-header">
-            <h1 className="text-gradient">Security & Profile</h1>
-            <p className="text-secondary">Manage your simulation identity and benchmark locations.</p>
-          </header>
+    <div className="shell">
+      <Sidebar activeTab="settings" onTabChange={(id) => setActiveTab(id)} profile={profile} userName={profile?.displayName || user?.email?.split('@')[0] || 'Student'} />
+      <div className="main">
+        <div id="pg-profile" className="page active" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          
+          <div className="topbar">
+            <div>
+              <div className="tb-breadcrumb">ACCOUNT</div>
+              <div className="tb-title">Security & Profile</div>
+            </div>
+            <div className="tb-right">
+               <button className="btn btn-primary" onClick={handleSave} disabled={isSaving}>
+                 {isSaving ? 'Saving Benchmarks...' : 'Save Profile Settings'}
+               </button>
+            </div>
+          </div>
 
-          <section className="glass-panel sw-profile-section">
-             <div className="section-title">
-               <User size={20} className="text-teal" />
-               <h3>Identity</h3>
-             </div>
-             <div className="sw-input-grid">
-                <InputField label="Full Name" value={formData.name} disabled />
-                <InputField label="Email Address" value={formData.email} disabled />
-             </div>
-          </section>
+          <div className="pbody">
+            <div className="section-title" style={{ fontSize: '20px', marginBottom: '24px' }}>
+              Manage your simulation identity and benchmark locations.
+            </div>
 
-          <section className="glass-panel sw-profile-section">
-             <div className="section-title">
-               <MapPin size={20} className="text-teal" />
-               <h3>Simulation Hubs</h3>
-             </div>
-             <div className="sw-input-grid">
-                <InputField 
-                   label="Target City (US)" 
-                   value={formData.targetCity} 
-                   onChange={(e) => setFormData({...formData, targetCity: e.target.value})}
-                   placeholder="e.g. Austin, TX"
-                />
-                <InputField 
-                   label="Target Salary (USD)" 
-                   type="number"
-                   value={formData.targetSalary} 
-                   onChange={(e) => setFormData({...formData, targetSalary: parseFloat(e.target.value)})}
-                />
-                <SelectField 
-                   label="Specialization / Major"
-                   value={formData.specialization}
-                   onChange={(e) => setFormData({...formData, specialization: e.target.value})}
-                   options={[
-                     { value: 'Computer Science', label: 'Computer Science' },
-                     { value: 'Data Science', label: 'Data Science' },
-                     { value: 'MBA', label: 'MBA' },
-                     { value: 'Architecture', label: 'Architecture' }
-                   ]}
-                />
-             </div>
-             <div className="mt-4">
-                <Button variant="primary" icon={Save} onClick={handleSave} disabled={isSaving}>
-                  {isSaving ? 'Saving Benchmarks...' : 'Save Profile Settings'}
-                </Button>
-             </div>
-          </section>
+            <div style={{ display: 'grid', gap: '24px', maxWidth: '800px' }}>
+              
+              <div className="card">
+                 <div className="section-title" style={{ marginBottom: '16px' }}>
+                   <User size={16} className="text-teal" style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} /> Identity
+                 </div>
+                 <div className="g2">
+                    <div className="input-group">
+                       <span className="input-label">Full Name</span>
+                       <input type="text" value={formData.name} disabled style={{ opacity: 0.7 }} />
+                    </div>
+                    <div className="input-group">
+                       <span className="input-label">Email Address</span>
+                       <input type="email" value={formData.email} disabled style={{ opacity: 0.7 }} />
+                    </div>
+                 </div>
+              </div>
 
-          <section className="glass-panel sw-profile-section visa-status-card">
-             <div className="section-title">
-               <ShieldCheck size={20} className="text-teal" />
-               <h3>Immigration Status</h3>
-             </div>
-             <div className="flex-between">
-                <span>Current Residency: <strong>F-1 Student</strong></span>
-                <Badge variant="teal">Visa Ready</Badge>
-             </div>
-          </section>
-        </main>
+              <div className="card">
+                 <div className="section-title" style={{ marginBottom: '16px' }}>
+                   <MapPin size={16} className="text-teal" style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} /> Simulation Hubs
+                 </div>
+                 <div className="g2" style={{ marginBottom: '16px' }}>
+                    <div className="input-group">
+                       <span className="input-label">Target City (US)</span>
+                       <input 
+                         type="text"
+                         value={formData.targetCity} 
+                         onChange={(e) => setFormData({...formData, targetCity: e.target.value})}
+                         placeholder="e.g. Austin, TX"
+                       />
+                    </div>
+                    <div className="input-group">
+                       <span className="input-label">Target Salary (USD)</span>
+                       <div style={{ position: 'relative' }}>
+                          <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--hint)' }}>$</span>
+                          <input 
+                            type="number"
+                            style={{ paddingLeft: '24px' }}
+                            value={formData.targetSalary} 
+                            onChange={(e) => setFormData({...formData, targetSalary: parseFloat(e.target.value)})}
+                          />
+                       </div>
+                    </div>
+                 </div>
+                 <div className="input-group">
+                    <span className="input-label">Specialization / Major</span>
+                    <select 
+                       value={formData.specialization} 
+                       onChange={(e) => setFormData({...formData, specialization: e.target.value})}
+                       style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', background: 'var(--n4)', border: '1px solid var(--bdr)', color: 'var(--white)', fontSize: '13px' }}
+                    >
+                       <option value="Computer Science">Computer Science</option>
+                       <option value="Data Science">Data Science</option>
+                       <option value="MBA">MBA</option>
+                       <option value="Architecture">Architecture</option>
+                    </select>
+                 </div>
+              </div>
+
+              <div className="card">
+                 <div className="section-title" style={{ marginBottom: '16px' }}>
+                   <ShieldCheck size={16} className="text-teal" style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} /> Immigration Status
+                 </div>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--white)', fontSize: '14px' }}>Current Residency: <strong style={{ fontWeight: '600' }}>F-1 Student</strong></span>
+                    <span className="badge b-teal">Visa Ready</span>
+                 </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
       </div>
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
 };

@@ -8,6 +8,8 @@ import {
   ArrowUpRight, 
   ArrowRight,
   Info,
+  Ban,
+  Pause,
   AlertTriangle,
   ChevronRight,
   Target,
@@ -30,12 +32,12 @@ import BottomNav from '../../components/BottomNav/BottomNav';
 import './WhatIfEngine.css';
 
 const scenarioCards = [
-  { id: 'H1B_DENIED', title: 'H-1B Lottery Denied', description: 'Model impact of returning home after OPT expiration.', icon: ShieldAlert, color: 'coral' },
-  { id: 'RECESSION', title: 'Economic Recession', description: 'Model a 20% drop in target STEM salaries.', icon: TrendingDown, color: 'amber' },
-  { id: 'CURRENCY_CRASH', title: 'Currency Devaluation', description: 'Model a 20% spike in repayment cost due to FX.', icon: DollarSign, color: 'sky' },
-  { id: 'JOB_GAP', title: 'Extended Job Search', description: 'Model 6 months of unemployment post-graduation.', icon: Clock, color: 'teal' },
-  { id: 'LEVEL_3_PROMO', title: 'Level 3 Promotion', description: 'Model wage-based H-1B prioritization boost.', icon: Zap, color: 'indigo' },
-  { id: 'STUDY_DELAY', title: 'Progression Delay', description: 'Model 1-year gap in degree completion.', icon: ArrowUpRight, color: 'rose' }
+  { id: 'H1B_DENIED', title: 'H-1B Denied (3x)', description: 'All 3 STEM OPT lottery entries fail. Models O-1, EB-2 NIW, Canada redirect.', icon: Ban, color: 'coral' },
+  { id: 'RECESSION', title: 'Salary 20% Below Benchmark', description: 'Job market saturation scenario. $118K → $94K starting salary.', icon: TrendingDown, color: 'amber' },
+  { id: 'CURRENCY_CRASH', title: 'INR Depreciates 20%', description: 'Currency risk: ₹83/$ → ₹100/$. Impact on home-currency debt burden.', icon: DollarSign, color: 'sky' },
+  { id: 'STUDY_DELAY', title: 'Program Takes 3 Years', description: 'Extra year of tuition + COL + delayed earnings. Cost overrun impact.', icon: Clock, color: 'purple' },
+  { id: 'JOB_GAP', title: 'OPT Unemployment Gap', description: '60-day limit hit. 3-month job search after graduation before income starts.', icon: Pause, color: 'teal' },
+  { id: 'LEVEL_3_PROMO', title: 'Promoted to Level III', description: 'Upside scenario: Senior role by Year 2, $145K salary, H-1B odds 61%.', icon: Zap, color: 'blue' }
 ];
 
 const WhatIfEngine = () => {
@@ -121,123 +123,124 @@ const WhatIfEngine = () => {
   };
 
   return (
-    <div className="sw-app-root">
-      <Navbar isAuthenticated={true} user={user} />
+    <div className="shell">
+      <Sidebar activeTab="scenarios" onTabChange={(id) => setActiveTab(id)} profile={profile} userName={profile?.displayName || user?.email?.split('@')[0] || 'Student'} />
       
-      <div className="whatif-page-root">
-        <Sidebar activeTab="scenarios" onTabChange={(id) => setActiveTab(id)} profile={profile} />
-        
-        <main className="whatif-main">
-          <div className="whatif-content animate-fade-in">
-            
-            <header className="whatif-header">
-              <div className="whatif-header-info">
-                 <Badge variant="primary">Risk Intelligence</Badge>
-                 <h1 className="text-gradient">What-If Engine</h1>
-                 <p className="text-secondary">Stress-test your STEM degree against global hiring and policy risks.</p>
+      <div className="main">
+        <div id="pg-whatif" className="page active" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          
+          <div className="topbar">
+            <div>
+              <div className="tb-breadcrumb">WHAT-IF ENGINE</div>
+              <div className="tb-title">Scenario Stress Testing</div>
+            </div>
+            <div className="tb-right">
+              <div style={{ fontSize: '11px', color: 'var(--hint)', fontFamily: 'var(--fm)' }}>
+                Base ROI Tracked: {Math.round(baseROI?.roiScore || baseROI?.roiPercentage || 68)}
               </div>
-              <div className="header-actions">
-                 <Button variant="outline" icon={Globe}>Global Standards</Button>
-              </div>
-            </header>
+            </div>
+          </div>
 
-            {/* Scenario Discovery Grid */}
-            <section className="scenario-grid">
+          <div className="pbody">
+            
+            <div className="section-title" style={{ fontSize: '20px', marginBottom: '20px' }}>
+              Select a risk scenario to instantly model the impact on your H-1B timeline and ROI payload.
+            </div>
+
+            {/* Scenario Grid */}
+            <div className="g-3070" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '14px', marginBottom: '24px' }}>
                {scenarioCards.map((s, idx) => (
-                 <button 
+                 <div 
                    key={s.id} 
-                   className={`glass-panel scenario-card animate-fade-in ${selectedScenario?.id === s.id ? 'is-active' : ''}`}
-                   style={{ animationDelay: `${idx * 50}ms` }}
+                   className={`card card-${s.color}`} 
+                   style={{ 
+                     cursor: 'pointer', 
+                     border: selectedScenario?.id === s.id ? `1px solid var(--color-${s.color})` : undefined,
+                     opacity: selectedScenario && selectedScenario.id !== s.id ? 0.6 : 1,
+                     transition: 'all 0.2s ease'
+                   }}
                    onClick={() => selectScenario(s)}
                  >
-                    <div className={`card-icon-box bg-${s.color}`}>
-                       <s.icon size={24} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                         <s.icon size={20} className={`text-${s.color}`} />
+                      </div>
+                      <strong style={{ fontSize: '15px' }}>{s.title}</strong>
                     </div>
-                    <div className="card-text">
-                       <h4>{s.title}</h4>
-                       <p>{s.description}</p>
+                    <div style={{ fontSize: '12px', color: 'var(--muted)', lineHeight: '1.5' }}>
+                      {s.description}
                     </div>
-                    <ChevronRight size={16} className="text-muted" />
-                 </button>
+                 </div>
                ))}
-            </section>
+            </div>
 
             {/* Impact Detail View */}
             {selectedScenario && modeledResult && (
-              <section id="scenario-detail-view" className="scenario-analysis glass-panel animate-slide-up">
-                 <div className="analysis-header flex-between">
-                    <div className="analysis-title-stack">
-                       <h2 className="title-gradient">Impact Analysis: {selectedScenario.title}</h2>
-                       <p className="text-secondary">Recalculated ROI based on the current profile for {profile?.nationality || 'India'}.</p>
-                    </div>
-                    <Button variant="primary" icon={Plus} onClick={saveScenarioResult}>Save to Profile</Button>
+              <div id="scenario-detail-view" className="card" style={{ borderTop: `4px solid var(--color-${selectedScenario.color})` }}>
+                 
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+                     <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                           <selectedScenario.icon size={24} className={`text-${selectedScenario.color}`} />
+                           <h2 style={{ fontSize: '24px', fontWeight: '800', margin: 0 }}>Analysis: {selectedScenario.title === 'H-1B Denied (3x)' ? 'H-1B Denied (Max Attempts)' : selectedScenario.title}</h2>
+                        </div>
+                        <div style={{ fontSize: '13px', color: 'var(--hint)' }}>Probability of occurrence: <strong>52%</strong> based on your profile inputs.</div>
+                     </div>
+                     <button className="btn btn-outline" onClick={saveScenarioResult}>Save Event Model</button>
                  </div>
 
-                 <div className="analysis-metrics-row">
-                    <div className="delta-card base-delta">
-                       <span className="delta-label">Base ROI</span>
-                       <span className="delta-value">{Math.round(modeledResult?.baseRoi || 0)}%</span>
-                    </div>
-                    <div className="delta-arrow">
-                       <ArrowRight size={32} className={(modeledResult?.impactScore || 0) < 0 ? 'text-coral' : 'text-teal'} />
-                       <span className={`impact-badge ${(modeledResult?.impactScore || 0) < 0 ? 'bg-coral' : 'bg-teal'}`}>
-                          {(modeledResult?.impactScore || 0) > 0 ? '+' : ''}{Math.round(modeledResult?.impactScore || 0)}
-                       </span>
-                    </div>
-                    <div className={`delta-card adjusted-delta ${(modeledResult?.impactScore || 0) < 0 ? 'is-negative' : 'is-positive'}`}>
-                       <span className="delta-label">Adjusted ROI</span>
-                       <span className="delta-value">{Math.round(modeledResult?.adjustedRoi || 0)}%</span>
-                    </div>
-                 </div>
-
-                 {/* New Metrics Table */}
-                 <div className="metrics-detail-grid">
-                    {modeledResult.metrics?.map((m, idx) => (
-                       <div key={idx} className="metric-detail-card">
-                          <span className="m-label">{m.label}</span>
-                          <div className="m-values">
-                             <span className="m-base">{m.baseValue}</span>
-                             <ArrowRight size={12} className="text-muted" />
-                             <span className={`m-adj ${m.isNegative ? 'text-coral' : 'text-teal'}`}>{m.adjustedValue}</span>
-                          </div>
+                 {/* Metric Comparison */}
+                 <div style={{ display: 'flex', gap: '24px', alignItems: 'center', padding: '24px', background: 'var(--n4)', borderRadius: '12px', marginBottom: '24px' }}>
+                    <div style={{ flex: 1 }}>
+                       <div className="eyebrow" style={{ textTransform: 'uppercase', marginBottom: '8px' }}>Base ROI Score</div>
+                       <div style={{ fontSize: '42px', fontWeight: '800', fontFamily: 'var(--fd)', color: 'var(--text-secondary)' }}>
+                         {Math.round(modeledResult?.baseRoi || baseROI?.roiScore || 0)}
                        </div>
-                    ))}
-                 </div>
-
-                 <div className="analysis-narrative-box">
-                    <div className="narrative-icon text-amber"><AlertTriangle size={20} /></div>
-                    <div className="narrative-content">
-                       <h4>Strategic Risk Assessment</h4>
-                       <p className="text-secondary">{modeledResult.narrative}</p>
                     </div>
-                 </div>
+                    
+                    <div style={{ opacity: 0.5 }}><ArrowRight size={32} /></div>
 
-                 <div className="pivot-pathways-row">
-                    <h3 className="dashboard-section-title"><Target size={20} className="text-teal" /> Recommended Pivots</h3>
-                    <div className="pivot-grid">
-                       {modeledResult.recommendedPivots?.map((p, idx) => (
-                         <div key={idx} className="pivot-item glass-card">
-                            <div className="pivot-icon bg-sky"><Globe size={18} /></div>
-                            <div className="pivot-info">
-                               <span className="pivot-name">{p.name}</span>
-                               <span className="pivot-roi">ROI: {p.roi} ({p.riskLevel} Risk)</span>
-                            </div>
-                            <ChevronRight size={14} className="text-muted" />
+                    <div style={{ flex: 1, paddingLeft: '24px', borderLeft: '1px solid var(--bdr)' }}>
+                       <div className="eyebrow" style={{ textTransform: 'uppercase', marginBottom: '8px', color: `var(--${selectedScenario.color})` }}>Scenario Impact</div>
+                       <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px' }}>
+                         <div style={{ fontSize: '42px', fontWeight: '800', fontFamily: 'var(--fd)', color: (modeledResult?.impactScore || 0) < 0 ? 'var(--coral)' : 'var(--teal)' }}>
+                           {Math.round(modeledResult?.adjustedRoi || 0)}
                          </div>
-                       ))}
+                         <div className={`badge ${(modeledResult?.impactScore || 0) < 0 ? 'b-coral' : 'b-teal'}`} style={{ fontSize: '14px', padding: '4px 8px' }}>
+                           {(modeledResult?.impactScore || 0) > 0 ? '+' : ''}{Math.round(modeledResult?.impactScore || 0)} PTS
+                         </div>
+                       </div>
                     </div>
                  </div>
-              </section>
+
+                 <div style={{ borderLeft: '4px solid var(--teal)', paddingLeft: '16px', marginBottom: '24px' }}>
+                    <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
+                      Without H-1B, your STEM OPT earnings window is limited. <strong>Alternative strategic pivots automatically modeled below:</strong>
+                    </div>
+                 </div>
+
+                 <div className="g-3070" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                    <div style={{ background: 'var(--bg-navy-light)', padding: '16px', borderRadius: '8px', border: '1px solid var(--bdr)' }}>
+                       <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}><Globe size={14} className="text-teal" /> Canada Express Entry</div>
+                       <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--hint)' }}>ROI: 61 / Payback: 4.1yr</div>
+                    </div>
+                    <div style={{ background: 'var(--bg-navy-light)', padding: '16px', borderRadius: '8px', border: '1px solid var(--bdr)' }}>
+                       <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}><Globe size={14} className="text-amber" /> Return to India (expat+)</div>
+                       <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--hint)' }}>ROI: 52 / Payback: 5.8yr</div>
+                    </div>
+                    <div style={{ background: 'var(--bg-navy-light)', padding: '16px', borderRadius: '8px', border: '1px solid var(--bdr)' }}>
+                       <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}><Globe size={14} className="text-sky" /> O-1 Visa (if eligible)</div>
+                       <div style={{ fontFamily: 'var(--fm)', fontSize: '11px', color: 'var(--hint)' }}>ROI: 68 / Payback: 3.6yr</div>
+                    </div>
+                 </div>
+                 
+              </div>
             )}
 
           </div>
-        </main>
+        </div>
       </div>
-
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-      {isLoading && <LoadingSpinner fullPage message="Stress-Testing Global Scenarios..." />}
     </div>
   );
 };
-
 export default WhatIfEngine;

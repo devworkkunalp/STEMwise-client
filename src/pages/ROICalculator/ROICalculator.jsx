@@ -131,223 +131,191 @@ const ROICalculator = () => {
   };
 
   return (
-    <div className="sw-app-root">
-      <Navbar isAuthenticated={true} user={user} />
+    <div className="shell">
+      <Sidebar activeTab="calculator" onTabChange={(id) => setActiveTab(id)} profile={profile} userName={profile?.displayName || user?.email?.split('@')[0] || 'Student'} />
       
-      <div className="sw-calculator-page">
-        <Sidebar activeTab="calculator" onTabChange={(id) => setActiveTab(id)} profile={profile} />
-        
-        <main className="sw-calculator-container">
-          {/* Left Panel: Inputs */}
-          <div className="sw-calculator-inputs">
-            <header className="sw-calc-header sw-calc-fade-in">
-              <Badge variant="primary">ROI Simulator</Badge>
-              <h1 className="text-gradient">Financial Sandbox</h1>
-              <p className="text-secondary">Adjust your variables to see how they impact your 10-year ROI.</p>
-            </header>
+      <div className="main">
+        <div id="pg-roi" className="page active" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          
+          <div className="topbar">
+            <div>
+              <div className="tb-breadcrumb">ROI CALCULATOR</div>
+              <div className="tb-title">Financial Sandbox</div>
+            </div>
+            <div className="tb-right">
+              <div style={{ fontSize: '11px', color: 'var(--hint)', fontFamily: 'var(--fm)' }}>
+                Adjust variables to see ROI impact
+              </div>
+              <button className="btn btn-primary" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? 'Saving...' : 'Save Scenario'}
+              </button>
+            </div>
+          </div>
 
+          <div className="pbody">
+            
             {showWarning && (
-              <div className="sw-salary-warning sw-calc-fade-in">
-                <AlertTriangle size={18} />
-                <span>
+              <div className="alert a-warn">
+                <span>⚠️</span>
+                <div>
                   <strong>Salary Warning:</strong> $60,000 is below the typical 25th percentile for STEM graduates in major US hubs. Consider a more competitive target.
-                </span>
+                </div>
               </div>
             )}
 
-            {/* Section 1: Education */}
-            <section className="sw-calculator-section glass-panel sw-calc-fade-in" style={{ animationDelay: '100ms' }}>
-              <div className="sw-section-header">
-                <div className="sw-section-icon"><GraduationCap size={18} /></div>
-                <h3>Enrollment Profile</h3>
-              </div>
-              <div className="sw-input-grid">
-                <SelectField 
-                   label="Destination" 
-                   value={formData.destinationCountry} 
-                   onChange={(e) => handleInputChange('destinationCountry', e.target.value)}
-                   options={[
-                     { value: 'USA', label: 'United States' },
-                     { value: 'Germany', label: 'Germany' },
-                     { value: 'Canada', label: 'Canada' },
-                     { value: 'Australia', label: 'Australia' }
-                   ]}
-                />
-                <SelectField 
-                   label="Degree Level" 
-                   value={formData.degreeLevel} 
-                   onChange={(e) => handleInputChange('degreeLevel', e.target.value)}
-                   options={[
-                     { value: 'Masters', label: "Master's Degree" },
-                     { value: 'PhD', label: 'Doctorate (PhD)' },
-                     { value: 'Bootcamp', label: 'Accredited Bootcamp' }
-                   ]}
-                />
-                <SelectField 
-                   label="Field of Study" 
-                   value={formData.fieldOfStudy} 
-                   onChange={(e) => handleInputChange('fieldOfStudy', e.target.value)}
-                   options={[
-                     { value: 'Computer Science', label: 'Computer Science' },
-                     { value: 'Biomedical', label: 'Biomedical Sciences' },
-                     { value: 'Data Science', label: 'Data Science' },
-                     { value: 'MBA', label: 'Business Administration' }
-                   ]}
-                />
-                <InputField 
-                  label="University" 
-                  value={formData.universityName} 
-                  onChange={(e) => handleInputChange('universityName', e.target.value)}
-                  placeholder="e.g. Carnegie Mellon"
-                />
-                <InputField 
-                  label="Program" 
-                  value={formData.programName} 
-                  onChange={(e) => handleInputChange('programName', e.target.value)}
-                  placeholder="e.g. MS in Computer Science"
-                />
-                <InputField 
-                  label="Annual Tuition (USD)" 
-                  type="number"
-                  value={formData.annualTuition} 
-                  onChange={(e) => handleInputChange('annualTuition', parseFloat(e.target.value) || 0)}
-                  prefix="$"
-                />
-                <InputField 
-                  label="Duration (Years)" 
-                  type="number"
-                  value={formData.programDurationYears} 
-                  onChange={(e) => handleInputChange('programDurationYears', parseFloat(e.target.value) || 0)}
-                />
-              </div>
-            </section>
-
-            {/* Section 2: Financing */}
-            <section className="sw-calculator-section glass-panel sw-calc-fade-in" style={{ animationDelay: '200ms' }}>
-              <div className="sw-section-header">
-                <div className="sw-section-icon"><Wallet size={18} /></div>
-                <h3>Financing & Loans</h3>
-              </div>
-              <RangeSlider 
-                label="Education Loan (Total)" 
-                min={0} 
-                max={200000} 
-                step={5000} 
-                value={formData.loanAmount} 
-                onChange={(e) => handleInputChange('loanAmount', parseFloat(e.target.value) || 0)}
-                formatValue={(v) => `$${v.toLocaleString()}`}
-              />
-              <div className="sw-input-grid" style={{ marginTop: 'var(--space-2)' }}>
-                <InputField 
-                  label="Interest Rate (%)" 
-                  type="number"
-                  value={formData.interestRate} 
-                  onChange={(e) => handleInputChange('interestRate', parseFloat(e.target.value) || 0)}
-                  suffix="%"
-                />
-                <InputField 
-                  label="Annual Living Cost" 
-                  type="number"
-                  value={formData.annualLivingCost} 
-                  onChange={(e) => handleInputChange('annualLivingCost', parseFloat(e.target.value) || 0)}
-                  prefix="$"
-                />
-              </div>
-            </section>
-
-            {/* Section 3: Post-Graduation */}
-            <section className="sw-calculator-section glass-panel sw-calc-fade-in" style={{ animationDelay: '300ms' }}>
-              <div className="sw-section-header">
-                <div className="sw-section-icon"><Briefcase size={18} /></div>
-                <h3>Career Expectations</h3>
-              </div>
-              <div className="sw-input-grid">
-                <SelectField 
-                  label="Target Role" 
-                  options={[
-                    { value: 'Software Engineer', label: 'Software Engineer' },
-                    { value: 'Data Scientist', label: 'Data Scientist' },
-                    { value: 'Product Manager', label: 'Product Manager' },
-                    { value: 'UX Designer', label: 'UX Designer' }
-                  ]}
-                  value={formData.targetRole}
-                  onChange={(e) => handleInputChange('targetRole', e.target.value)}
-                />
-                <InputField 
-                  label="Expected Base Salary" 
-                  type="number"
-                  value={formData.expectedSalary} 
-                  onChange={(e) => handleInputChange('expectedSalary', parseFloat(e.target.value) || 0)}
-                  prefix="$"
-                />
-              </div>
-            </section>
-          </div>
-
-          {/* Right Panel: Results */}
-          <aside className="sw-calculator-results">
-            <div className="sw-calculator-section glass-panel sw-calc-fade-in" style={{ animationDelay: '400ms' }}>
-              <div className="sw-results-card">
-                <ROIScoreRing 
-                  score={roiResult?.roiScore || 0} 
-                  size={200}
-                  isLoading={isLoading}
-                />
+            <div className="g-7030">
+              {/* Left Panel: Inputs */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 
-                <div className="sw-roi-narrative">
-                  <p>
+                {/* Section 1: Education */}
+                <div className="card">
+                  <div className="section-title">Enrollment Profile</div>
+                  <div className="g2">
+                    <div className="input-group">
+                      <label className="input-label">Destination</label>
+                      <select value={formData.destinationCountry} onChange={(e) => handleInputChange('destinationCountry', e.target.value)}>
+                        <option value="USA">United States</option>
+                        <option value="Germany">Germany</option>
+                        <option value="Canada">Canada</option>
+                        <option value="Australia">Australia</option>
+                      </select>
+                    </div>
+                    <div className="input-group">
+                      <label className="input-label">Degree Level</label>
+                      <select value={formData.degreeLevel} onChange={(e) => handleInputChange('degreeLevel', e.target.value)}>
+                        <option value="Masters">Master's Degree</option>
+                        <option value="PhD">Doctorate (PhD)</option>
+                        <option value="Bootcamp">Accredited Bootcamp</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div className="g2">
+                     <div className="input-group">
+                       <label className="input-label">Field of Study</label>
+                       <select value={formData.fieldOfStudy} onChange={(e) => handleInputChange('fieldOfStudy', e.target.value)}>
+                         <option value="Computer Science">Computer Science</option>
+                         <option value="Biomedical">Biomedical Sciences</option>
+                         <option value="Data Science">Data Science</option>
+                         <option value="MBA">Business Administration</option>
+                       </select>
+                     </div>
+                     <div className="input-group">
+                       <label className="input-label">Program</label>
+                       <input type="text" value={formData.programName} onChange={(e) => handleInputChange('programName', e.target.value)} placeholder="e.g. MS in CS" />
+                     </div>
+                  </div>
+
+                  <div className="g2">
+                     <div className="input-group">
+                       <label className="input-label">Annual Tuition (USD)</label>
+                       <input type="number" value={formData.annualTuition} onChange={(e) => handleInputChange('annualTuition', parseFloat(e.target.value) || 0)} />
+                     </div>
+                     <div className="input-group">
+                       <label className="input-label">Duration (Years)</label>
+                       <input type="number" value={formData.programDurationYears} onChange={(e) => handleInputChange('programDurationYears', parseFloat(e.target.value) || 0)} />
+                     </div>
+                  </div>
+                </div>
+
+                {/* Section 2: Financing */}
+                <div className="card">
+                  <div className="section-title">Financing & Loans</div>
+                  <div className="input-group">
+                    <label className="input-label">Education Loan (Total)</label>
+                    <div className="slider-val">${formData.loanAmount.toLocaleString()}</div>
+                    <input 
+                      type="range" 
+                      min="0" max="200000" step="5000"
+                      value={formData.loanAmount} 
+                      onChange={(e) => handleInputChange('loanAmount', parseFloat(e.target.value) || 0)} 
+                    />
+                    <div className="slider-labels"><span>$0</span><span>$100K</span><span>$200K</span></div>
+                  </div>
+
+                  <div className="g2" style={{ marginTop: '14px' }}>
+                    <div className="input-group">
+                      <label className="input-label">Interest Rate (%)</label>
+                      <input type="number" value={formData.interestRate} onChange={(e) => handleInputChange('interestRate', parseFloat(e.target.value) || 0)} />
+                    </div>
+                    <div className="input-group">
+                      <label className="input-label">Annual Living Cost</label>
+                      <input type="number" value={formData.annualLivingCost} onChange={(e) => handleInputChange('annualLivingCost', parseFloat(e.target.value) || 0)} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Career */}
+                <div className="card">
+                  <div className="section-title">Career Expectations</div>
+                  <div className="g2">
+                    <div className="input-group">
+                      <label className="input-label">Target Role</label>
+                      <select value={formData.targetRole} onChange={(e) => handleInputChange('targetRole', e.target.value)}>
+                        <option value="Software Engineer">Software Engineer</option>
+                        <option value="Data Scientist">Data Scientist</option>
+                        <option value="Product Manager">Product Manager</option>
+                        <option value="UX Designer">UX Designer</option>
+                      </select>
+                    </div>
+                    <div className="input-group">
+                      <label className="input-label">Expected Base Salary</label>
+                      <input type="number" value={formData.expectedSalary} onChange={(e) => handleInputChange('expectedSalary', parseFloat(e.target.value) || 0)} />
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Right Panel: Results */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div className="card card-lg" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                  <ROIScoreRing score={roiResult?.roiScore || 0} size={200} isLoading={isLoading} />
+                  
+                  <div style={{ margin: '20px 0', fontSize: '13px', color: 'var(--muted)', lineHeight: '1.6' }}>
                     {roiResult?.roiScore > 70 
                       ? "This scenario shows a Strong ROI. Your expected earnings significantly outweigh the investment within 3.5 years."
                       : "This is a Moderate ROI scenario. Consider reducing loan amounts or targeting higher-paying metros to optimize payback."}
-                  </p>
+                  </div>
+
+                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ background: 'var(--n4)', borderRadius: '10px', padding: '14px', textAlign: 'left' }}>
+                      <div style={{ fontSize: '10px', color: 'var(--hint)', textTransform: 'uppercase' }}>Total Investment</div>
+                      <div style={{ fontFamily: 'var(--fd)', fontSize: '18px', fontWeight: '700', color: 'var(--white)' }}>
+                        ${roiResult?.totalInvestment?.toLocaleString() || '0'}
+                      </div>
+                    </div>
+                    
+                    <div style={{ background: 'var(--n4)', borderRadius: '10px', padding: '14px', textAlign: 'left' }}>
+                      <div style={{ fontSize: '10px', color: 'var(--hint)', textTransform: 'uppercase' }}>Payback Period</div>
+                      <div style={{ fontFamily: 'var(--fd)', fontSize: '18px', fontWeight: '700', color: 'var(--teal)' }}>
+                        {roiResult?.breakEvenYear || '0.0'} Years
+                      </div>
+                    </div>
+                    
+                    <div style={{ background: 'var(--n4)', borderRadius: '10px', padding: '14px', textAlign: 'left' }}>
+                      <div style={{ fontSize: '10px', color: 'var(--hint)', textTransform: 'uppercase' }}>Annual Delta</div>
+                      <div style={{ fontFamily: 'var(--fd)', fontSize: '18px', fontWeight: '700', color: 'var(--amber)' }}>
+                        ${roiResult?.incrementalEarnings?.toLocaleString() || '0'}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="sw-results-stats">
-                  <StatCard 
-                    label="Total Investment" 
-                    value={`$${roiResult?.totalInvestment?.toLocaleString() || '0'}`}
-                    subtitle="Tuition + Living + Interest"
-                  />
-                  <StatCard 
-                    label="Payback Period" 
-                    value={`${roiResult?.breakEvenYear || '0.0'} Years`}
-                    trend={roiResult?.breakEvenYear < 3.5 ? 'up' : 'down'}
-                    subtitle="Time to break even"
-                  />
-                  <StatCard 
-                    label="Annual Delta" 
-                    value={`$${roiResult?.incrementalEarnings?.toLocaleString() || '0'}`}
-                    trend="up"
-                    subtitle="Incremental Earnings"
-                  />
-                </div>
-
-                <div className="flex-center" style={{ gap: 'var(--space-3)', width: '100%', marginTop: 'var(--space-2)' }}>
-                  <Button variant="primary" icon={Save} onClick={handleSave} disabled={isSaving} style={{ flex: 1 }}>
-                    {isSaving ? 'Saving...' : 'Save Scenario'}
-                  </Button>
-                  <Button variant="outline" icon={Share2} style={{ width: '48px' }} />
-                </div>
-              </div>
-            </div>
-
-            {/* Optimization Tip */}
-            <div className="glass-panel sw-calc-fade-in" style={{ padding: 'var(--space-4)', animationDelay: '500ms', borderLeft: '4px solid var(--color-teal)' }}>
-              <div className="flex" style={{ gap: 'var(--space-3)' }}>
-                <Lightbulb className="text-teal" size={20} />
-                <div>
-                  <h4 style={{ margin: '0 0 var(--space-1) 0', fontSize: 'var(--font-size-body-sm)', fontWeight: 600 }}>Optimization Tip</h4>
-                  <p className="text-secondary" style={{ fontSize: '12px', margin: 0 }}>
+                <div className="alert a-info">
+                  <span>💡</span>
+                  <div>
+                    <strong>Optimization Tip</strong>
                     Switching to a Public University could increase your ROI score by 12 points and reduce payback by 8 months.
-                  </p>
+                  </div>
                 </div>
+
               </div>
             </div>
-          </aside>
-        </main>
-      </div>
 
-      <BottomNav activeTab={activeTab} onTabChange={(id) => setActiveTab(id)} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

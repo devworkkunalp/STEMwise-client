@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, Mail, Lock, AlertCircle } from 'lucide-react';
+import { UserPlus, Mail, Lock, AlertCircle, Compass } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import authService from '../../services/authService';
 import Button from '../../components/Button/Button';
@@ -60,8 +60,11 @@ const Signup = () => {
 
   return (
     <div className="auth-page-root animate-fade-in">
-      <div className="auth-container glass-panel">
+      <div className="auth-container">
         <div className="auth-header">
+          <div className="auth-logo-icon">
+            <Compass size={32} />
+          </div>
           <h1 className="text-gradient">Get Started</h1>
           <p>Join 10,000+ students planning their STEM careers.</p>
         </div>
