@@ -1,58 +1,40 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, Mail, Lock, AlertCircle, Compass } from 'lucide-react';
+import { Compass, AlertCircle, UserPlus } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import authService from '../../services/authService';
 import Button from '../../components/Button/Button';
 import InputField from '../../components/InputField/InputField';
 import './Auth.css';
 
 /**
  * Signup Page for STEMwise.
- * Facilitates the creation of new student accounts via Supabase.
+ * Handles local authentication via .NET ASP.NET Core Native Endpoints.
  */
 const Signup = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   
-  const { refreshProfile } = useAuth();
+  const { signup, login } = useAuth();
   const navigate = useNavigate();
-
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
-    // Basic Validation
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      const { user, error: authError } = await authService.signUp(formData.email, formData.password);
-      
-      if (authError) throw authError;
-
-      if (user) {
-        // Redirection logic to onboarding and profile refresh
-        await refreshProfile(user.id);
-        navigate("/onboarding");
-      }
+      // 1. Hit the .NET /register endpoint
+      await signup(email, password);
+      // 2. Automatically log them in by fetching the JWT from /login
+      await login(email, password);
+      // 3. Navigate them to the onboarding funnel natively
+      navigate('/onboarding', { replace: true });
     } catch (err) {
       console.error("Signup failed:", err);
-      setError(err.message || "Registration failed. Please try again.");
+      // Clean up server error mappings
+      setError(err.message || "Failed to establish a secure origin. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -65,8 +47,8 @@ const Signup = () => {
           <div className="auth-logo-icon">
             <Compass size={32} />
           </div>
-          <h1 className="text-gradient">Get Started</h1>
-          <p>Join 10,000+ students planning their STEM careers.</p>
+          <h1 className="text-gradient">Create Account</h1>
+          <p>Join securely to start calculating your international ROI.</p>
         </div>
 
         {error && (
@@ -78,20 +60,11 @@ const Signup = () => {
 
         <form className="auth-form" onSubmit={handleSignup}>
           <InputField 
-            label="Full Name"
-            placeholder="Arjun Patil"
-            value={formData.name}
-            onChange={(e) => handleInputChange('name', e.target.value)}
-            required
-            autoComplete="name"
-          />
-          
-          <InputField 
             label="Email Address"
             type="email"
-            placeholder="arjun@example.com"
-            value={formData.email}
-            onChange={(e) => handleInputChange('email', e.target.value)}
+            placeholder="student@university.edu"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
           />
@@ -100,18 +73,8 @@ const Signup = () => {
             label="Password"
             type="password"
             placeholder="••••••••"
-            value={formData.password}
-            onChange={(e) => handleInputChange('password', e.target.value)}
-            required
-            autoComplete="new-password"
-          />
-
-          <InputField 
-            label="Confirm Password"
-            type="password"
-            placeholder="••••••••"
-            value={formData.confirmPassword}
-            onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="new-password"
           />
@@ -120,14 +83,14 @@ const Signup = () => {
             variant="primary" 
             type="submit" 
             fullWidth 
-            icon={UserPlus} 
+            icon={UserPlus}
             isLoading={isLoading}
           >
-            Create Account
+            Create Local Identity
           </Button>
         </form>
 
-        <div className="auth-footer">
+        <div className="auth-footer" style={{marginTop: '2rem'}}>
           <p>
             Already have an account? 
             <Link to="/login" className="auth-link">Sign In</Link>

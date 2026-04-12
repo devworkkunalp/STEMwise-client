@@ -178,7 +178,11 @@ const VisaPathway = () => {
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--amber)' }}>H-1B Decision (Wage-Based)</div>
                         <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>Wage-based lottery · Feb 2026 system active</div>
-                        <div style={{ fontSize: '11px', color: 'var(--amber)', marginTop: '2px' }}>Your estimated odds shown →</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
+                           <span className="badge b-teal" style={{ fontSize: '9px' }}>$100K Fee Exempt</span>
+                           <span style={{ fontSize: '10px', color: 'var(--hint)' }}>Filing from within US (Change of Status) ✓</span>
+                        </div>
+                        <div style={{ fontSize: '11px', color: 'var(--amber)', marginTop: '6px' }}>Your estimated odds shown →</div>
                       </div>
                     </div>
                     

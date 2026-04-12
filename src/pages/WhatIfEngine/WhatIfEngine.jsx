@@ -47,6 +47,16 @@ const WhatIfEngine = () => {
   const [baseROI, setBaseROI] = useState(null);
   const [selectedScenario, setSelectedScenario] = useState(null);
   const [modeledResult, setModeledResult] = useState(null);
+  const [history, setHistory] = useState([]);
+
+  const fetchHistory = async () => {
+    try {
+      const data = await scenarioService.getHistory();
+      setHistory(data || []);
+    } catch (err) {
+      console.error("Failed to fetch history", err);
+    }
+  };
 
   useEffect(() => {
     const fetchBase = async () => {
@@ -64,6 +74,7 @@ const WhatIfEngine = () => {
           taxRate: 0.25
         });
         setBaseROI(latest);
+        await fetchHistory();
       } catch (err) {
         console.error("Failed to fetch base ROI", err);
       } finally {
@@ -117,6 +128,7 @@ const WhatIfEngine = () => {
     try {
       await scenarioService.saveScenario(modeledResult);
       alert("Scenario saved to your profile history!");
+      await fetchHistory();
     } catch (err) {
       console.error("Save failed", err);
     }
@@ -176,7 +188,7 @@ const WhatIfEngine = () => {
 
             {/* Impact Detail View */}
             {selectedScenario && modeledResult && (
-              <div id="scenario-detail-view" className="card" style={{ borderTop: `4px solid var(--color-${selectedScenario.color})` }}>
+              <div id="scenario-detail-view" className="card" style={{ borderTop: `4px solid var(--color-${selectedScenario.color})`, marginBottom: '40px' }}>
                  
                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
                      <div>
@@ -236,6 +248,65 @@ const WhatIfEngine = () => {
                  
               </div>
             )}
+
+            {/* Saved Scenarios History */}
+            <div className="section" style={{ marginTop: '20px' }}>
+               <div className="section-title" style={{ fontSize: '18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Clock size={20} className="text-teal" /> Saved Scenario Logs
+               </div>
+               <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+                  <table className="sw-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                     <thead>
+                        <tr style={{ background: 'var(--n4)', textAlign: 'left' }}>
+                           <th style={{ padding: '12px 20px', fontSize: '11px', color: 'var(--hint)' }}>SCENARIO TYPE</th>
+                           <th style={{ padding: '12px 20px', fontSize: '11px', color: 'var(--hint)' }}>IMPACT</th>
+                           <th style={{ padding: '12px 20px', fontSize: '11px', color: 'var(--hint)' }}>ADJ. SCORE</th>
+                           <th style={{ padding: '12px 20px', fontSize: '11px', color: 'var(--hint)' }}>DATE</th>
+                           <th style={{ padding: '12px 20px', textAlign: 'right' }}></th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        {history.length === 0 ? (
+                           <tr>
+                              <td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: 'var(--hint)', fontSize: '13px' }}>
+                                 No saved scenarios yet. Run a stress test to archive results.
+                              </td>
+                           </tr>
+                        ) : (
+                           history.map((item) => {
+                              const type = item.scenarioType ?? item.ScenarioType;
+                              const impact = item.impactScore ?? item.ImpactScore ?? 0;
+                              const roi = item.adjustedRoi ?? item.AdjustedRoi ?? 0;
+                              const rawDate = item.createdAt ?? item.CreatedAt ?? item.date ?? item.Date;
+                              const id = item.id ?? item.Id;
+                              
+                              return (
+                                 <tr key={id} style={{ borderBottom: '1px solid var(--bdr)' }}>
+                                    <td style={{ padding: '16px 20px', fontWeight: '600', fontSize: '14px' }}>
+                                       {type?.replace('_', ' ') || 'Custom Stress Test'}
+                                    </td>
+                                    <td style={{ padding: '16px 20px' }}>
+                                       <span className={`badge ${impact < 0 ? 'b-coral' : 'b-teal'}`} style={{ fontSize: '11px' }}>
+                                          {impact > 0 ? '+' : ''}{Math.round(impact)} PTS
+                                       </span>
+                                    </td>
+                                    <td style={{ padding: '16px 20px', fontFamily: 'var(--fd)', fontWeight: '700' }}>
+                                       {Math.round(roi)}
+                                    </td>
+                                    <td style={{ padding: '16px 20px', fontSize: '12px', color: 'var(--muted)' }}>
+                                       {rawDate ? new Date(rawDate).toLocaleDateString() : 'N/A'}
+                                    </td>
+                                    <td style={{ padding: '16px 20px', textAlign: 'right' }}>
+                                       <ChevronRight size={16} className="text-hint" style={{ cursor: 'pointer' }} />
+                                    </td>
+                                 </tr>
+                              );
+                           })
+                        )}
+                     </tbody>
+                  </table>
+               </div>
+            </div>
 
           </div>
         </div>

@@ -8,7 +8,7 @@ import LoadingSpinner from './LoadingSpinner/LoadingSpinner';
  * Redirects to the login page if the user is not authenticated.
  */
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, profile } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -18,6 +18,12 @@ const ProtectedRoute = ({ children }) => {
   if (!isAuthenticated) {
     // Save the current location they were trying to go to
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Enforce profile completion for core functional routes
+  // (We allow /onboarding itself to pass through)
+  if (!loading && !profile && location.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />;
   }
 
   return children;

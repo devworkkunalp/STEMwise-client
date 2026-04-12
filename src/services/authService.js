@@ -1,57 +1,53 @@
-import { supabase } from '../utils/supabase';
+import api from './api';
 
 /**
- * STEMwise Authentication Service
- * Wrapper for Supabase Auth methods.
+ * STEMwise Native Authentication Service
+ * Calls the local .NET 8 Identity API Endpoints.
  */
 const authService = {
   /**
-   * sign up a new user with email and password.
+   * sign up a new user natively with an email and password
    */
   async signUp(email, password) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    if (error) throw error;
-    return data;
+    // Calling .NET Identity /register endpoint
+    const response = await api.post('/register', { email, password });
+    return response.data;
   },
 
   /**
-   * sign in an existing user.
+   * sign in an existing user and retrieve the JWT Bearer natively
    */
   async signIn(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
-    return data;
+    // Calling .NET Identity /login endpoint
+    // It returns { accessToken, expiresIn, refreshToken }
+    const response = await api.post('/login', { email, password });
+    
+    const { accessToken, refreshToken } = response.data;
+    
+    // Explicitly cache JWT to LocalStorage to bind sessions securely
+    if (accessToken) {
+      localStorage.setItem('local_jwt', accessToken);
+      localStorage.setItem('local_refresh', refreshToken);
+    }
+    
+    return { user: { email }, session: { access_token: accessToken } };
   },
 
   /**
-   * sign out the current user and clear local session.
+   * clears tokens from memory and storage locally.
    */
   async signOut() {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    localStorage.removeItem('local_jwt');
+    localStorage.removeItem('local_refresh');
   },
 
   /**
-   * get the currently authenticated user's session data.
+   * Mocks getting the current session by polling local storage for active API tokens.
    */
   async getCurrentSession() {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    return session;
-  },
-
-  /**
-   * reset password for a given email address.
-   */
-  async resetPassword(email) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) throw error;
+    const token = localStorage.getItem('local_jwt');
+    if (!token) return null;
+    return { access_token: token };
   }
 };
 

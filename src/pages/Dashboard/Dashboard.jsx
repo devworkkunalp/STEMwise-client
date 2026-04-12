@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import calculationService from '../../services/calculationService';
+import scenarioService from '../../services/scenarioService';
 
 // Components
 import Sidebar from '../../components/Sidebar/Sidebar';
@@ -40,6 +41,7 @@ const Dashboard = () => {
   const [roiResult, setRoiResult] = useState(null);
   const [loanValue, setLoanValue] = useState(45000);
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
+  const [history, setHistory] = useState([]);
 
   // Greeting Logic
   const getGreeting = () => {
@@ -50,7 +52,6 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    // T11.9: Fetch ROI on mount
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
@@ -65,6 +66,11 @@ const Dashboard = () => {
           TaxRate: 0.25
         });
         setRoiResult(result);
+        
+        // Fetch recent scenarios
+        const histData = await scenarioService.getHistory();
+        setHistory(histData?.slice(0, 3) || []);
+        
         setLastUpdated(new Date().toLocaleTimeString());
       } catch (err) {
         console.error("Dashboard data fetch failed", err);
@@ -259,6 +265,55 @@ const Dashboard = () => {
                   {isLoading ? 'Analyzing Impact...' : 'Run Scenario'}
                 </button>
               </div>
+            </div>
+
+            {/* Recent Scenarios History */}
+            <div className="section" style={{ marginTop: '32px' }}>
+               <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Clock size={16} className="text-amber" /> Recent Performance Models
+               </div>
+               <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+                  <table className="ctable">
+                     <thead>
+                        <tr>
+                           <th>Scenario</th>
+                           <th>Impact Score</th>
+                           <th>Adjusted ROI</th>
+                           <th>Date Generated</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        {history.length === 0 ? (
+                           <tr>
+                              <td colSpan="4" style={{ padding: '30px', textAlign: 'center', color: 'var(--hint)' }}>
+                                 No history found. Try saving a simulation in the What-If Engine.
+                              </td>
+                           </tr>
+                        ) : (
+                           history.map((h) => {
+                              const type = h.scenarioType ?? h.ScenarioType;
+                              const impact = h.impactScore ?? h.ImpactScore ?? 0;
+                              const roi = h.adjustedRoi ?? h.AdjustedRoi ?? 0;
+                              const rawDate = h.createdAt ?? h.CreatedAt ?? h.date ?? h.Date;
+                              const id = h.id ?? h.Id;
+
+                              return (
+                                 <tr key={id}>
+                                    <td className="hl">{type?.replace('_', ' ') || 'Event Simulation'}</td>
+                                    <td>
+                                       <span className={`badge ${impact < 0 ? 'b-coral' : 'b-teal'}`}>
+                                          {impact > 0 ? '+' : ''}{Math.round(impact)} PTS
+                                       </span>
+                                    </td>
+                                    <td style={{ fontFamily: 'var(--fm)', fontWeight: '600' }}>{Math.round(roi)}</td>
+                                    <td style={{ fontSize: '11px' }}>{rawDate ? new Date(rawDate).toLocaleDateString() : 'N/A'}</td>
+                                 </tr>
+                              );
+                           })
+                        )}
+                     </tbody>
+                  </table>
+               </div>
             </div>
 
           </div>

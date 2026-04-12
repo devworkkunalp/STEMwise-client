@@ -148,7 +148,7 @@ const CountryCompare = () => {
     );
   }
 
-  if (!profile || authLoading) return <LoadingSpinner fullPage message="Securely retrieving your global matrix..." />;
+  if (authLoading && !profile) return <LoadingSpinner fullPage message="Securely retrieving your global matrix..." />;
 
   return (
     <div className="shell">
