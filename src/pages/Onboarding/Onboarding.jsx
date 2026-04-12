@@ -25,13 +25,13 @@ const Onboarding = ({ onComplete }) => {
     nationality: 'India',
     stemField: 'Computer Science / AI',
     degreeLevel: 'Master\'s (MS/MEng)',
+    intakeTerm: 'Fall 2026',
     university: '',
     tuition: 45000,
     livingCost: 18000,
     loanAmount: 52000,
     loanType: 'Federal Unsubsidized (7.94%)',
-    repaymentTerm: 10,
-    targetCity: 'New York City',
+    visaPathway: 'OPT → H-1B (Standard)',
     targetSalary: 115000,
     currentSalary: 15000,
     experienceYears: 2
@@ -53,7 +53,7 @@ const Onboarding = ({ onComplete }) => {
         homeCurrency: formData.nationality === 'India' ? 'INR' : 'USD',
         stemField: formData.stemField,
         degreeLevel: 1, 
-        intakeTerm: 'Fall 2026',
+        intakeTerm: formData.intakeTerm,
         targetSalary: formData.targetSalary,
         currentSalary: formData.currentSalary,
         annualTuition: formData.tuition,
@@ -69,213 +69,290 @@ const Onboarding = ({ onComplete }) => {
   };
 
   const liveROI = useMemo(() => {
-    const totalCost = (formData.tuition + formData.livingCost) * 2;
-    const payback = (totalCost / (formData.targetSalary * 0.4)).toFixed(1);
-    const score = Math.round(75 - (formData.loanAmount / 10000) * 2 + (formData.targetSalary / 10000));
-    return { score: Math.min(98, score), payback };
-  }, [formData]);
+    // Simple mock ROI calculation for live preview
+    if (step < 2) return { score: 0, payback: '—', status: 'empty' };
+    
+    const annualTotal = formData.tuition + formData.livingCost;
+    const totalInvest = annualTotal * 2;
+    const annualRepay = (formData.loanAmount / 10) + (formData.loanAmount * 0.08); // simple linear + interest
+    const netTakeHome = (formData.targetSalary * 0.7) - annualRepay;
+    
+    const payback = (totalInvest / (formData.targetSalary * 0.4)).toFixed(1);
+    const score = Math.round(Math.max(30, 85 - (formData.loanAmount / 1500) + (formData.targetSalary / 5000)));
+    
+    let status = 's-mid';
+    if (score > 80) status = 's-high';
+    if (score < 50) status = 's-low';
 
-  const stepInfo = {
-    1: { title: "Tell us about yourself", desc: "We use your nationality and field to benchmark against students with similar profiles.", context: "Identity" },
-    2: { title: "Where are you heading?", desc: "Institution prestige and location significantly impact your first-year salary outcomes.", context: "Destination" },
-    3: { title: "How are you funding it?", desc: "We model your real repayment timeline based on your future OPT salary.", context: "Finances" },
-    4: { title: "Target Outcome", desc: "Living costs in hubs like NYC or SF require a higher salary buffer to maintain ROI.", context: "Career" },
-    5: { title: "Final Baseline", desc: "Your current opportunity cost is the #1 hidden expense of your STEM degree.", context: "Baseline" }
-  };
+    return { 
+      score: Math.min(98, score), 
+      payback: `${payback} yrs`,
+      status
+    };
+  }, [formData, step]);
 
-  const currentInfo = stepInfo[step];
+  const steps = [
+    { n: 1, label: "Your Profile", sub: "Benchmark basics" },
+    { n: 2, label: "University", sub: "Degrees & Costs" },
+    { n: 3, label: "Loan Structure", sub: "Lender analysis" },
+    { n: 4, label: "Visa Pathway", sub: "Legal modeling" },
+    { n: 5, label: "Salary Outcome", sub: "The bottom line" }
+  ];
 
   return (
-    <div className="onboarding-2panel-root">
-      <div className="onboarding-glass-container animate-fade-in">
+    <div className="ob-shell animate-fade-in">
+      {/* Left panel */}
+      <div className="ob-left">
+        <div className="ol-logo">STEMwise</div>
+        <div className="ol-top">
+          <div className="ol-eyebrow">Step {step} of 5</div>
+          <div className="ol-title">
+            {step === 1 && "Tell us about yourself"}
+            {step === 2 && "Where will you study?"}
+            {step === 3 && "How are you funding it?"}
+            {step === 4 && "What's your stay plan?"}
+            {step === 5 && "Salary & Review"}
+          </div>
+          <div className="ol-sub">
+            {step === 1 && "Your nationality and field determine salary benchmarks and visa pathways we apply to your profile."}
+            {step === 2 && "We auto-fill tuition and cost of living from the US College Scorecard database — 4,600+ programs."}
+            {step === 3 && "We model your real repayment timeline — including interest — against your expected OPT salary."}
+            {step === 4 && "Your visa pathway determines your earnings runway and how quickly you can repay the loan."}
+            {step === 5 && "Opportunity cost is your #1 hidden expense. We benchmark your future gain vs staying home."}
+          </div>
+          <div className="roi-preview">
+            <div className="rp-label">Live ROI preview</div>
+            <div className={`rp-score ${step === 1 ? 'empty' : liveROI.status}`} id="ob-score">
+              {step === 1 ? '— —' : liveROI.score}
+            </div>
+            <div className={`rp-sub ${step === 1 ? 'empty-sub' : ''}`} id="ob-sub" style={{ color: step === 1 ? 'rgba(255,255,255,.15)' : 'var(--teal)' }}>
+              {step === 1 ? 'Complete setup to unlock your score' : `Payback · ${liveROI.payback} at current inputs`}
+            </div>
+            <div className="rp-bar"><div className="rp-fill" style={{ width: `${liveROI.score}%` }}></div></div>
+          </div>
+        </div>
+        <div className="steps-nav">
+          {steps.map((s, idx) => (
+            <div key={idx} className={`step-item ${step === s.n ? 's-active' : step > s.n ? 's-done' : 's-todo'}`}>
+              <div className="si-dot">{step > s.n ? '✓' : s.n}</div>
+              <div>
+                <div className="si-label">{s.label}</div>
+                <div className="si-sub">{step === s.n ? s.sub : ''}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Right panel */}
+      <div className="ob-right">
+        <div className="ob-topbar">
+          <div className="ob-tb-step">STEP {step} OF 5 — {steps[step-1].label.toUpperCase()} SETUP</div>
+          {step === 2 && <div style={{ fontSize: '10px', color: 'var(--hint)', fontFamily: 'var(--fm)' }}>Data from US College Scorecard · Monthly refresh</div>}
+          {step === 3 && <div style={{ fontSize: '10px', color: 'var(--hint)', fontFamily: 'var(--fm)' }}>Lender-neutral · No affiliate fees</div>}
+          {step === 4 && <div style={{ fontSize: '10px', color: 'var(--hint)', fontFamily: 'var(--fm)' }}>Data from DOL + USCIS · Feb 2026 wage-based system</div>}
+          {step === 1 && <button className="btn-back" onClick={() => (window.location.href = '/signup')}>← Back to sign up</button>}
+        </div>
+        <div className="ob-progress"><div className="ob-prog-fill" style={{ width: `${(step / totalSteps) * 100}%` }}></div></div>
         
-        {/* Left Side: Intelligence & Feedback */}
-        <div className="onboarding-left-panel">
-          <div className="panel-header">
-            <span className="step-count-teal">Phase {step} of {totalSteps}</span>
-            <h1 className="syne-headline text-gradient">{currentInfo.title}</h1>
-            <p className="panel-desc">{currentInfo.desc}</p>
-          </div>
+        <div className="ob-body">
+          {step === 1 && (
+            <div className="animate-slide-up">
+              <div className="ob-step-title">Let's set up your profile</div>
+              <div className="ob-step-sub">This takes about 30 seconds. We use your nationality and field to pull the right salary benchmarks and visa data.</div>
 
-          <div className="live-preview-widget">
-             <span className="live-tag">LIVE ROI PULSE</span>
-             <div className="preview-metrics">
-                <div className="metric-main">
-                   <span className="metric-value">{liveROI.score}</span>
-                   <span className="metric-label">ROI Score</span>
+              <div className="grid2">
+                <div className="fg">
+                  <label className="fl">Home country</label>
+                  <select className="fi" value={formData.nationality} onChange={(e) => handleInputChange('nationality', e.target.value)}>
+                    <option value="India">🇮🇳 India</option>
+                    <option value="China">🇨🇳 China</option>
+                    <option value="Nigeria">🇳🇬 Nigeria</option>
+                    <option value="Brazil">🇧🇷 Brazil</option>
+                    <option value="Vietnam">🇻🇳 Vietnam</option>
+                  </select>
                 </div>
-                <div className="metric-sub">
-                   Estimated Payback: <strong>{liveROI.payback} years</strong>
+                <div className="fg">
+                  <label className="fl">Home currency</label>
+                  <select className="fi" disabled value={formData.nationality === 'India' ? 'INR' : 'USD'}>
+                    <option value="INR">🇮🇳 INR (₹)</option>
+                    <option value="USD">🇺🇸 USD ($)</option>
+                  </select>
                 </div>
-             </div>
-          </div>
-          
-          <div className="panel-footer" style={{marginTop: 'auto', paddingTop: '20px'}}>
-             <div style={{display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--teal)', fontSize: '11px', fontWeight: 700, letterSpacing: '1px'}}>
-                <Target size={14} />
-                <span>MAPPING: {currentInfo.context.toUpperCase()}</span>
-             </div>
-          </div>
+              </div>
+
+              <div className="fg">
+                <label className="fl">STEM field</label>
+                <select className="fi" value={formData.stemField} onChange={(e) => handleInputChange('stemField', e.target.value)}>
+                  <option value="Computer Science / AI">Computer Science / AI / Machine Learning</option>
+                  <option value="Data Science">Data Science / Business Analytics</option>
+                  <option value="Electrical Engineering">Electrical Engineering</option>
+                  <option value="Cybersecurity">Cybersecurity / Information Security</option>
+                </select>
+              </div>
+
+              <div className="grid2">
+                <div className="fg">
+                  <label className="fl">Degree level</label>
+                  <select className="fi" value={formData.degreeLevel} onChange={(e) => handleInputChange('degreeLevel', e.target.value)}>
+                    <option value="Master's (MS/MEng)">Master's (MS / MEng)</option>
+                    <option value="PhD">PhD / Doctoral</option>
+                    <option value="Bachelor's">Bachelor's (BS / BA)</option>
+                  </select>
+                </div>
+                <div className="fg">
+                  <label className="fl">Target intake</label>
+                  <select className="fi" value={formData.intakeTerm} onChange={(e) => handleInputChange('intakeTerm', e.target.value)}>
+                    <option value="Fall 2026">Fall 2026</option>
+                    <option value="Spring 2027">Spring 2027</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="chip chip-info" style={{ marginTop: '4px' }}>
+                <span style={{ fontSize: '14px', flexShrink: 0 }}>ℹ️</span>
+                <div>Your home country and field are used to set salary benchmarks, H-1B wage level thresholds, and home currency conversion. We never share this with lenders.</div>
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="animate-slide-up">
+              <div className="ob-step-title">Choose your university</div>
+              <div className="ob-step-sub">Search and we'll auto-populate tuition, cost of living, and STEM OPT eligibility for your program.</div>
+
+              <div className="fg">
+                <label className="fl">Search university <span className="fl-hint">— type to search 4,600+ programs</span></label>
+                <input className="fi" type="text" placeholder="e.g. Carnegie Mellon University" value={formData.university} onChange={(e) => handleInputChange('university', e.target.value)} />
+              </div>
+
+              <div className="grid3" style={{ marginBottom: '16px' }}>
+                <div style={{ background: 'var(--n3)', borderRadius: '10px', padding: '12px', border: '.5px solid var(--bdr)' }}>
+                  <div style={{ fontSize: '9px', fontFamily: 'var(--fm)', textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--hint)', marginBottom: '4px' }}>Annual tuition</div>
+                  <div style={{ fontFamily: 'var(--fd)', fontSize: '20px', fontWeight: 700, color: 'var(--white)' }}>${formData.tuition.toLocaleString()}</div>
+                  <div style={{ fontSize: '10px', color: 'var(--hint)', marginTop: '2px' }}>Intl student rate</div>
+                </div>
+                <div style={{ background: 'var(--n3)', borderRadius: '10px', padding: '12px', border: '.5px solid var(--bdr)' }}>
+                  <div style={{ fontSize: '9px', fontFamily: 'var(--fm)', textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--hint)', marginBottom: '4px' }}>Cost of living</div>
+                  <div style={{ fontFamily: 'var(--fd)', fontSize: '20px', fontWeight: 700, color: 'var(--white)' }}>${formData.livingCost.toLocaleString()}</div>
+                  <div style={{ fontSize: '10px', color: 'var(--hint)', marginTop: '2px' }}>Estimated</div>
+                </div>
+                <div style={{ background: 'var(--n3)', borderRadius: '10px', padding: '12px', border: '.5px solid var(--bdr)' }}>
+                  <div style={{ fontSize: '9px', fontFamily: 'var(--fm)', textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--hint)', marginBottom: '4px' }}>Program length</div>
+                  <div style={{ fontFamily: 'var(--fd)', fontSize: '20px', fontWeight: 700, color: 'var(--white)' }}>2 yrs</div>
+                  <div style={{ fontSize: '10px', color: 'var(--hint)', marginTop: '2px' }}>STEM focus</div>
+                </div>
+              </div>
+
+              <div className="chip chip-suc">
+                <span style={{ fontSize: '14px', flexShrink: 0 }}>✅</span>
+                <div><strong>STEM OPT Eligible</strong> This program qualifies for the 24-month STEM OPT extension after graduation — giving you 3 H-1B lottery entries instead of 1.</div>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="animate-slide-up">
+              <div className="ob-step-title">Configure your loan</div>
+              <div className="ob-step-sub">Drag the slider to set your loan amount, then choose a lender. We show all options neutrally.</div>
+
+              <div className="fg">
+                <label className="fl">Loan amount needed</label>
+                <div className="slider-val">${formData.loanAmount.toLocaleString()}</div>
+                <input type="range" min="0" max="150000" step="1000" value={formData.loanAmount} onChange={(e) => handleInputChange('loanAmount', parseInt(e.target.value))} />
+                <div className="slider-range"><span>$0</span><span>$75,000</span><span>$150,000</span></div>
+              </div>
+
+              <div className="fg" style={{ marginTop: '16px' }}>
+                <label className="fl">Choose lender</label>
+                <div className="loan-grid">
+                  <div className={`lc ${formData.loanType === 'Federal' ? 'sel' : ''}`} onClick={() => handleInputChange('loanType', 'Federal')}>
+                    <div className="lc-name">Federal Grad PLUS</div>
+                    <div className="lc-rate">8.08%</div>
+                    <div style={{ fontSize: '10px', color: 'var(--hint)', marginTop: '4px' }}>US Citizens / Residents</div>
+                  </div>
+                  <div className={`lc ${formData.loanType === 'Prodigy' ? 'sel' : ''}`} onClick={() => handleInputChange('loanType', 'Prodigy')}>
+                    <div className="lc-name">Prodigy Finance</div>
+                    <div className="lc-rate">11.4%</div>
+                    <div style={{ fontSize: '10px', color: 'var(--hint)', marginTop: '4px' }}>No Cosigner · Intl</div>
+                  </div>
+                  <div className={`lc ${formData.loanType === 'MPOWER' ? 'sel' : ''}`} onClick={() => handleInputChange('loanType', 'MPOWER')}>
+                    <div className="lc-name">MPOWER Financing</div>
+                    <div className="lc-rate">12.9%</div>
+                    <div style={{ fontSize: '10px', color: 'var(--hint)', marginTop: '4px' }}>Fixed Rate · Global</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="animate-slide-up">
+              <div className="ob-step-title">What's your stay plan?</div>
+              <div className="ob-step-sub">Select your primary visa pathway to model your earnings runway.</div>
+
+              <div className="opt-grid">
+                <div className={`opt-card ${formData.visaPathway === 'Standard' ? 'sel' : ''}`} onClick={() => handleInputChange('visaPathway', 'Standard')}>
+                  <div className="oc-icon" style={{ background: 'var(--tlo)', color: 'var(--teal)' }}>1</div>
+                  <div>
+                    <div className="oc-title">Standard OPT → H-1B</div>
+                    <div className="oc-sub">3 years of work authorization with lottery-based extension.</div>
+                  </div>
+                </div>
+                <div className={`opt-card ${formData.visaPathway === 'O-1' ? 'sel' : ''}`} onClick={() => handleInputChange('visaPathway', 'O-1')}>
+                  <div className="oc-icon" style={{ background: 'rgba(155,138,251,.1)', color: '#9B8AFB' }}>2</div>
+                  <div>
+                    <div className="oc-title">Exceptional Talent (O-1)</div>
+                    <div className="oc-sub">Bypasses lottery for researchers and experts.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 5 && (
+            <div className="animate-slide-up">
+              <div className="ob-step-title">Final Salary Outcome</div>
+              <div className="ob-step-sub">Confirm your target post-MS salary to generate the final ROI baseline.</div>
+
+              <div className="fg">
+                <label className="fl">Expected OPT Salary (Annual)</label>
+                <div className="slider-val">${formData.targetSalary.toLocaleString()}</div>
+                <input type="range" min="60000" max="250000" step="5000" value={formData.targetSalary} onChange={(e) => handleInputChange('targetSalary', parseInt(e.target.value))} />
+                <div className="slider-range"><span>$60K</span><span>$150K</span><span>$250K</span></div>
+              </div>
+
+              <div className="grid2" style={{ marginTop: '20px' }}>
+                <div className="fg">
+                  <label className="fl">Current Home Salary</label>
+                  <div className="fi-prefix">
+                    <span className="fi-prefix-sym">₹</span>
+                    <input className="fi" type="number" value={formData.currentSalary} onChange={(e) => handleInputChange('currentSalary', parseInt(e.target.value))} />
+                  </div>
+                </div>
+                <div className="fg">
+                  <label className="fl">Experience Level</label>
+                  <select className="fi" value={formData.experienceYears} onChange={(e) => handleInputChange('experienceYears', parseInt(e.target.value))}>
+                    <option value={0}>Fresh Graduate</option>
+                    <option value={2}>Early Career (1-3 yrs)</option>
+                    <option value={5}>Experienced (5+ yrs)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Right Side: Navigation & Inputs */}
-        <div className="onboarding-right-panel">
-          <div className="form-container">
-            <div className="step-progress-dashes">
-               {[1,2,3,4,5].map(i => (
-                 <div key={i} className={`dash ${i <= step ? 'is-active' : ''}`} />
-               ))}
-            </div>
-
-            <div className="form-content-area">
-               {step === 1 && (
-                 <div className="form-step animate-slide-up">
-                    <SelectField 
-                      label="Home Country" 
-                      options={[{value: 'India', label: 'India'}, {value: 'China', label: 'China'}, {value: 'USA', label: 'USA'}]} 
-                      value={formData.nationality}
-                      onChange={(e) => handleInputChange('nationality', e.target.value)}
-                    />
-                    <SelectField 
-                      label="Target STEM Field" 
-                      options={[{value: 'Computer Science / AI', label: 'Computer Science / AI'}, {value: 'Data Science', label: 'Data Science'}, {value: 'Cybersecurity', label: 'Cybersecurity'}]} 
-                      value={formData.stemField}
-                      onChange={(e) => handleInputChange('stemField', e.target.value)}
-                    />
-                    <SelectField 
-                      label="Degree Level" 
-                      options={[{value: 'Master\'s (MS/MEng)', label: 'Master\'s (MS/MEng)'}, {value: 'PhD', label: 'Doctorate (PhD)'}]} 
-                      value={formData.degreeLevel}
-                      onChange={(e) => handleInputChange('degreeLevel', e.target.value)}
-                    />
-                 </div>
-               )}
-
-               {step === 2 && (
-                 <div className="form-step animate-slide-up">
-                    <InputField 
-                      label="Target University" 
-                      placeholder="e.g. Stanford University" 
-                      value={formData.university}
-                      onChange={(e) => handleInputChange('university', e.target.value)}
-                    />
-                    <div className="grid-2">
-                      <InputField 
-                          label="MS Tuition (USD/Year)" 
-                          type="number" 
-                          value={formData.tuition}
-                          onChange={(e) => handleInputChange('tuition', parseInt(e.target.value))}
-                      />
-                      <InputField 
-                          label="Living Exp (USD/Year)" 
-                          type="number" 
-                          value={formData.livingCost}
-                          onChange={(e) => handleInputChange('livingCost', parseInt(e.target.value))}
-                      />
-                    </div>
-                 </div>
-               )}
-
-               {step === 3 && (
-                 <div className="form-step animate-slide-up">
-                    <div className="label-with-value">
-                       <span className="field-label">Loan Amount Required</span>
-                       <span className="field-value">${formData.loanAmount.toLocaleString()}</span>
-                    </div>
-                    <RangeSlider 
-                      min={0} max={150000} step={1000} 
-                      value={formData.loanAmount}
-                      onChange={(e) => handleInputChange('loanAmount', parseInt(e.target.value))}
-                    />
-                    <SelectField 
-                      label="Loan Type" 
-                      options={[
-                          {value: 'Federal Unsubsidized (7.94%)', label: 'Federal Unsubsidized (7.94%)'},
-                          {value: 'Private - No Cosigner (10.5%)', label: 'Private - No Cosigner (10.5%)'},
-                          {value: 'Collateralized (9.2%)', label: 'Collateralized (9.2%)'}
-                      ]} 
-                      value={formData.loanType}
-                      onChange={(e) => handleInputChange('loanType', e.target.value)}
-                    />
-                 </div>
-               )}
-
-               {step === 4 && (
-                  <div className="form-step animate-slide-up">
-                     <SelectField 
-                      label="Target Metro Area" 
-                      options={[{value: 'New York City', label: 'New York City / NJ'}, {value: 'San Francisco', label: 'San Francisco / SV'}, {value: 'Austin', label: 'Austin, TX'}]} 
-                      value={formData.targetCity}
-                      onChange={(e) => handleInputChange('targetCity', e.target.value)}
-                    />
-                    <div className="label-with-value">
-                       <span className="field-label">Expected Annual Salary</span>
-                       <span className="field-value">${formData.targetSalary.toLocaleString()}</span>
-                    </div>
-                     <RangeSlider 
-                      min={60000} max={250000} step={5000} 
-                      value={formData.targetSalary}
-                      onChange={(e) => handleInputChange('targetSalary', parseInt(e.target.value))}
-                    />
-                  </div>
-               )}
-
-               {step === 5 && (
-                  <div className="form-step animate-slide-up">
-                     <InputField 
-                          label="Current Local Salary (Annual)" 
-                          type="number" 
-                          value={formData.currentSalary}
-                          onChange={(e) => handleInputChange('currentSalary', parseInt(e.target.value))}
-                          hint="Essential for opportunity cost and net-worth gain analysis."
-                      />
-                      <SelectField 
-                          label="Current Experience" 
-                          options={[{value: 2, label: 'Early Career (1-3 Years)'}, {value: 5, label: 'Experienced (5+ Years)'}, {value: 0, label: 'University Student'}]} 
-                          value={formData.experienceYears}
-                          onChange={(e) => handleInputChange('experienceYears', parseInt(e.target.value))}
-                      />
-                  </div>
-               )}
-            </div>
-
-            <div className="form-actions-footer">
-               {step === 5 ? (
-                 <Button 
-                  variant="primary" 
-                  size="lg" 
-                  fullWidth 
-                  className="btn-onboarding-teal"
-                  onClick={handleSubmit}
-                  isLoading={isSubmitting}
-                  icon={Rocket}
-                 >
-                    Establish Final Baseline
-                 </Button>
-               ) : (
-                 <Button 
-                  variant="primary" 
-                  size="lg" 
-                  fullWidth 
-                  className="btn-onboarding-teal"
-                  onClick={nextStep}
-                 >
-                    Proceed to Next Phase →
-                 </Button>
-               )}
-               
-               {step > 1 && (
-                 <button className="btn-onboarding-back" onClick={prevStep}>
-                    Return to previous phase
-                 </button>
-               )}
-            </div>
-          </div>
+        <div className="ob-footer">
+          <button className="btn-back" onClick={prevStep} style={{ visibility: step === 1 ? 'hidden' : 'visible' }}>← Back</button>
+          <button className="btn-next" onClick={step === 5 ? handleSubmit : nextStep} disabled={isSubmitting}>
+             {step === 5 ? (isSubmitting ? 'Generating...' : 'Get My Report →') : 'Continue →'}
+          </button>
         </div>
-
       </div>
     </div>
   );
 };
+;
 
 export default Onboarding;

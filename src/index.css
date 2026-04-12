@@ -7,13 +7,12 @@
 
 :root{
   --navy:#0A1628;--n2:#0D1B2A;--n3:#111F2E;--n4:#152234;--n5:#1A2F45;--n6:#243B55;
-  --teal:#00C9A7;--teal2:#00B596;--tlo:rgba(0,201,167,.11);--tlm:rgba(0,201,167,.18);
-  --amber:#F4A832;--alo:rgba(244,168,.10);
+  --teal:#00C9A7;--teal2:#00B596;--tlo:rgba(0,201,167,.10);--tlm:rgba(0,201,167,.16);
+  --amber:#F4A832;--alo:rgba(244,168,50,.10);
   --coral:#FF6B6B;--clo:rgba(255,107,107,.10);
   --sky:#4FC3F7;--slo:rgba(79,195,247,.10);
-  --purple:#9B8AFB;--plo:rgba(155,138,251,.10);
-  --white:#F0F4F8;--muted:rgba(255,255,255,.45);--hint:rgba(255,255,255,.22);--dim:rgba(255,255,255,.10);
-  --bdr:rgba(255,255,255,.07);--bdr2:rgba(255,255,255,.13);
+  --white:#F0F4F8;--muted:rgba(255,255,255,.45);--hint:rgba(255,255,255,.20);--dim:rgba(255,255,255,.08);
+  --bdr:rgba(255,255,255,.07);--bdr2:rgba(255,255,255,.12);--bdr3:rgba(255,255,255,.18);
   --fd:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
 }
 
