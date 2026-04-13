@@ -179,10 +179,46 @@ input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;b
 .lc-name{font-size:11px;font-weight:600;color:var(--white);margin-bottom:2px;}
 .lc-rate{font-family:var(--fd);font-size:20px;font-weight:700;color:var(--white);letter-spacing:-.5px;}
 
-/* Responsive */
+/* Mobile Adaptive Classes (Auth) */
+.auth-mobile-container {
+  background: var(--navy);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.am-header {
+  height: 64px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--bdr);
+}
+
+.am-logo {
+  font-family: var(--fd);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--teal);
+}
+
+.am-switch {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.am-switch a {
+  color: var(--teal);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.am-body {
+  padding: 32px 24px;
+}
+
 @media (max-width: 1024px) {
   .auth-shell { grid-template-columns: 1fr; }
   .auth-left { display: none; }
-  .ob-shell { grid-template-columns: 1fr; }
-  .ob-left { display: none; }
 }
