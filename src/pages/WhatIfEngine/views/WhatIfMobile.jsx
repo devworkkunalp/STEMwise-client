@@ -87,32 +87,44 @@ const WhatIfMobile = ({
         <div className="m-impact-overlay">
            <div className="m-impact-title">{selectedScenario.title.replace('(3x)', 'Scenario Impact')}</div>
 
-           <div className="m-comparison-row">
-              <div className="m-comp-box">
-                 <div className="m-comp-label">BASE ROI</div>
-                 <div className="m-comp-num teal">{currentBaseRoi}</div>
-              </div>
+            <div className="m-comparison-row">
+               <div className="m-comp-box">
+                  <div className="m-comp-label">BASE ROI</div>
+                  <div className="m-comp-num teal">{currentBaseRoi}</div>
+               </div>
 
-              <div className="m-comp-arrow-col">
-                 <div className={`m-delta-badge ${modeledResult.impactScore < 0 ? 'coral' : 'teal'}`}>
-                    {modeledResult.impactScore > 0 ? '+' : ''}{Math.round(modeledResult.impactScore)} PTS
-                 </div>
-                 <ArrowRight size={24} strokeWidth={2.5} />
-              </div>
+               <div className="m-comp-arrow-col">
+                  <div className={`m-delta-badge ${modeledResult.impactScore < 0 ? 'coral' : 'teal'}`}>
+                     {modeledResult.impactScore > 0 ? '+' : ''}{Math.round(modeledResult.impactScore)} PTS
+                  </div>
+                  <ArrowRight size={24} strokeWidth={2.5} />
+               </div>
 
-              <div className="m-comp-box">
-                 <div className="m-comp-label">ADJ. SCORE</div>
-                 <div className="m-comp-num orange">{Math.round(modeledResult.adjustedRoi)}</div>
-              </div>
-           </div>
+               <div className="m-comp-box">
+                  <div className="m-comp-label">ADJ. SCORE</div>
+                  <div className="m-comp-num orange">{Math.max(5, Math.min(99, Math.round(currentBaseRoi + modeledResult.impactScore)))}</div>
+               </div>
+            </div>
 
-           <button 
-             className="btn btn-primary btn-full" 
-             style={{ marginTop: '24px' }}
-             onClick={saveScenarioResult}
-           >
-              Save Event Model
-           </button>
+            {modeledResult.recommendedPivots?.length > 0 && (
+               <div className="m-alt-pivots-section">
+                  <div className="m-alt-pivots-title">Strategic Pivot Pathways</div>
+                  {modeledResult.recommendedPivots.map((pivot, idx) => (
+                     <div key={idx} className="m-pivot-row">
+                        <div className="m-pivot-name">{pivot.name}</div>
+                        <div className="m-pivot-roi">ROI {pivot.roi}</div>
+                     </div>
+                  ))}
+               </div>
+            )}
+
+            <button 
+              className="btn btn-primary btn-full" 
+              style={{ marginTop: '24px' }}
+              onClick={saveScenarioResult}
+            >
+               Save Event Model
+            </button>
            
            <div 
              style={{ textAlign: 'center', marginTop: '16px', fontSize: '13px', color: 'var(--hint)', cursor: 'pointer', fontWeight: '600' }}

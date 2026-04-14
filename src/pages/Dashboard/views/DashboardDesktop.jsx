@@ -83,7 +83,7 @@ const DashboardDesktop = ({
               <div className="card card-teal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '30px 20px' }}>
                 <div className="eyebrow" style={{ color: 'var(--teal)' }}>10-Yr ROI Score</div>
                 <div style={{ fontSize: '56px', fontWeight: '800', fontFamily: 'var(--fd)', color: 'var(--white)', lineHeight: '1', margin: '14px 0' }}>
-                  {roiResult?.roiPercentage || 72}
+                  {roiResult?.roiScore || 72}
                 </div>
                 <span className="badge b-teal">Top 15% for {profile?.nationality || 'India'}</span>
               </div>

@@ -126,6 +126,12 @@ const LoanMobile = ({
                       ⚠️ Federal Cap Exceeded: ${loan.result.gapAmount.toLocaleString()} gap detected.
                    </div>
                  )}
+
+                 {loan.type.toLowerCase().includes('federal') && profile?.nationality !== 'United States' && (
+                   <div className="m-federal-cap-warn" style={{ marginTop: '8px', color: 'var(--amber)', background: 'rgba(244, 168, 50, 0.1)' }}>
+                      ⚠️ Intl students typically ineligible for Federal loans.
+                   </div>
+                 )}
               </div>
             );
           })}

@@ -14,7 +14,7 @@ const DashboardMobile = ({
 }) => {
   const navigate = useNavigate();
   // SVG Ring Calculation
-  const score = roiResult?.roiPercentage || 75;
+  const score = roiResult?.roiScore || 75;
   const strokeDashoffset = useMemo(() => {
     const circumference = 264; // Based on r=42 from reference
     return circumference - (circumference * score) / 100;

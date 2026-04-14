@@ -7,15 +7,18 @@ const VisaMobile = ({
   profile, 
   visaData,
   displayWageLevels,
-  employers 
+  employers,
+  isStem
 }) => {
-  // Hardcoded timeline to match the exact requirement in the screenshot for "Your Immigration Chain"
-  const immigrationChain = [
+  // Dynamic timeline to match the user's specialization logic
+  const baseChain = [
     { id: 1, title: 'F-1 Student Visa', meta: '2 years · Active · Fall 2026', badge: 'Active', color: 'teal' },
     { id: 2, title: 'OPT — 12 Months', meta: '$98K–$118K avg · Loan repayment begins', color: 'blue' },
-    { id: 3, title: 'STEM OPT +24 Months', meta: '3x H-1B lottery entries ✓', color: 'sky' },
-    { id: 4, title: 'H-1B Decision', meta: 'Wage-based Feb 2026', color: 'amber-dash' }
+    { id: 3, title: 'STEM OPT +24 Months', meta: '3x H-1B lottery entries ✓', color: 'sky', cond: 'stem' },
+    { id: 4, title: 'H-1B Decision', meta: isStem ? 'Wage-based Feb 2026' : '1 Entry (Non-STEM)', color: 'amber-dash' }
   ];
+
+  const immigrationChain = baseChain.filter(step => !step.cond || (step.cond === 'stem' && isStem));
 
   const wageLevels = displayWageLevels || [
     { level: 'Level I', rate: 15, range: '<$95K', color: '#ff6b6b' },
@@ -46,14 +49,15 @@ const VisaMobile = ({
         {/* Section 1: Immigration Chain */}
         <div className="m-section-label">Your Immigration Chain</div>
         <div className="m-immi-card">
-           {immigrationChain.map((step) => (
-             <div key={step.id} className="m-immi-step">
-                <div className={`m-step-circle ${step.color}`}>{step.id}</div>
+           {immigrationChain.map((step, idx) => (
+             <div key={idx} className="m-immi-step">
+                <div className={`m-step-circle ${step.color}`}>{idx + 1}</div>
                 <div className="m-step-content">
                    <div className="m-step-title">{step.title}</div>
                    <div className="m-step-meta">{step.meta}</div>
                    {step.badge && <div className="m-step-badge">{step.badge}</div>}
-                   {step.id === 3 && <div className="m-step-detail" style={{ color: 'var(--teal)' }}>3x H-1B lottery entries ✓</div>}
+                   {step.id === 3 && isStem && <div className="m-step-detail" style={{ color: 'var(--teal)' }}>3x H-1B lottery entries ✓</div>}
+                   {step.id === 4 && !isStem && <div className="m-step-detail" style={{ color: 'var(--coral)' }}>Single H-1B Lottery Attempt</div>}
                 </div>
              </div>
            ))}

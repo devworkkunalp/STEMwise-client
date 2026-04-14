@@ -80,11 +80,14 @@ const WhatIfEngine = () => {
       setSelectedScenario(null);
       return;
     }
-    if (!s) {
+    
+    // Toggle off if clicking the already active scenario
+    if (!s || (selectedScenario && selectedScenario.id === s.id)) {
       setSelectedScenario(null);
       setModeledResult(null);
       return;
     }
+
     setIsLoading(true);
     setSelectedScenario(s);
     try {

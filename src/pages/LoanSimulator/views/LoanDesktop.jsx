@@ -141,6 +141,18 @@ const LoanDesktop = ({
                              <Info size={12} />
                              <span>Total Interest: <strong style={{ color: 'var(--white)' }}>${loan.result?.totalInterestPayable.toLocaleString() || '0'}</strong></span>
                           </div>
+
+                          {loan.type.toLowerCase().includes('federal') && profile?.nationality !== 'United States' && (
+                             <div className="alert ma-warn" style={{ padding: '8px', fontSize: '10px', marginTop: '8px' }}>
+                                ⚠️ Federal loans typically require US Citizenship/Permanent Residency.
+                             </div>
+                          )}
+
+                          {loan.result?.gapAmount > 10 && (
+                            <div className="alert ma-warn" style={{ padding: '8px', fontSize: '10px', marginTop: '8px' }}>
+                               <strong>⚠️ Funding Gap: ${Math.round(loan.result.gapAmount).toLocaleString()}</strong> exceeds $20,500 Federal cap.
+                            </div>
+                          )}
                       </div>
 
                       <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'center' }}>

@@ -33,7 +33,10 @@ const Profile = () => {
     setIsUpdating(true);
     try {
       await profileService.upsertProfile(editedProfile);
-      await refreshProfile(true);
+      // Wait for the backend to settle then refresh local state
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await refreshProfile(true); 
+      setEditedProfile(null); // Clear local edit state so commonProps uses refreshed main profile
       alert('Profile updated successfully!');
     } catch (err) {
       console.error("Update failed", err);
