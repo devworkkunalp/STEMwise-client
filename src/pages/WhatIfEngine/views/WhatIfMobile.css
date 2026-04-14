@@ -1,0 +1,164 @@
+/* 
+  WhatIfMobile.css
+  Precise styling for stress-test impact modeling.
+*/
+
+.sw-whatif-mobile {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--navy);
+  color: var(--white);
+}
+
+.m-wi-header {
+  padding: 14px 16px;
+  background: var(--n3);
+  border-bottom: 1px solid var(--bdr);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.m-wi-header-hint {
+  font-family: var(--fm);
+  font-size: 11px;
+  color: var(--hint);
+}
+
+.m-wi-intro {
+  padding: 24px 16px 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.m-scenario-list {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.m-scenario-card {
+  background: var(--n2);
+  border: 1px solid var(--bdr);
+  border-radius: 16px;
+  padding: 16px;
+  transition: all 0.2s;
+}
+
+.m-scenario-card.active {
+  border-color: var(--teal);
+  background: var(--teal-alpha-05);
+}
+
+.m-scenario-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.m-scenario-title {
+  font-family: var(--fd);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.m-scenario-description {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.m-scenario-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--bdr);
+}
+
+.m-risk-label {
+  font-family: var(--fm);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.m-payback-val {
+  font-size: 10px;
+  color: var(--hint);
+}
+
+.m-impact-overlay {
+  background: var(--n3);
+  border-top: 1px solid var(--bdr);
+  padding: 28px 20px 48px;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.m-impact-title {
+  font-family: var(--fd);
+  font-size: 20px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.m-comparison-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: var(--n4);
+  padding: 20px 10px;
+  border-radius: 16px;
+}
+
+.m-comp-box {
+  text-align: center;
+}
+
+.m-comp-label {
+  font-family: var(--fm);
+  font-size: 9px;
+  color: var(--hint);
+  margin-bottom: 6px;
+  letter-spacing: 0.05em;
+}
+
+.m-comp-num {
+  font-family: var(--fd);
+  font-size: 36px;
+  font-weight: 800;
+}
+
+.m-comp-num.teal { color: var(--teal); text-shadow: 0 0 15px rgba(0, 201, 167, 0.3); }
+.m-comp-num.orange { color: #ffab40; text-shadow: 0 0 15px rgba(255, 171, 64, 0.3); }
+
+.m-comp-arrow-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.m-delta-badge {
+  font-family: var(--fm);
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.m-delta-badge.coral { background: rgba(239, 68, 68, 0.1); color: var(--coral); }
+.m-delta-badge.teal { background: rgba(0, 201, 167, 0.1); color: var(--teal); }

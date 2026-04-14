@@ -1,0 +1,252 @@
+/* 
+  DashboardMobile.css
+  Ported from STEMwise_Mobile_Complete.html
+  Specifically for the Mobile Dashboard view
+*/
+
+.sw-dashboard-mobile {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--navy);
+  color: var(--white);
+  padding-bottom: 70px; /* Space for tab bar */
+}
+
+/* Mobile Typography */
+.m-eyebrow {
+  font-family: var(--fm);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 6px;
+}
+
+.m-title {
+  font-family: var(--fd);
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -1px;
+  color: var(--white);
+}
+
+.m-title span {
+  color: var(--teal);
+}
+
+.m-subtitle {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.65;
+  margin-top: 6px;
+}
+
+.m-section {
+  font-family: var(--fd);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 10px;
+  letter-spacing: -0.2px;
+}
+
+/* Mobile Cards */
+.m-card {
+  background: var(--n3);
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid var(--bdr);
+  margin-bottom: 12px;
+}
+
+.m-card-teal {
+  border-color: rgba(0, 201, 167, 0.22);
+  background: rgba(0, 201, 167, 0.05);
+}
+
+/* ROI Score Ring Styles */
+.roi-ring-svg {
+  flex-shrink: 0;
+}
+
+.roi-ring-bg {
+  stroke: rgba(255, 255, 255, 0.07);
+}
+
+.roi-ring-fill {
+  transition: stroke-dashoffset 0.8s ease-out;
+}
+
+/* Table and Summary Rows */
+.m-sum-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 0.5px solid var(--bdr);
+}
+
+.m-sum-row:last-child {
+  border: none;
+}
+
+.ms-k {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.ms-v {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.ms-v.teal {
+  color: var(--teal);
+}
+
+.ms-v.amber {
+  color: var(--amber);
+}
+
+/* Badges */
+.m-badge {
+  display: inline-flex;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-family: var(--fm);
+  font-weight: 600;
+}
+
+.mb-teal {
+  background: var(--tlo);
+  color: var(--teal);
+}
+
+/* Alerts */
+.m-alert {
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-size: 11px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 11px;
+}
+
+.m-alert strong {
+  display: block;
+  font-size: 11px;
+  margin-bottom: 1px;
+}
+
+.ma-warn {
+  background: var(--alo);
+  border-left: 2px solid var(--amber);
+  color: rgba(244, 168, 50, 0.9);
+}
+
+/* Progress Bars */
+.m-prog-track {
+  height: 4px;
+  background: var(--n5);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.m-prog-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+/* Dashboard Specific Layout */
+.m-dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.m-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--sky));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+/* Grid for Stats */
+.m-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.m-stat-box {
+  background: var(--n3);
+  border-radius: 9px;
+  padding: 10px;
+  text-align: center;
+}
+
+.m-stat-box-teal {
+  background: rgba(0, 201, 167, 0.08);
+  border: 0.5px solid rgba(0, 201, 167, 0.2);
+}
+
+.m-stat-box-amber {
+  background: rgba(244, 168, 50, 0.07);
+  border: 0.5px solid rgba(244, 168, 50, 0.2);
+}
+
+.m-stat-lbl {
+  font-size: 8px;
+  font-family: var(--fm);
+  color: var(--hint);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.m-stat-val {
+  font-family: var(--fd);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+/* Quick Actions */
+.m-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.m-action-btn {
+  width: 100%;
+  padding: 12px 8px;
+  border: 1px solid var(--bdr2);
+  border-radius: 10px;
+  background: var(--dim);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.m-action-btn:active {
+  background: rgba(255, 255, 255, 0.1);
+}

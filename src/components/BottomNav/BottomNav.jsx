@@ -1,10 +1,11 @@
 import React from 'react';
 import { 
-  LayoutDashboard, 
-  Calculator, 
-  Globe, 
-  Shield, 
-  Zap 
+  Shield,
+  Globe,
+  Calculator,
+  LayoutDashboard,
+  PiggyBank,
+  Zap
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './BottomNav.css';
@@ -20,9 +21,10 @@ const BottomNav = ({ activeTab, onTabChange }) => {
   const navItems = [
     { id: 'dashboard', label: 'Home', icon: LayoutDashboard, path: '/dashboard' },
     { id: 'calculator', label: 'ROI', icon: Calculator, path: '/calculator' },
-    { id: 'compare', label: 'Compare', icon: Globe, path: '/dashboard' },
-    { id: 'visa', label: 'Visa', icon: Shield, path: '/dashboard' },
-    { id: 'scenarios', label: 'What-If', icon: Zap, path: '/dashboard' },
+    { id: 'loan', label: 'Loan', icon: PiggyBank, path: '/loan' },
+    { id: 'compare', label: 'Compare', icon: Globe, path: '/compare' },
+    { id: 'visa', label: 'Visa', icon: Shield, path: '/visa' },
+    { id: 'scenarios', label: 'What-If', icon: Zap, path: '/scenarios' },
   ];
 
   return (

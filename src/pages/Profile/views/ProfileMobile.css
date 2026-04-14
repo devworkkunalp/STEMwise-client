@@ -1,0 +1,86 @@
+/* 
+  ProfileMobile.css
+  Precise design for interactive profile editing on mobile.
+*/
+
+.sw-profile-mobile {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--navy);
+  color: var(--white);
+}
+
+.m-profile-header {
+  padding: 32px 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--bdr);
+  background: var(--n3);
+}
+
+.m-avatar-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--dmg-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: var(--navy);
+  box-shadow: 0 0 20px rgba(0, 201, 167, 0.2);
+}
+
+.m-settings-list {
+  padding: 24px 0;
+}
+
+.m-settings-group {
+  margin-bottom: 32px;
+}
+
+.m-settings-group-title {
+  padding: 0 20px;
+  font-family: var(--fm);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--hint);
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.m-edit-item {
+  padding: 12px 20px;
+  background: var(--n2);
+  border-bottom: 1px solid var(--bdr);
+}
+
+.m-edit-label {
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.m-edit-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--white);
+  font-family: var(--fd);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 4px 0;
+  outline: none;
+}
+
+.m-edit-input:focus {
+  color: var(--teal);
+}
+
+.m-edit-input::placeholder {
+  color: var(--hint);
+  font-weight: 400;
+}

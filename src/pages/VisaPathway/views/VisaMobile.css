@@ -1,0 +1,250 @@
+/* 
+  VisaMobile.css
+  Precise design alignment for the Visa Pathway mobile view.
+*/
+
+.sw-visa-mobile {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--navy);
+  color: var(--white);
+  padding-bottom: 80px;
+}
+
+.m-visa-header {
+  padding: 16px 20px;
+  background: var(--navy);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--bdr);
+}
+
+.m-visa-header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--fd);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.m-visa-header-hint {
+  font-family: var(--fm);
+  font-size: 9px;
+  color: var(--hint);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.m-container {
+  padding: 20px 16px;
+}
+
+.m-section-label {
+  font-family: var(--fd);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--white);
+  margin-bottom: 14px;
+}
+
+/* Your Immigration Chain */
+.m-immi-card {
+  background: var(--n3);
+  border-radius: 16px;
+  border: 1px solid var(--bdr);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.m-immi-step {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  position: relative;
+}
+
+.m-immi-step:not(:last-child) {
+  border-bottom: 1px solid var(--bdr);
+}
+
+.m-step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fm);
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.m-step-circle.teal { background: var(--teal); color: var(--navy); }
+.m-step-circle.blue { background: #3B82F6; color: white; }
+.m-step-circle.sky { background: var(--sky); color: var(--navy); }
+.m-step-circle.amber-dash { border: 2px dashed var(--amber); color: var(--amber); }
+
+.m-step-content {
+  flex: 1;
+}
+
+.m-step-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 3px;
+}
+
+.m-step-meta {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.m-step-badge {
+  display: inline-flex;
+  padding: 2px 8px;
+  background: var(--tlo);
+  color: var(--teal);
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
+.m-step-detail {
+  font-size: 11px;
+  color: var(--teal);
+  margin-top: 4px;
+}
+
+/* Lottery Odds Section */
+.m-odds-card {
+  background: var(--n3);
+  border-radius: 16px;
+  border: 1px solid var(--bdr);
+  padding: 20px 16px;
+  margin-bottom: 24px;
+}
+
+.m-odds-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.m-odds-label {
+  width: 90px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.m-odds-label.user-highlight {
+  color: var(--teal);
+  font-weight: 600;
+}
+
+.m-odds-bar-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+  position: relative;
+}
+
+.m-odds-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.m-odds-val {
+  width: 35px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--fm);
+}
+
+.m-odds-badge {
+  padding: 2px 6px;
+  background: var(--tlo);
+  color: var(--teal);
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+/* Sponsor List */
+.m-sponsors-card {
+  background: var(--n3);
+  border-radius: 16px;
+  border: 1px solid var(--bdr);
+  padding: 4px 16px;
+  margin-bottom: 24px;
+}
+
+.m-sponsor-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+}
+
+.m-sponsor-item:not(:last-child) {
+  border-bottom: 1px solid var(--bdr);
+}
+
+.m-sponsor-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.m-sponsor-stats {
+  text-align: right;
+}
+
+.m-sponsor-lca {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--teal);
+}
+
+.m-sponsor-avg {
+  font-size: 10px;
+  color: var(--hint);
+}
+
+/* H1B Denied Grid */
+.m-denied-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.m-denied-card {
+  background: var(--n3);
+  border-radius: 12px;
+  border: 1px solid var(--amber-transparent, rgba(244, 168, 50, 0.2));
+  padding: 16px;
+  text-align: center;
+}
+
+.m-denied-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sky);
+  margin-bottom: 4px;
+}
+
+.m-denied-roi {
+  font-size: 11px;
+  color: var(--sky);
+  opacity: 0.8;
+}

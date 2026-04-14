@@ -1,0 +1,182 @@
+/* 
+  CompareMobile.css
+  Discovery-driven styling for Global ROI matrix on mobile.
+*/
+
+.sw-compare-mobile {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--navy);
+  color: var(--white);
+}
+
+.m-compare-header {
+  padding: 14px 16px;
+  background: var(--n3);
+  border-bottom: 1px solid var(--bdr);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.m-currency-pill {
+  font-family: var(--fm);
+  font-size: 10px;
+  color: var(--hint);
+  background: var(--n2);
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--bdr);
+}
+
+.m-section-label {
+  font-family: var(--fm);
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--hint);
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+.m-country-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  scrollbar-width: none;
+}
+
+.m-chip {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--n2);
+  border: 1px solid var(--bdr);
+  border-radius: 100px;
+  padding: 6px 14px;
+  color: var(--muted);
+  font-family: var(--fm);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.m-chip.is-selected {
+  background: var(--teal-alpha-10);
+  border-color: var(--teal);
+  color: var(--white);
+}
+
+.m-country-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.m-country-card {
+  background: var(--n2);
+  border: 1px solid var(--bdr);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.m-country-card.m-card-teal {
+  border-color: var(--teal-alpha-30);
+  background: linear-gradient(135deg, var(--n2), rgba(0, 201, 167, 0.05));
+}
+
+.m-card-flag {
+  font-size: 20px;
+}
+
+.m-mini-badge {
+  font-size: 8px;
+  padding: 2px 6px;
+  border-radius: 100px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.m-mini-badge.teal { background: var(--teal); color: var(--navy); }
+.m-mini-badge.sky { background: var(--sky); color: var(--navy); }
+
+.m-card-name {
+  font-family: var(--fd);
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.m-card-score {
+  font-family: var(--fd);
+  font-size: 32px;
+  font-weight: 800;
+  margin: 4px 0;
+  color: var(--white);
+}
+
+.m-card-score.teal {
+  color: var(--teal);
+}
+
+.m-card-meta {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.m-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--bdr);
+  border-radius: 16px;
+  background: var(--n2);
+}
+
+.m-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.m-table th, .m-table td {
+  padding: 12px;
+  text-align: center;
+  font-size: 11px;
+  border-bottom: 1px solid var(--bdr);
+}
+
+.m-table th {
+  background: var(--n3);
+  font-family: var(--fm);
+  color: var(--hint);
+  font-weight: 600;
+}
+
+.m-table th.hl {
+  color: var(--teal);
+  border-bottom-color: var(--teal);
+}
+
+.m-table td {
+  font-family: var(--fm);
+  color: var(--white);
+}
+
+.m-table td.best {
+  color: var(--teal);
+  font-weight: 700;
+}
+
+.m-risk-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.m-risk-dot.low { background: var(--teal); }
+.m-risk-dot.medium { background: var(--amber); }
+.m-risk-dot.high { background: var(--coral); }
