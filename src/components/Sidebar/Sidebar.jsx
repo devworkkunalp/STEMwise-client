@@ -9,7 +9,8 @@ import {
   Settings,
   LogOut,
   GraduationCap,
-  Calendar
+  Calendar,
+  DollarSign
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import authService from '../../services/authService';
@@ -24,13 +25,23 @@ const Sidebar = ({ activeTab, onTabChange, userName = 'Student', profile }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { id: 'calculator', label: 'ROI Calculator', icon: Calculator, path: '/calculator' },
-    { id: 'compare', label: 'Country Compare', icon: Globe, path: '/compare' },
-    { id: 'visa', label: 'Visa Pathway', icon: Shield, path: '/visa' },
-    { id: 'loan', label: 'Loan Simulator', icon: PiggyBank, path: '/loan' },
-    { id: 'scenarios', label: 'What-If Engine', icon: Zap, path: '/scenarios' },
+  const researchItems = [
+    { id: 'explore', label: 'Explore Sectors', path: '/explore' },
+    { id: 'deepdive', label: 'Sector Deep Dive', path: '/deep-dive' },
+    { id: 'rankings', label: 'Uni Rankings', path: '/rankings' },
+    { id: 'course', label: 'Course Explorer', path: '/course-explorer' },
+    { id: 'reality', label: 'Reality Check', path: '/reality-check' },
+    { id: 'costs', label: 'Total Cost Builder', path: '/costs' },
+    { id: 'funding', label: 'Funding Options', path: '/funding' },
+  ];
+
+  const platformItems = [
+    { id: 'dashboard', label: 'Dashboard', path: '/dashboard' },
+    { id: 'calculator', label: 'ROI Calculator', path: '/calculator' },
+    { id: 'compare', label: 'Country Compare', path: '/compare' },
+    { id: 'visa', label: 'Visa Pathway', path: '/visa' },
+    { id: 'loan', label: 'Loan Simulator', path: '/loan' },
+    { id: 'scenarios', label: 'What-If Engine', path: '/scenarios' },
   ];
 
 
@@ -59,8 +70,35 @@ const Sidebar = ({ activeTab, onTabChange, userName = 'Student', profile }) => {
       </div>
       
       <nav className="sb-nav">
-        <div className="sb-section-lbl">Main</div>
-        {menuItems.map((item) => {
+        <div className="sb-section-lbl">Academic Research</div>
+        {researchItems.map((item) => {
+          const isActive = location.pathname === item.path || activeTab === item.id;
+          
+          let iconEmoji = '📊';
+          if (item.id === 'explore') iconEmoji = '🔭';
+          if (item.id === 'deepdive') iconEmoji = '📊';
+          if (item.id === 'rankings') iconEmoji = '🏛️';
+          if (item.id === 'course') iconEmoji = '📚';
+          if (item.id === 'reality') iconEmoji = '🪞';
+          if (item.id === 'costs') iconEmoji = '💵';
+          if (item.id === 'funding') iconEmoji = '🏦';
+
+          return (
+            <div 
+              key={item.id}
+              className={`nav-item ${isActive ? 'active' : ''}`}
+              onClick={() => {
+                if (onTabChange) onTabChange(item.id);
+                navigate(item.path);
+              }}
+            >
+              <span className="ni">{iconEmoji}</span>{item.label}
+            </div>
+          );
+        })}
+
+        <div className="sb-section-lbl" style={{ marginTop: '14px' }}>ROI Platforms</div>
+        {platformItems.map((item) => {
           const isActive = location.pathname === item.path || activeTab === item.id;
           
           let iconEmoji = '📊';

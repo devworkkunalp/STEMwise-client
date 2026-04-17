@@ -39,6 +39,13 @@ import LoanSimulator from './pages/LoanSimulator/LoanSimulator';
 import WhatIfEngine from './pages/WhatIfEngine/WhatIfEngine';
 import LandingPage from './pages/LandingPage/LandingPage';
 import Profile from './pages/Profile/Profile';
+import ExploreSectors from './pages/ExploreSectors/ExploreSectors';
+import SectorDeepDive from './pages/SectorDeepDive/SectorDeepDive';
+import UniversityRankings from './pages/UniversityRankings/UniversityRankings';
+import CourseExplorer from './pages/CourseExplorer/CourseExplorer';
+import RealityCheck from './pages/RealityCheck/RealityCheck';
+import CostBuilder from './pages/CostBuilder/CostBuilder';
+import FundingOptions from './pages/FundingOptions/FundingOptions';
 
 
 import './index.css';
@@ -50,7 +57,7 @@ function App() {
 
   const handleFinishOnboarding = async () => {
     await refreshProfile(user.id);
-    navigate('/dashboard', { replace: true });
+    navigate('/explore', { replace: true });
   };
 
   const handleLogout = async () => {
@@ -129,6 +136,15 @@ function App() {
           </ProtectedRoute>
         } 
       />
+      
+      {/* Research Hub Routes */}
+      <Route path="/explore" element={<ProtectedRoute><ExploreSectors /></ProtectedRoute>} />
+      <Route path="/deep-dive" element={<ProtectedRoute><SectorDeepDive /></ProtectedRoute>} />
+      <Route path="/rankings" element={<ProtectedRoute><UniversityRankings /></ProtectedRoute>} />
+      <Route path="/course-explorer" element={<ProtectedRoute><CourseExplorer /></ProtectedRoute>} />
+      <Route path="/reality-check" element={<ProtectedRoute><RealityCheck /></ProtectedRoute>} />
+      <Route path="/costs" element={<ProtectedRoute><CostBuilder /></ProtectedRoute>} />
+      <Route path="/funding" element={<ProtectedRoute><FundingOptions /></ProtectedRoute>} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

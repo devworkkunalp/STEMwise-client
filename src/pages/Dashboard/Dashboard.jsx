@@ -38,7 +38,10 @@ const Dashboard = () => {
         const result = await calculationService.calculateROI({
           AnnualTuition: profile?.annualTuition || 45000,
           AnnualLivingCost: profile?.annualLivingCost || 18000,
-          DurationYears: profile?.programDuration || 2,
+          DurationYears: profile?.programDurationYears || 2,
+          LoanAmount: profile?.loanAmount || 0,
+          InterestRate: profile?.loanInterestRate || 12,
+          RepaymentTerm: 10, // Default repayment duration
           FinalSalaryBenchmark: profile?.targetSalary || 115000,
           CurrentSalary: profile?.currentSalary || 15000,
           HomeCurrency: profile?.nationality === 'India' ? 'INR' : 'USD',
@@ -68,9 +71,17 @@ const Dashboard = () => {
     setIsLoading(true);
     try {
       const result = await calculationService.calculateROI({
-        loanAmount: loanValue,
-        degreeType: profile?.degreeLevel === 1 ? 'MS CS' : 'PhD',
-        country: profile?.nationality || 'USA'
+        AnnualTuition: profile?.annualTuition || 45000,
+        AnnualLivingCost: profile?.annualLivingCost || 18000,
+        DurationYears: profile?.programDurationYears || 2,
+        LoanAmount: loanValue, // Using the sandbox slider value
+        InterestRate: profile?.loanInterestRate || 12,
+        RepaymentTerm: 10,
+        FinalSalaryBenchmark: profile?.targetSalary || 115000,
+        CurrentSalary: profile?.currentSalary || 15000,
+        HomeCurrency: profile?.nationality === 'India' ? 'INR' : 'USD',
+        StudyCurrency: 'USD',
+        TaxRate: 0.25
       });
       setRoiResult(result);
       setLastUpdated(new Date().toLocaleTimeString());
