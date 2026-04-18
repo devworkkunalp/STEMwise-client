@@ -123,17 +123,47 @@ const DashboardDesktop = ({
                   <div className="label" style={{ marginTop: '4px' }}>H-1B Chance ({profile?.nationality || 'Intl'})</div>
                 </div>
 
-                <div className="card">
+                <div className="card shadow-amber" style={{ borderLeft: '3px solid var(--amber)' }}>
                   <div className="flex-between">
-                    <span className="eyebrow">Home Currency FX</span>
+                    <span className="eyebrow" style={{ color: 'var(--amber)' }}>Total Career Investment</span>
                     <DollarSign size={14} className="text-sky" />
                   </div>
                   <div style={{ fontSize: '24px', fontWeight: '700', fontFamily: 'var(--fd)', marginTop: '8px' }}>
                     {roiResult?.totalInvestment ? `$${roiResult.totalInvestment.toLocaleString()}` : "$--"}
                   </div>
-                  <div className="label" style={{ marginTop: '4px' }}>Total Cost Estimate</div>
+                  <div className="label" style={{ marginTop: '4px' }}>Incl. Opportunity Cost & Interest</div>
                 </div>
               </div>
+            </div>
+
+            {/* ROI Insights & Intelligence Breakdown */}
+            <div className="card card-dark" style={{ marginBottom: '24px', border: '1px solid var(--border-light)' }}>
+               <div className="flex-between" style={{ marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', color: 'var(--teal)' }}>
+                     <Zap size={16} /> ROI Score Intelligence
+                  </div>
+                  <div className="badge b-dark">Score: {roiResult?.roiScore || '--'}/100</div>
+               </div>
+               <div className="g3">
+                  <div className="mini-stat">
+                     <div className="label">Direct Education</div>
+                     <div className="val">${roiResult?.totalDirectCost?.toLocaleString() || '--'}</div>
+                     <div className="hint">Tuition + Living + Misc</div>
+                  </div>
+                  <div className="mini-stat">
+                     <div className="label">Opportunity Cost</div>
+                     <div className="val">${roiResult?.opportunityCost?.toLocaleString() || '--'}</div>
+                     <div className="hint">Earnings Foregone (2yrs)</div>
+                  </div>
+                  <div className="mini-stat">
+                     <div className="label">Investment Type</div>
+                     <div className="val" style={{ color: 'var(--amber)' }}>{roiResult?.roiScore > 85 ? 'High Performance' : 'Balanced'}</div>
+                     <div className="hint">{roiResult?.breakEvenYear <= 4 ? 'Fast Payback' : 'Mid Payback'}</div>
+                  </div>
+               </div>
+               <div className="text-secondary" style={{ marginTop: '16px', fontSize: '13px', fontStyle: 'italic', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
+                  💡 <strong>Insight:</strong> Your score of {roiResult?.roiScore} is driven by a {roiResult?.breakEvenYear}-year debt-free milestone. While your salary potential of ${profile?.targetSalary?.toLocaleString() || '--'} is top-tier, the ${roiResult?.totalInvestment ? Math.round(roiResult.totalInvestment / 1000) : '--'}k career investment is the primary score anchor.
+               </div>
             </div>
 
             <div className="g2">

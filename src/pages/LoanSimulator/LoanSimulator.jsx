@@ -107,7 +107,13 @@ const LoanSimulator = () => {
   }, [profile]);
 
   const updateLoan = (id, field, value) => {
-    setLoans(loans.map(l => l.id === id ? { ...l, [field]: value } : l));
+    // Sanitize input to prevent leading zeros while allowing empty string for fluid typing
+    let sanitizedValue = value;
+    if (typeof value === 'string' && value.length > 1 && value.startsWith('0')) {
+      sanitizedValue = value.replace(/^0+/, '');
+    }
+    
+    setLoans(loans.map(l => l.id === id ? { ...l, [field]: sanitizedValue } : l));
   };
 
   const addNewLoan = () => {

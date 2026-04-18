@@ -5,6 +5,8 @@ const RankingsMobile = ({
   unis, 
   activeFilter, 
   setActiveFilter, 
+  searchTerm,
+  setSearchTerm,
   onSelect, 
   sector 
 }) => {
@@ -22,7 +24,42 @@ const RankingsMobile = ({
           </p>
         </header>
 
-        <div className="tabs" style={{ overflowX: 'auto', whiteSpace: 'nowrap', pb: '4px' }}>
+        <div className="search-wrap" style={{ position: 'relative', width: '100%', marginBottom: '16px' }}>
+          <input 
+            type="text" 
+            placeholder="Search school name or city..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '12px',
+              color: 'white',
+              fontSize: '14px',
+              outline: 'none'
+            }}
+          />
+          {searchTerm && (
+            <div 
+              onClick={() => setSearchTerm('')}
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                cursor: 'pointer',
+                fontSize: '16px',
+                color: 'var(--hint)'
+              }}
+            >
+              ✕
+            </div>
+          )}
+        </div>
+
+        <div className="tabs" style={{ overflowX: 'auto', whiteSpace: 'nowrap', marginBottom: '16px' }}>
           {filters.map(f => (
             <div 
               key={f} 

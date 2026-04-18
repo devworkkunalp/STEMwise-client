@@ -14,6 +14,8 @@ export const ResearchProvider = ({ children }) => {
   const [rents, setRents] = useState([]);
   const [visaTrends, setVisaTrends] = useState([]);
   const [laborBenchmarks, setLaborBenchmarks] = useState([]);
+  const [globalRankings, setGlobalRankings] = useState([]);
+  const [globalAlternatives, setGlobalAlternatives] = useState([]);
   
   // Status State
   const [isLoading, setIsLoading] = useState(false);
@@ -33,6 +35,7 @@ export const ResearchProvider = ({ children }) => {
         setRents(parsed.rents || []);
         setVisaTrends(parsed.visaTrends || []);
         setLaborBenchmarks(parsed.laborBenchmarks || []);
+        setGlobalRankings(parsed.globalRankings || []);
         setLastUpdated(parsed.timestamp);
       } catch (e) {
         console.error('Failed to parse research cache', e);
@@ -69,6 +72,12 @@ export const ResearchProvider = ({ children }) => {
       setUniversities(newUniversities);
       setRents(newRents);
       setVisaTrends(newVisaTrends);
+
+      const newLabor = await researchService.getLaborBenchmarks();
+      const newGlobal = await researchService.getGlobalRankings();
+
+      setLaborBenchmarks(newLabor || []);
+      setGlobalRankings(newGlobal || []);
       
       const timestamp = new Date().toISOString();
       setLastUpdated(timestamp);
@@ -78,6 +87,8 @@ export const ResearchProvider = ({ children }) => {
         universities: newUniversities,
         rents: newRents,
         visaTrends: newVisaTrends,
+        laborBenchmarks: newLabor,
+        globalRankings: newGlobal,
         timestamp
       }));
     } catch (err) {
@@ -97,6 +108,21 @@ export const ResearchProvider = ({ children }) => {
       refreshResearchData();
     }
   }, [refreshResearchData]);
+
+  // Fetch Global Alternatives when sector changes
+  useEffect(() => {
+    if (selectedSector) {
+      const fetchAlternatives = async () => {
+        try {
+          const data = await researchService.getGlobalAlternatives(selectedSector.id || selectedSector.name);
+          setGlobalAlternatives(data || []);
+        } catch (err) {
+          console.error('Failed to fetch global alternatives', err);
+        }
+      };
+      fetchAlternatives();
+    }
+  }, [selectedSector]);
 
   // Persist journey state
   useEffect(() => {
@@ -148,6 +174,8 @@ export const ResearchProvider = ({ children }) => {
       rents,
       visaTrends,
       laborBenchmarks,
+      globalRankings,
+      globalAlternatives,
       
       // Metadata
       isLoading,

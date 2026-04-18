@@ -6,7 +6,14 @@ import { useNavigate } from 'react-router-dom';
 import { useMobile } from '../../hooks/useMobile';
 
 const SectorDeepDive = () => {
-  const { selectedSector, laborBenchmarks, visaTrends, rents, isLoading } = useResearch();
+  const { 
+    selectedSector, 
+    laborBenchmarks, 
+    visaTrends, 
+    rents, 
+    globalAlternatives,
+    isLoading 
+  } = useResearch();
   const navigate = useNavigate();
   const isMobile = useMobile();
 
@@ -26,6 +33,7 @@ const SectorDeepDive = () => {
         laborBenchmarks={laborBenchmarks}
         visaTrends={visaTrends}
         rents={rents}
+        globalAlternatives={globalAlternatives}
         isLoading={isLoading}
       />
     );
@@ -37,6 +45,7 @@ const SectorDeepDive = () => {
       laborBenchmarks={laborBenchmarks} 
       visaTrends={visaTrends}
       rents={rents}
+      globalAlternatives={globalAlternatives}
       isLoading={isLoading}
     />
   );

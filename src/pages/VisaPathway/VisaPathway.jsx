@@ -55,7 +55,22 @@ const VisaPathway = () => {
     { level: 'Level IV', rate: 78, label: 'Fully Competent', description: 'Highest priority.' },
   ];
 
-  const isStem = profile?.stemField === 'STEM' || profile?.specialization?.toLowerCase().includes('computer');
+  const checkIsStem = (p) => {
+    if (!p) return false;
+    const spec = p.specialization?.toLowerCase() || '';
+    const degree = p.degreeName?.toLowerCase() || '';
+    return p.stemField === 'STEM' || 
+           spec.includes('computer') || 
+           spec.includes('engineering') || 
+           spec.includes('science') || 
+           spec.includes('data') || 
+           spec.includes('ai') || 
+           spec.includes('tech') || 
+           degree.includes('phd') || 
+           degree.includes('ms');
+  };
+
+  const isStem = checkIsStem(profile);
   const visaTimeline = [
     { id: 1, title: 'F-1 Study Phase', status: 'Completed', duration: `${profile?.programDurationYears || 2} Years`, description: 'Full-time study authorization.' },
     { id: 2, title: 'OPT Phase 1', status: 'Active', duration: '12 Months', description: 'Initial work authorization.' },

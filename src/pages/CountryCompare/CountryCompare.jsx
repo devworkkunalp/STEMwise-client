@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useResearch } from '../../context/ResearchContext';
+
 import countryService from '../../services/countryService';
 import calculationService from '../../services/calculationService';
 import useMobile from '../../hooks/useMobile';
@@ -16,6 +18,8 @@ import './CountryCompare.css';
 const CountryCompare = () => {
   const isMobile = useMobile();
   const { user, profile, loading: authLoading, authError, refreshProfile } = useAuth();
+  const { globalRankings } = useResearch();
+
   const [activeTab, setActiveTab] = useState('compare');
   const [isLoading, setIsLoading] = useState(true);
   const [allCountries, setAllCountries] = useState([]);
@@ -40,8 +44,25 @@ const CountryCompare = () => {
     if (comparisonData.length > 0) setIsLoading(false);
   }, [comparisonData]);
 
-  // Helper for differentiated country benchmarks
-  const getCountryBenchmarks = (code) => {
+  // Helper for differentiated country benchmarks - HYDRATED FROM GLOBAL DATA
+  const getCountryBenchmarks = useCallback((code) => {
+    // Attempt to find live aggregate data for the country from orchestrated benchmarks
+    const countryMatches = globalRankings?.filter(g => g.countryCode === code || (code === 'GB' && g.countryCode === 'UK')) || [];
+    
+    if (countryMatches.length > 0) {
+      // Calculate representative benchmarks (Average of top seeded universities)
+      const avgTuition = Math.round(countryMatches.reduce((acc, curr) => acc + (curr.annualTuition || 0), 0) / countryMatches.length);
+      const avgSalary = Math.round(countryMatches.reduce((acc, curr) => acc + (curr.medianSalary || 0), 0) / countryMatches.length);
+      
+      return { 
+        tuition: avgTuition, 
+        salary: avgSalary, 
+        duration: (code === 'GB' || code === 'UK') ? 1 : 2, // UK Masters is generally 1yr
+        currency: countryMatches[0].currency 
+      };
+    }
+
+    // Fallback logic for countries not yet orchestrated
     switch (code) {
       case 'DE': return { tuition: 500, salary: 65000, duration: 2, currency: 'EUR' }; // Germany
       case 'GB': return { tuition: 32000, salary: 55000, duration: 1, currency: 'GBP' }; // UK (1-yr Masters)
@@ -54,7 +75,7 @@ const CountryCompare = () => {
         currency: 'USD' 
       };
     }
-  };
+  }, [globalRankings, profile]);
 
   // Run batch comparison
   const runComparison = useCallback(async () => {
@@ -91,7 +112,7 @@ const CountryCompare = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [profile, selectedCodes]);
+  }, [profile, selectedCodes, getCountryBenchmarks]);
 
   useEffect(() => {
     runComparison();

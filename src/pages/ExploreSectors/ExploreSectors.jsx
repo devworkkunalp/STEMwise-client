@@ -7,15 +7,41 @@ import { useNavigate } from 'react-router-dom';
 import { useMobile } from '../../hooks/useMobile';
 
 const ExploreSectors = () => {
-  const { setSelectedSector, selectedSector, universities, isLoading } = useResearch();
+  const { setSelectedSector, selectedSector, laborBenchmarks, isLoading } = useResearch();
   const [activeFilter, setActiveFilter] = useState('All Sectors');
   const navigate = useNavigate();
   const isMobile = useMobile();
 
-  // Enrich mock sectors with live data trends if available
+  // Hydrate sectors with live labor benchmarking data
   const displaySectors = STEM_SECTORS.map(sector => {
-    // If we have live university data, we could potentially compute real medians here
-    // For now, we use the curated sectors as the baseline
+    // New logic: Prioritize exact specialization match, fallback to hub-generic match
+    const hubMap = {
+      cs: { hub: 'Silicon Valley', spec: 'Computer Science / AI' },
+      cyber: { hub: 'NYC Metro', spec: 'Cybersecurity' },
+      data: { hub: 'Seattle Metro', spec: 'FinTech' }, // Using FinTech as proxy for high-end data roles
+      ee: { hub: 'Silicon Valley', spec: 'Computer Science / AI' },
+      mech: { hub: 'Detroit', spec: 'General' },
+      biomed: { hub: 'Boston Metro', spec: 'Biomedical' }
+    };
+
+    const target = hubMap[sector.id] || { hub: 'General', spec: 'General' };
+    
+    // Find live match based on specialization + hub
+    const liveMatch = laborBenchmarks.find(b => 
+      (b.specialization === target.spec && b.regionName === target.hub) ||
+      (b.specialization === target.spec) ||
+      (b.regionName === target.hub && b.specialization === 'General')
+    );
+
+    if (liveMatch) {
+      return {
+        ...sector,
+        medianSalary: liveMatch.medianSalary || sector.medianSalary,
+        avgSalary: liveMatch.avgSalary || sector.avgSalary,
+        // Calculate a live ROI score boost if salaries are trending high
+        roiScore: liveMatch.medianSalary > 120000 ? Math.min(99, sector.roiScore + 5) : sector.roiScore
+      };
+    }
     return sector;
   });
 
@@ -30,9 +56,13 @@ const ExploreSectors = () => {
 
   const filteredSectors = displaySectors.filter(sector => {
     if (activeFilter === 'All Sectors') return true;
-    if (activeFilter === 'Highest ROI') return sector.roiScore > 80;
-    if (activeFilter === 'Best Employment') return sector.employmentRate > 85;
-    if (activeFilter === 'Lowest Visa Risk') return sector.h1bSuccess > 50;
+    const score = sector.roiScore || 0;
+    const emp = sector.employmentRate || 0;
+    const visa = sector.h1bSuccess || 0;
+
+    if (activeFilter === 'Highest ROI') return score > 80;
+    if (activeFilter === 'Best Employment') return emp > 85;
+    if (activeFilter === 'Lowest Visa Risk') return visa > 50;
     return true;
   });
 

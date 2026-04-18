@@ -100,7 +100,24 @@ export const STEM_SECTORS = [
     loanDefault: 2.8,
     roiScore: 79,
     badges: ['Lowest Default', 'Top Employment'],
-    color: 'sc4'
+    color: 'sc4',
+    outcomes: [
+      { label: 'Employed in USA', value: 94, subLabel: 'Within 6 months of OPT', color: 'var(--teal)' },
+      { label: 'H-1B Approved', value: 55, subLabel: 'High eligibility for Level III', color: 'var(--amber)' },
+      { label: 'Returned Home', value: 6, subLabel: 'Voluntary departure', color: 'var(--coral)' }
+    ],
+    salaryDistribution: [
+      { tier: 'Top 10%', salary: 162000, percentage: 90 },
+      { tier: 'Top 25%', salary: 138000, percentage: 75 },
+      { tier: 'Median', salary: 115000, percentage: 50 },
+      { tier: 'Bottom 25%', salary: 87000, percentage: 25 },
+      { tier: 'Bottom 10%', salary: 72000, percentage: 10 }
+    ],
+    countryAlternatives: [
+      { country: 'United States', flag: '🇺🇸', salary: 115000, prMetric: 'Hard (10+ yr)', visaEase: 'Difficult', score: 79 },
+      { country: 'Netherlands', flag: '🇳🇱', salary: 78000, prMetric: 'Easy (5 yr)', visaEase: 'Smooth', score: 81 },
+      { country: 'Israel', flag: '🇮🇱', salary: 92000, prMetric: 'Moderate', visaEase: 'Moderate', score: 76 }
+    ]
   },
   {
     id: 'data',
@@ -114,7 +131,24 @@ export const STEM_SECTORS = [
     loanDefault: 3.8,
     roiScore: 78,
     badges: ['Growing Fast', 'STEM OPT ✓'],
-    color: 'sc2'
+    color: 'sc2',
+    outcomes: [
+      { label: 'Employed in USA', value: 88, subLabel: 'Within 6 months of OPT', color: 'var(--teal)' },
+      { label: 'H-1B Approved', value: 45, subLabel: 'High competition area', color: 'var(--amber)' },
+      { label: 'Returned Home', value: 12, subLabel: 'Visa/Market expiry', color: 'var(--coral)' }
+    ],
+    salaryDistribution: [
+      { tier: 'Top 10%', salary: 168000, percentage: 90 },
+      { tier: 'Top 25%', salary: 135000, percentage: 75 },
+      { tier: 'Median', salary: 112000, percentage: 50 },
+      { tier: 'Bottom 25%', salary: 78000, percentage: 25 },
+      { tier: 'Bottom 10%', salary: 62000, percentage: 10 }
+    ],
+    countryAlternatives: [
+      { country: 'United States', flag: '🇺🇸', salary: 112000, prMetric: 'Hard (10+ yr)', visaEase: 'Difficult', score: 78 },
+      { country: 'Switzerland', flag: '🇨🇭', salary: 105000, prMetric: 'Direct (B-Permit)', visaEase: 'Hard', score: 84 },
+      { country: 'Singapore', flag: '🇸🇬', salary: 88000, prMetric: 'Easy (2 yr)', visaEase: 'Smooth', score: 80 }
+    ]
   },
   {
     id: 'ee',
@@ -128,7 +162,24 @@ export const STEM_SECTORS = [
     loanDefault: 4.2,
     roiScore: 71,
     badges: ['Semi Boom ↑'],
-    color: 'sc3'
+    color: 'sc3',
+    outcomes: [
+      { label: 'Employed in USA', value: 85, subLabel: 'Hardware/Design roles', color: 'var(--teal)' },
+      { label: 'H-1B Approved', value: 52, subLabel: 'O-1 potential in semis', color: 'var(--amber)' },
+      { label: 'Returned Home', value: 15, subLabel: 'High manufacturing bar', color: 'var(--coral)' }
+    ],
+    salaryDistribution: [
+      { tier: 'Top 10%', salary: 155000, percentage: 90 },
+      { tier: 'Top 25%', salary: 128000, percentage: 75 },
+      { tier: 'Median', salary: 105000, percentage: 50 },
+      { tier: 'Bottom 25%', salary: 76000, percentage: 25 },
+      { tier: 'Bottom 10%', salary: 58000, percentage: 10 }
+    ],
+    countryAlternatives: [
+      { country: 'United States', flag: '🇺🇸', salary: 105000, prMetric: 'Hard (10+ yr)', visaEase: 'Difficult', score: 71 },
+      { country: 'Taiwan', flag: '🇹🇼', salary: 65000, prMetric: 'Moderate', visaEase: 'Smooth', score: 88 },
+      { country: 'Japan', flag: '🇯🇵', salary: 72000, prMetric: 'Fast Path (Points)', visaEase: 'Moderate', score: 75 }
+    ]
   },
   {
     id: 'biomed',
@@ -142,7 +193,24 @@ export const STEM_SECTORS = [
     loanDefault: 7.2,
     roiScore: 52,
     badges: ['High H-1B Risk', 'Lower Salary'],
-    color: 'sc5'
+    color: 'sc5',
+    outcomes: [
+      { label: 'Employed in USA', value: 75, subLabel: 'Post-doc or Med-tech', color: 'var(--teal)' },
+      { label: 'H-1B Approved', value: 15, subLabel: 'Cap-exempt potential', color: 'var(--amber)' },
+      { label: 'Returned Home', value: 25, subLabel: 'High visa rejection', color: 'var(--coral)' }
+    ],
+    salaryDistribution: [
+      { tier: 'Top 10%', salary: 132000, percentage: 90 },
+      { tier: 'Top 25%', salary: 105000, percentage: 75 },
+      { tier: 'Median', salary: 88000, percentage: 50 },
+      { tier: 'Bottom 25%', salary: 58000, percentage: 25 },
+      { tier: 'Bottom 10%', salary: 48000, percentage: 10 }
+    ],
+    countryAlternatives: [
+      { country: 'United States', flag: '🇺🇸', salary: 88000, prMetric: 'Hard (10+ yr)', visaEase: 'Difficult', score: 52 },
+      { country: 'Germany', flag: '🇩🇪', salary: 68000, prMetric: 'Easy (5 yr)', visaEase: 'Smooth', score: 72 },
+      { country: 'UK', flag: '🇬🇧', salary: 62000, prMetric: 'Points (H&C)', visaEase: 'Moderate', score: 68 }
+    ]
   },
   {
     id: 'mech',
@@ -156,7 +224,24 @@ export const STEM_SECTORS = [
     loanDefault: 5.6,
     roiScore: 62,
     badges: ['Stable Demand'],
-    color: 'sc6'
+    color: 'sc6',
+    outcomes: [
+      { label: 'Employed in USA', value: 82, subLabel: 'Manufacturing/Automotive', color: 'var(--teal)' },
+      { label: 'H-1B Approved', value: 42, subLabel: 'Direct-hire scarcity', color: 'var(--amber)' },
+      { label: 'Returned Home', value: 18, subLabel: 'Market/Visa mismatch', color: 'var(--coral)' }
+    ],
+    salaryDistribution: [
+      { tier: 'Top 10%', salary: 142000, percentage: 90 },
+      { tier: 'Top 25%', salary: 118000, percentage: 75 },
+      { tier: 'Median', salary: 95000, percentage: 50 },
+      { tier: 'Bottom 25%', salary: 68000, percentage: 25 },
+      { tier: 'Bottom 10%', salary: 56000, percentage: 10 }
+    ],
+    countryAlternatives: [
+      { country: 'United States', flag: '🇺🇸', salary: 95000, prMetric: 'Hard (10+ yr)', visaEase: 'Difficult', score: 62 },
+      { country: 'Germany', flag: '🇩🇪', salary: 76000, prMetric: 'Fast Path', visaEase: 'Smooth', score: 85 },
+      { country: 'Australia', flag: '🇦🇺', salary: 92000, prMetric: 'PR Eligible', visaEase: 'Moderate', score: 78 }
+    ]
   }
 ];
 

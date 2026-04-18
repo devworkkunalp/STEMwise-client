@@ -13,6 +13,7 @@
   --sky:#4FC3F7;--slo:rgba(79,195,247,.10);
   --white:#F0F4F8;--muted:rgba(255,255,255,.45);--hint:rgba(255,255,255,.20);--dim:rgba(255,255,255,.08);
   --bdr:rgba(255,255,255,.07);--bdr2:rgba(255,255,255,.12);--bdr3:rgba(255,255,255,.18);
+  --shd:0 8px 32px rgba(0,0,0,0.24);
   --fd:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
 }
 
@@ -74,6 +75,14 @@ body { background: var(--navy); color: var(--white); }
 .card-amber{background:rgba(244,168,50,.04);border-color:rgba(244,168,50,.18);}
 .card-coral{background:rgba(255,107,107,.04);border-color:rgba(255,107,107,.18);}
 .card-purple{background:rgba(155,138,251,.04);border-color:rgba(155,138,251,.18);}
+.card-dark{background:var(--n2);border-color:var(--bdr);}
+.shadow-amber{box-shadow: 0 4px 20px rgba(244,168,50,0.08);}
+
+/* ── MINI STATS (ROI BREAKDOWN) ── */
+.mini-stat{padding:12px;border-radius:10px;background:var(--n4);border:1px solid var(--bdr);}
+.mini-stat .label{font-size:10px;margin-bottom:4px;color:rgba(255,255,255,0.4);}
+.mini-stat .val{font-size:16px;font-weight:700;font-family:var(--fd);color:var(--white);}
+.mini-stat .hint{font-size:9px;color:var(--muted);margin-top:2px;font-family:var(--fm);}
 
 /* ── LABELS ── */
 .eyebrow{font-family:var(--fm);font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--hint);margin-bottom:5px;}

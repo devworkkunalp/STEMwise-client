@@ -126,7 +126,7 @@ const VisaDesktop = ({
                   <div style={{ display: 'flex', gap: '16px', alignItems: 'center', margin: '20px 0' }}>
                     <div style={{ padding: '16px', borderRadius: '12px', background: 'var(--n4)', textAlign: 'center', border: '1px solid var(--bdr)' }}>
                       <div style={{ fontSize: '32px', fontWeight: '800', fontFamily: 'var(--fd)', color: 'var(--teal)', lineHeight: '1' }}>
-                        {(visaData?.cumulativeSuccessProbability * 100).toFixed(1)}%
+                        {visaData?.cumulativeSuccessProbability !== undefined ? (visaData.cumulativeSuccessProbability * 100).toFixed(1) : '--'}%
                       </div>
                       <div className="eyebrow" style={{ marginTop: '6px' }}>Selection probability</div>
                     </div>

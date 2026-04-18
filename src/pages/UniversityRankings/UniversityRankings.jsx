@@ -9,6 +9,7 @@ import { useMobile } from '../../hooks/useMobile';
 const UniversityRankings = () => {
   const { selectedSector, setSelectedUniversity, selectedUniversity, universities, isLoading } = useResearch();
   const [activeFilter, setActiveFilter] = useState('All Universities');
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   const isMobile = useMobile();
 
@@ -16,10 +17,16 @@ const UniversityRankings = () => {
   const dataList = universities.length > 0 ? universities : UNIVERSITIES;
 
   const filteredUnis = dataList.filter(uni => {
-    // If using real data, we might want to filter by something other than sectorId 
-    // for now we assume they are the best schools for the current context
+    // Search filter
+    if (searchTerm) {
+      const searchTarget = `${uni.name} ${uni.city || ''} ${uni.state || ''} ${uni.location || ''}`.toLowerCase();
+      if (!searchTarget.includes(searchTerm.toLowerCase())) return false;
+    }
+
+    // Sector match check
     if (universities.length === 0 && uni.sectorId !== selectedSector?.id) return false;
     
+    // Quick Filters
     if (activeFilter === 'Top ROI') return (uni.roiScore || uni.score) > 85;
     if (activeFilter === 'Best Value') return (uni.tuition || 30000) < 35000;
     if (activeFilter === 'High Employment') return (uni.employment || 85) > 90;
@@ -52,6 +59,8 @@ const UniversityRankings = () => {
         unis={filteredUnis} 
         activeFilter={activeFilter} 
         setActiveFilter={setActiveFilter}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
         onSelect={handleSelectUni}
         sector={selectedSector}
       />
@@ -63,6 +72,8 @@ const UniversityRankings = () => {
       unis={filteredUnis} 
       activeFilter={activeFilter} 
       setActiveFilter={setActiveFilter}
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
       onSelect={handleSelectUni}
       sector={selectedSector}
     />

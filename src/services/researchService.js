@@ -45,6 +45,24 @@ const researchService = {
   getLaborBenchmarks: async () => {
     const response = await api.get('/research/labor-benchmarks');
     return response.data;
+  },
+
+  /**
+   * Fetches international university ROI benchmarks
+   */
+  getGlobalRankings: async () => {
+    const response = await api.get('/research/global');
+    return response.data;
+  },
+
+  /**
+   * Fetches international alternatives for a specific sector (Germany, Canada, etc)
+   */
+  getGlobalAlternatives: async (specialization) => {
+    const response = await api.get('/research/global-alternatives', {
+      params: { specialization }
+    });
+    return response.data;
   }
 };
 

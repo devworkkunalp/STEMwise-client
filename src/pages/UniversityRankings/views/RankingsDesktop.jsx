@@ -5,6 +5,8 @@ const RankingsDesktop = ({
   unis, 
   activeFilter, 
   setActiveFilter, 
+  searchTerm,
+  setSearchTerm,
   onSelect, 
   sector 
 }) => {
@@ -25,16 +27,56 @@ const RankingsDesktop = ({
             </p>
           </header>
 
-          <div className="tabs">
-            {filters.map(f => (
-              <div 
-                key={f} 
-                className={`tab ${activeFilter === f ? 'active' : ''}`}
-                onClick={() => setActiveFilter(f)}
-              >
-                {f}
-              </div>
-            ))}
+          <div className="tabs" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {filters.map(f => (
+                <div 
+                  key={f} 
+                  className={`tab ${activeFilter === f ? 'active' : ''}`}
+                  onClick={() => setActiveFilter(f)}
+                >
+                  {f}
+                </div>
+              ))}
+            </div>
+
+            <div className="search-wrap" style={{ position: 'relative', width: '300px' }}>
+              <input 
+                type="text" 
+                placeholder="Search university or city..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 16px',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '12px',
+                  color: 'white',
+                  fontSize: '13px',
+                  outline: 'none',
+                  transition: 'all 0.3s ease'
+                }}
+                onFocus={(e) => e.target.style.borderColor = 'var(--teal)'}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+              />
+              {searchTerm && (
+                <div 
+                  onClick={() => setSearchTerm('')}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    color: 'var(--hint)'
+                  }}
+                >
+                  ✕
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>

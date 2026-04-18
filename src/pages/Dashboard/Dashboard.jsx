@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useResearch } from '../../context/ResearchContext';
 import calculationService from '../../services/calculationService';
 import scenarioService from '../../services/scenarioService';
 import useMobile from '../../hooks/useMobile';
@@ -16,10 +17,11 @@ import './Dashboard.css';
 const Dashboard = () => {
   const isMobile = useMobile();
   const { user, profile, refreshProfile, isAuthenticated, authError, loading } = useAuth();
+  const { universities } = useResearch();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isLoading, setIsLoading] = useState(false);
   const [roiResult, setRoiResult] = useState(null);
-  const [loanValue, setLoanValue] = useState(45000);
+  const [loanValue, setLoanValue] = useState(profile?.loanAmount || 45000);
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
   const [history, setHistory] = useState([]);
 
@@ -35,14 +37,16 @@ const Dashboard = () => {
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
+        const matchedUni = universities?.find(u => u.name === profile?.targetUniversity || u.unitId === profile?.targetUniversity);
+        
         const result = await calculationService.calculateROI({
-          AnnualTuition: profile?.annualTuition || 45000,
-          AnnualLivingCost: profile?.annualLivingCost || 18000,
+          AnnualTuition: profile?.annualTuition ?? matchedUni?.annualTuition ?? 45000,
+          AnnualLivingCost: profile?.annualLivingCost ?? 18000,
           DurationYears: profile?.programDurationYears || 2,
           LoanAmount: profile?.loanAmount || 0,
           InterestRate: profile?.loanInterestRate || 12,
           RepaymentTerm: 10, // Default repayment duration
-          FinalSalaryBenchmark: profile?.targetSalary || 115000,
+          FinalSalaryBenchmark: profile?.targetSalary || matchedUni?.medianEarnings || 115000,
           CurrentSalary: profile?.currentSalary || 15000,
           HomeCurrency: profile?.nationality === 'India' ? 'INR' : 'USD',
           StudyCurrency: 'USD',
@@ -63,6 +67,9 @@ const Dashboard = () => {
     };
 
     if (isAuthenticated && profile) {
+      if (profile.loanAmount && !roiResult) {
+        setLoanValue(profile.loanAmount);
+      }
       fetchDashboardData();
     }
   }, [isAuthenticated, profile]);
@@ -70,14 +77,16 @@ const Dashboard = () => {
   const handleRecalculate = async () => {
     setIsLoading(true);
     try {
+      const matchedUni = universities?.find(u => u.name === profile?.targetUniversity || u.unitId === profile?.targetUniversity);
+      
       const result = await calculationService.calculateROI({
-        AnnualTuition: profile?.annualTuition || 45000,
-        AnnualLivingCost: profile?.annualLivingCost || 18000,
+        AnnualTuition: profile?.annualTuition ?? matchedUni?.annualTuition ?? 45000,
+        AnnualLivingCost: profile?.annualLivingCost ?? 18000,
         DurationYears: profile?.programDurationYears || 2,
         LoanAmount: loanValue, // Using the sandbox slider value
         InterestRate: profile?.loanInterestRate || 12,
         RepaymentTerm: 10,
-        FinalSalaryBenchmark: profile?.targetSalary || 115000,
+        FinalSalaryBenchmark: profile?.targetSalary || matchedUni?.medianEarnings || 115000,
         CurrentSalary: profile?.currentSalary || 15000,
         HomeCurrency: profile?.nationality === 'India' ? 'INR' : 'USD',
         StudyCurrency: 'USD',
