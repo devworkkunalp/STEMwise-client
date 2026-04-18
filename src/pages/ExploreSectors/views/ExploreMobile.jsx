@@ -13,8 +13,8 @@ const ExploreMobile = ({
   const filters = ['All Sectors', 'Highest ROI', 'Best Employment', 'Lowest Visa Risk'];
 
   return (
-    <div className="sw-dashboard-mobile" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <div style={{ flex: 1, overflowY: 'auto', padding: '18px 16px 80px' }}>
+    <div className="sw-dashboard-mobile" style={{ display: 'flex', flexDirection: 'column', height: '100dvh', width: '100%' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '80px 16px 40px' }}>
         
         <header className="research-header">
           <div className="rh-eyebrow">Phase 1: Entry Point</div>
