@@ -9,8 +9,7 @@ const LandingPage = () => {
 
   const handleStartAnalysis = () => {
     if (isAuthenticated) {
-      if (profile) navigate('/dashboard');
-      else navigate('/onboarding');
+      navigate('/dashboard');
     } else {
       navigate('/signup');
     }

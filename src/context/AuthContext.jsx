@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import authService from '../services/authService';
-import profileService from '../services/profileService';
 
 const AuthContext = createContext({});
 
@@ -9,34 +8,11 @@ export const AuthProvider = ({ children }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
-  const isFetchingProfile = React.useRef(false);
-
-  const refreshProfile = async (force = false) => {
-    if ((isFetchingProfile.current) && !force) return;
-
-    isFetchingProfile.current = true;
-    setAuthError(null);
-    
-    try {
-      const data = await profileService.getMyProfile();
-      setProfile(data);
-    } catch (err) {
-      console.warn("Profile fetch failed:", err);
-      if (err.status === 401 || err.status === 403) {
-        setUser(null);
-        authService.signOut();
-      }
-      setAuthError(err.message);
-    } finally {
-      isFetchingProfile.current = false;
-      setLoading(false);
-    }
-  };
 
   const login = async (email, password) => {
     const { user: loggedInUser } = await authService.signIn(email, password);
     setUser(loggedInUser);
-    await refreshProfile(true);
+    setProfile({ email: loggedInUser.email });
   };
 
   const signup = async (email, password) => {
@@ -56,12 +32,12 @@ export const AuthProvider = ({ children }) => {
         const session = await authService.getCurrentSession();
         if (session && mounted) {
            setUser({ email: 'Active User' }); // Basic mock until profile loads
-           await refreshProfile(true);
-        } else if (mounted) {
-           setLoading(false);
+           setProfile({ email: 'Active User' });
         }
       } catch (err) {
-         setLoading(false);
+         setAuthError(err.message);
+      } finally {
+        if (mounted) setLoading(false);
       }
     };
     
@@ -76,7 +52,6 @@ export const AuthProvider = ({ children }) => {
     loading,
     authError,
     isAuthenticated: !!user,
-    refreshProfile,
     login,
     signup,
     logout

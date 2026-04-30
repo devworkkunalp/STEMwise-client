@@ -1,36 +1,25 @@
 import api from './api';
 
 /**
- * STEMwise Native Authentication Service
- * Calls the local .NET 8 Identity API Endpoints.
+ * STEMwise Native Authentication Service (Mocked to bypass Azure DB limit)
  */
 const authService = {
   /**
-   * sign up a new user natively with an email and password
+   * Mocked signup
    */
   async signUp(email, password) {
-    // Calling .NET Identity /register endpoint
-    const response = await api.post('/register', { email, password });
-    return response.data;
+    return new Promise(resolve => setTimeout(() => resolve({ success: true }), 500));
   },
 
   /**
-   * sign in an existing user and retrieve the JWT Bearer natively
+   * Mocked login
    */
   async signIn(email, password) {
-    // Calling .NET Identity /login endpoint
-    // It returns { accessToken, expiresIn, refreshToken }
-    const response = await api.post('/login', { email, password });
-    
-    const { accessToken, refreshToken } = response.data;
-    
-    // Explicitly cache JWT to LocalStorage to bind sessions securely
-    if (accessToken) {
-      localStorage.setItem('local_jwt', accessToken);
-      localStorage.setItem('local_refresh', refreshToken);
-    }
-    
-    return { user: { email }, session: { access_token: accessToken } };
+    return new Promise(resolve => setTimeout(() => {
+      const mockToken = 'mock_jwt_token_for_testing';
+      localStorage.setItem('local_jwt', mockToken);
+      resolve({ user: { email }, session: { access_token: mockToken } });
+    }, 500));
   },
 
   /**
